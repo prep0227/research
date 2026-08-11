@@ -23,6 +23,8 @@ def md2tex(md):
     in_list = False
     for raw in md.splitlines():
         line = raw.rstrip()
+        line = re.sub(r"`([^`]*)`",
+                     lambda m: r"\texttt{" + m.group(1).replace("_", r"\_").replace("#", r"\#").replace("%", r"\%") + "}", line)
         if line.startswith("# "):
             if in_list: out.append(r"\end{itemize}"); in_list = False
             out.append(r"\section*{" + esc(line[2:].strip()) + "}")
@@ -111,7 +113,7 @@ SPEED_LABEL = {"low": "0.5", "mid": "1.2", "high": "2.0"}
 T5 = ["\\begin{table}[t]\\centering",
       "\\caption{Speed-gear sensitivity (drift latency, 10 seeds): hit rate by controller and paired gains vs. baselines.}\\label{tab:speed}",
       "\\begin{tabular}{lcccccc}",
-      "\\toprule Scenario & m/s & B0 & B1 & Ours & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\\ \\midrule"]
+      "\\toprule Scenario & m/s & B0 & B1 & Ours & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\\\\ \\midrule"]
 for _sc in ["line", "circle", "s", "accel"]:
     for _sp in ["low", "mid", "high"]:
         _d = SSW["results"][f"{_sc}/{_sp}"]
@@ -120,7 +122,7 @@ for _sc in ["line", "circle", "s", "accel"]:
         _p1s = f"{_p1['p']:.3f}" if _p1["p"] is not None else "n/a"
         T5.append(f"{_sc} & {SPEED_LABEL[_sp]} & {_d['B0']['hit_rate']:.3f} & {_d['B1']['hit_rate']:.3f} "
                   f"& {_d['Ours']['hit_rate']:.3f} & {_p0['mean_diff_pp']:+.1f} ({_p0s}) "
-                  f"& {_p1['mean_diff_pp']:+.1f} ({_p1s})\\")
+                  f"& {_p1['mean_diff_pp']:+.1f} ({_p1s})\\\\")
 T5.append("\\bottomrule\\end{tabular}\\end{table}")
 supp_tab = "\n".join(T5)
 
@@ -129,14 +131,14 @@ DRO = json.loads((SIM / "results_dropout.json").read_text(encoding="utf-8"))
 T6 = ["\\begin{table}[t]\\centering",
       "\\caption{Detection-dropout robustness (drift latency, 10 seeds): hit rate by controller and paired gains vs. B1.}\\label{tab:drop}",
       "\\begin{tabular}{lcccc}",
-      "\\toprule Scenario & Dropout & B1 & Ours & Ours$-$B1 (pp, $p$)\\ \\midrule"]
+      "\\toprule Scenario & Dropout & B1 & Ours & Ours$-$B1 (pp, $p$)\\\\ \\midrule"]
 for _sc in ["line", "accel"]:
     for _dp in [0.0, 0.1, 0.2]:
         _d = DRO["results"][f"{_sc}/dropout={_dp:.1f}"]
         _p1 = _d["ours_vs_B1"]
         _p1s = f"{_p1['p']:.3f}" if _p1["p"] is not None else "n/a"
-        T6.append(f"{_sc} & {_dp:.0%} & {_d['B1']['hit_rate']:.3f} & {_d['Ours']['hit_rate']:.3f} "
-                  f"& {_p1['mean_diff_pp']:+.1f} ({_p1s})\\")
+        T6.append(f"{_sc} & {_dp*100:.0f}\\% & {_d['B1']['hit_rate']:.3f} & {_d['Ours']['hit_rate']:.3f} "
+                  f"& {_p1['mean_diff_pp']:+.1f} ({_p1s})\\\\")
 T6.append("\\bottomrule\\end{tabular}\\end{table}")
 supp_tab2 = "\n".join(T6)
 
@@ -145,13 +147,13 @@ DE = json.loads((SIM / "results_delay_estimation.json").read_text(encoding="utf-
 T7 = ["\\begin{table}[t]\\centering",
       "\\caption{Online delay-estimator accuracy (causal lag-1 estimate, steady state $t\\in[1,6]$~s; protocol secondary metric).}\\label{tab:de}",
       "\\begin{tabular}{llrrrrrr}",
-      "\\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Warm-up (s)\\ \\midrule"]
+      "\\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Warm-up (s)\\\\ \\midrule"]
 for _r in DE:
     for _seg in ["vision", "gimbal"]:
         _d = _r[_seg]; _s = _d["lag1"]
         _wu = f"{_d['warmup_to_5ms_s']:.2f}" if _d["warmup_to_5ms_s"] is not None else ">6"
         T7.append(f"{_r['mode']} & {_seg} & {_d['mean_true_ms']:.1f} & {_s['bias_ms']:+.2f} & {_s['mae_ms']:.2f} "
-                  f"& {_s['rmse_ms']:.2f} & {_s['p95_ms']:.2f} & {_wu}\\")
+                  f"& {_s['rmse_ms']:.2f} & {_s['p95_ms']:.2f} & {_wu}\\\\")
 T7.append("\\bottomrule\\end{tabular}\\end{table}")
 supp_tab3 = "\n".join(T7)
 

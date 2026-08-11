@@ -30,8 +30,8 @@
   并修改 `\graphicspath{{../../sim/}{../figures/}}` 为 `\graphicspath{{./}}`。
 - 本地/CI：见 `.github/workflows/ci.yml`（`xu-cheng/latex-action`，push 自动编译）。
 
-## 页数（RA-L 6 页约束）
+## 页数（已本地编译确认，2026-08-11）
 
-- 当前 tex 约 28.6k 字符 + 4 图 + 5 表（I–IV + S1），预计 **7–9 页**（两栏 IEEEtran）。
-- RA-L 需压缩到 6 页正文：优先移动 Table S1/S2 到补充材料（arXiv），压缩 Section II（Related Work）与
-  Section VI（Discussion）各 1/3，图 2 可合并进图 1。若压缩后仍 >6 页 → 转投 JINT/CEP（无页数压力）。
+- `manuscript.tex`（完整版）：**7 页**，0 错误，0 未定义引用（本地 pdflatex + bibtex 验证）。
+- `manuscript_ral.tex`（RA-L 压缩版）：**6 页**，0 错误，0 未定义引用 —— **满足 RA-L 6 页限制**，可直接按此版投稿。
+- 若需再压缩：Table S1–S3 移补充材料（arXiv）已做；可进一步压缩 Section II/VI 各 1/3。

@@ -34,5 +34,5 @@
 
 ## 投稿占位符（必须替换）
 - [ ] `uthor{Team Authors}` → 真实作者；`<email>` → 通信邮箱；`<repo-url>` → GitHub 链接（见 OVERLEAF.md）
-- [x] RA-L 页数预案：`manuscript_ral.tex` 压缩版已生成（-26% 字符：压缩 II/VI、Fig.2 与 S1–S3 移补充材料），CI 双版本编译；编译后确认正文 ≤6 页，超限则转 JINT/CEP
+- [x] RA-L 页数：`manuscript_ral.tex` **本地编译确认 6 页**（0 错误），`manuscript.tex` 完整版 7 页；均满足/接近 RA-L；超限则转 JINT/CEP
 - [ ] CI 首次 push 后确认 latex-build job 产出 manuscript.pdf 且无 warning

@@ -115,10 +115,10 @@
       "created_at": "2026-08-11T15:15:00+08:00"
     },
     {
-      "id": "warn_latex_local_blocked",
+      "id": "warn_latex_verified",
       "type": "INFO",
       "severity": "INFO",
-      "description": "本机 LaTeX 编译验证受环境限制（无 sudo/网络下载失败）；由 CI latex-action 在 push 时执行编译验证，tex 静态自检通过。",
+      "description": "本机 LaTeX 编译已验证（无 root：apt download + dpkg -x + 手动 fmt/map）：完整版 7 页、RA-L 版 6 页、0 错误；CI latex-action 仍保留作为 push 时回归检查。",
       "created_at": "2026-08-11T15:20:00+08:00"
     },
     {
@@ -218,6 +218,13 @@
       "severity": "INFO",
       "description": "P3/P4 执行 runbook（docs/runbook_p3_p4.md）与 IEEE 作者模板（AUTHORS_TEMPLATE.tex）就绪。",
       "created_at": "2026-08-11T18:08:00+08:00"
+    },
+    {
+      "id": "warn_bundle_verified",
+      "type": "VERIFICATION",
+      "severity": "INFO",
+      "description": "Overleaf 上传包独立编译验证通过（7/6 页，0 错误）；zip 9 文件已更新为修复后 tex。",
+      "created_at": "2026-08-11T17:08:00+08:00"
     }
   ],
   "failures": [],

@@ -90,7 +90,7 @@ where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mat
 \section{Simulation Study}
 \section*{Simulation Study (draft for English journal paper)}
 
-> Auto-generated from `sim/results.json` and `sim/rt_benchmark.json` via `paper/generate_sim_section.py`. Do not edit numbers by hand; regenerate after any experiment change.
+> Auto-generated from \texttt{sim/results.json} and \texttt{sim/rt\_benchmark.json} via \texttt{paper/generate\_sim\_section.py}. Do not edit numbers by hand; regenerate after any experiment change.
 
 \subsection*{IV. Simulation Study}
 
@@ -208,16 +208,16 @@ SLSQP & 3.45 & 3.30 & 4.36 & 5.83 & 10.28 & yes\\
 \bottomrule\end{tabular}\end{table}
 \section*{V. Real-Robot Experiments (Protocol; data pending hardware)}
 
-\textbf{Status}: protocol v1.1 finalized (see `project/experiment_protocol.md`); hardware bring-up in progress (P3). This section will report:
+\textbf{Status}: protocol v1.1 finalized (see \texttt{project/experiment\_protocol.md}); hardware bring-up in progress (P3). This section will report:
 
 \begin{itemize}
 \item \textbf{Platform}: custom RoboMaster infantry robot -- omnidirectional chassis, two-axis gimbal, industrial camera, onboard compute.
 \item \textbf{Ground truth}: referee-system hit detection; gimbal encoders for angular error.
 \item \textbf{Calibration}: camera intrinsics/extrinsics, PnP, ballistic model, gimbal step-response, hit tolerance.
-\item \textbf{Latency profile}: per-segment measurement per the protocol in `tools/delay_profiler/` (>=200 samples/segment), producing `latency_profile.yaml` that is injected into the simulation for fidelity checks.
+\item \textbf{Latency profile}: per-segment measurement per the protocol in \texttt{tools/delay\_profiler/} (>=200 samples/segment), producing \texttt{latency\_profile.yaml} that is injected into the simulation for fidelity checks.
 \item \textbf{Delay injection (controlled comparison)}: because natural latency may be mild/stationary, we inject software delays matching the simulation profiles (fixed / gamma / drift) by shifting detection timestamps, so the delay-modeling contribution is exercised identically across B0/B1/Ours.
-\item \textbf{Offline replay}: every condition records a full-chain event log (`tools/replay/`); B0/B1/Ours are replayed on the same detection stream to isolate the control/compensation contribution.
-\item \textbf{Statistics (pre-registered)}: paired one-sided McNemar exact test, $\alpha=0.05$; power analysis (Monte Carlo, `project/real_power_analysis.json`) shows $N=300\times3$ shots per method per scenario gives $\approx0.85$ power at a true +5 pp effect (pairing $\rho\ge0.5$); the observed $\ge5$ pp gate is inherently $\approx50\%$ powered at exactly 5 pp, so we additionally report the one-sided 95\% CI lower bound; an escalation rule adds one confirmation round (N=300) if $p<0.05$ with 3-5 pp observed.
+\item \textbf{Offline replay}: every condition records a full-chain event log (\texttt{tools/replay/}); B0/B1/Ours are replayed on the same detection stream to isolate the control/compensation contribution.
+\item \textbf{Statistics (pre-registered)}: paired one-sided McNemar exact test, $\alpha=0.05$; power analysis (Monte Carlo, \texttt{project/real\_power\_analysis.json}) shows $N=300\times3$ shots per method per scenario gives $\approx0.85$ power at a true +5 pp effect (pairing $\rho\ge0.5$); the observed $\ge5$ pp gate is inherently $\approx50\%$ powered at exactly 5 pp, so we additionally report the one-sided 95\% CI lower bound; an escalation rule adds one confirmation round (N=300) if $p<0.05$ with 3-5 pp observed.
 \item \textbf{Controlled comparison}: B0 / B1 / Ours, 4 motion classes (line/circle/S/accelerating), 300 shots x 3 rounds per condition, randomized round order; pre-registered primary metric: hit rate; threshold: >=5 pp improvement with p<0.05 (paired).
 \item \textbf{Failure conditions}: latency measurement below 1 ms precision required; otherwise simulation+hardware-in-the-loop fallback.
 \end{itemize}
@@ -289,41 +289,41 @@ We presented a delay-aware predictive control framework for moving-target tracki
 \begin{table}[t]\centering
 \caption{Speed-gear sensitivity (drift latency, 10 seeds): hit rate by controller and paired gains vs. baselines.}\label{tab:speed}
 \begin{tabular}{lcccccc}
-\toprule Scenario & m/s & B0 & B1 & Ours & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\ \midrule
-line & 0.5 & 0.247 & 0.227 & 0.698 & +45.1 (0.000) & +47.1 (0.000)\
-line & 1.2 & 0.088 & 0.106 & 0.402 & +31.4 (0.000) & +29.6 (0.000)\
-line & 2.0 & 0.072 & 0.065 & 0.273 & +20.2 (0.000) & +20.8 (0.000)\
-circle & 0.5 & 0.252 & 0.254 & 0.560 & +30.8 (0.000) & +30.5 (0.000)\
-circle & 1.2 & 0.048 & 0.119 & 0.145 & +9.8 (0.005) & +2.6 (0.347)\
-circle & 2.0 & 0.000 & 0.025 & 0.014 & +1.4 (0.343) & -1.1 (0.655)\
-s & 0.5 & 0.009 & 0.198 & 0.638 & +62.9 (0.000) & +44.0 (0.000)\
-s & 1.2 & 0.000 & 0.074 & 0.070 & +7.0 (0.000) & -0.4 (0.806)\
-s & 2.0 & 0.000 & 0.014 & 0.062 & +6.2 (0.001) & +4.8 (0.002)\
-accel & 0.5 & 0.629 & 0.628 & 0.927 & +29.8 (0.000) & +29.9 (0.001)\
-accel & 1.2 & 0.424 & 0.305 & 0.774 & +35.0 (0.004) & +46.9 (0.000)\
-accel & 2.0 & 0.143 & 0.124 & 0.513 & +37.0 (0.000) & +38.8 (0.000)\
+\toprule Scenario & m/s & B0 & B1 & Ours & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\\ \midrule
+line & 0.5 & 0.247 & 0.227 & 0.698 & +45.1 (0.000) & +47.1 (0.000)\\
+line & 1.2 & 0.088 & 0.106 & 0.402 & +31.4 (0.000) & +29.6 (0.000)\\
+line & 2.0 & 0.072 & 0.065 & 0.273 & +20.2 (0.000) & +20.8 (0.000)\\
+circle & 0.5 & 0.252 & 0.254 & 0.560 & +30.8 (0.000) & +30.5 (0.000)\\
+circle & 1.2 & 0.048 & 0.119 & 0.145 & +9.8 (0.005) & +2.6 (0.347)\\
+circle & 2.0 & 0.000 & 0.025 & 0.014 & +1.4 (0.343) & -1.1 (0.655)\\
+s & 0.5 & 0.009 & 0.198 & 0.638 & +62.9 (0.000) & +44.0 (0.000)\\
+s & 1.2 & 0.000 & 0.074 & 0.070 & +7.0 (0.000) & -0.4 (0.806)\\
+s & 2.0 & 0.000 & 0.014 & 0.062 & +6.2 (0.001) & +4.8 (0.002)\\
+accel & 0.5 & 0.629 & 0.628 & 0.927 & +29.8 (0.000) & +29.9 (0.001)\\
+accel & 1.2 & 0.424 & 0.305 & 0.774 & +35.0 (0.004) & +46.9 (0.000)\\
+accel & 2.0 & 0.143 & 0.124 & 0.513 & +37.0 (0.000) & +38.8 (0.000)\\
 \bottomrule\end{tabular}\end{table}
 \begin{table}[t]\centering
 \caption{Detection-dropout robustness (drift latency, 10 seeds): hit rate by controller and paired gains vs. B1.}\label{tab:drop}
 \begin{tabular}{lcccc}
-\toprule Scenario & Dropout & B1 & Ours & Ours$-$B1 (pp, $p$)\ \midrule
-line & 0% & 0.123 & 0.400 & +27.7 (0.000)\
-line & 10% & 0.124 & 0.462 & +33.8 (0.000)\
-line & 20% & 0.194 & 0.406 & +21.2 (0.000)\
-accel & 0% & 0.124 & 0.513 & +38.8 (0.000)\
-accel & 10% & 0.185 & 0.456 & +27.1 (0.000)\
-accel & 20% & 0.289 & 0.519 & +23.0 (0.001)\
+\toprule Scenario & Dropout & B1 & Ours & Ours$-$B1 (pp, $p$)\\ \midrule
+line & 0\% & 0.123 & 0.400 & +27.7 (0.000)\\
+line & 10\% & 0.124 & 0.462 & +33.8 (0.000)\\
+line & 20\% & 0.194 & 0.406 & +21.2 (0.000)\\
+accel & 0\% & 0.124 & 0.513 & +38.8 (0.000)\\
+accel & 10\% & 0.185 & 0.456 & +27.1 (0.000)\\
+accel & 20\% & 0.289 & 0.519 & +23.0 (0.001)\\
 \bottomrule\end{tabular}\end{table}
 \begin{table}[t]\centering
 \caption{Online delay-estimator accuracy (causal lag-1 estimate, steady state $t\in[1,6]$~s; protocol secondary metric).}\label{tab:de}
 \begin{tabular}{llrrrrrr}
-\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Warm-up (s)\ \midrule
-fixed & vision & 30.0 & -0.19 & 0.24 & 0.29 & 0.56 & 0.02\
-fixed & gimbal & 60.0 & +0.14 & 0.32 & 0.38 & 0.66 & 0.02\
-gamma & vision & 26.4 & -0.13 & 10.16 & 13.02 & 26.53 & 0.02\
-gamma & gimbal & 60.0 & +0.14 & 0.32 & 0.38 & 0.66 & 0.02\
-drift & vision & 59.9 & -5.29 & 5.29 & 5.29 & 5.66 & 0.02\
-drift & gimbal & 89.9 & -4.96 & 4.96 & 4.97 & 5.56 & 0.02\
+\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Warm-up (s)\\ \midrule
+fixed & vision & 30.0 & -0.19 & 0.24 & 0.29 & 0.56 & 0.02\\
+fixed & gimbal & 60.0 & +0.14 & 0.32 & 0.38 & 0.66 & 0.02\\
+gamma & vision & 26.4 & -0.13 & 10.16 & 13.02 & 26.53 & 0.02\\
+gamma & gimbal & 60.0 & +0.14 & 0.32 & 0.38 & 0.66 & 0.02\\
+drift & vision & 59.9 & -5.29 & 5.29 & 5.29 & 5.66 & 0.02\\
+drift & gimbal & 89.9 & -4.96 & 4.96 & 4.97 & 5.56 & 0.02\\
 \bottomrule\end{tabular}\end{table}
 \section*{Data Availability}
 Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{<repo-url>}.
