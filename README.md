@@ -68,8 +68,11 @@ cd paper/tex && pdflatex -interaction=nonstopmode manuscript.tex   # ×3, run bi
 ```
 
 Expected results: `manuscript.pdf` **9 pages** / `manuscript_ral.pdf` **6 pages**, 0 errors, 0 Overfull,
-19/19 citations, no margin overflow. The GitHub Actions workflow (`verify`) runs the same checks
-(rebuild + citation consistency + C++ solver test + sim tests + both LaTeX compiles) on every push.
+19/19 citations, no margin overflow. Both **pdfLaTeX** and **XeLaTeX** work (the paper uses only
+standard, engine-agnostic packages; references require one `bibtex` pass between the first and second
+`xelatex`/`pdflatex` runs — see `paper/tex/OVERLEAF.md` for the exact command sequence). The GitHub
+Actions workflow (`verify`) runs the same checks (rebuild + citation consistency + C++ solver test +
+sim tests + both LaTeX compiles) on every push.
 
 ## Current headline results (canonical, post-fix)
 
