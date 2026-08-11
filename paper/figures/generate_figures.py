@@ -113,7 +113,8 @@ def fig1():
     ax.text(98.5, -0.25, "shared", fontsize=7.6, ha="center", va="center")
 
     check_overlaps(fig, ax, "fig1")
-    fig.savefig(OUT / "fig1_architecture.png", bbox_inches="tight")
+    fig.savefig(OUT / "fig1_architecture.png", dpi=600, bbox_inches="tight")
+    fig.savefig(OUT / "fig1_architecture.pdf", bbox_inches="tight")
     plt.close(fig)
     print("fig1_architecture.png written")
 
@@ -172,10 +173,12 @@ def fig2():
 
     check_overlaps(fig, ax1, "fig2-panelA")
     check_overlaps(fig, ax2, "fig2-panelB")
-    fig.savefig(OUT / "fig2_latency_chain.png", bbox_inches="tight")
+    fig.savefig(OUT / "fig2_latency_chain.png", dpi=600, bbox_inches="tight")
+    fig.savefig(OUT / "fig2_latency_chain.pdf", bbox_inches="tight")
     plt.close(fig)
     print("fig2_latency_chain.png written")
 
 if __name__ == "__main__":
     fig1()
     fig2()
+    print("PDF copies written to paper/figures/")

@@ -68,7 +68,7 @@ T1 = [r"Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours o
 T1.append("\\begin{table}[t]\\centering\\small")
 T1.append("\\caption{Hit rate (mean over 10 seeds) and paired comparisons.}")
 T1.append("\\label{tab:primary}")
-T1.append("\\begin{tabular}{llccccl}")
+T1.append("\\begin{tabular}{llrrrrr}")
 T1.append("\\toprule Scenario & Delay & B0 & B1 & Ours & vs B0 & vs B1\\\\ \\midrule")
 for sc in scenarios:
     for dm in delays:
@@ -79,7 +79,7 @@ T1.append("\\bottomrule\\end{tabular}\\end{table}")
 T2 = [r"Table~\ref{tab:b2} gives the zero-delay upper bound of Ours and the residual gap under the drift profile."]
 T2.append("\\begin{table}[t]\\centering\\small")
 T2.append("\\caption{Zero-delay upper bound (B2).}")
-T2.append("\\label{tab:b2}\\begin{tabular}{lccc}")
+T2.append("\\label{tab:b2}\\begin{tabular}{lrrr}")
 T2.append("\\toprule Scenario & B2 & Ours (drift) & Residual (pp)\\\\ \\midrule")
 for sc in scenarios:
     b2 = R["b2_zero_delay"][sc]
@@ -90,7 +90,7 @@ T2.append("\\bottomrule\\end{tabular}\\end{table}")
 T3 = [r"Table~\ref{tab:abl} ablates the contributions under the drift profile."]
 T3.append("\\begin{table}[t]\\centering\\small")
 T3.append("\\caption{Ablations under the drift profile (mean hit rate).}")
-T3.append("\\label{tab:abl}\\begin{tabular}{lcccccc}")
+T3.append("\\label{tab:abl}\\begin{tabular}{lrrrrrr}")
 T3.append("\\toprule Scenario & Ours & A1 & A2 & A4 & A6 & CV\\%\\\\ \\midrule")
 for sc in scenarios:
     a = R["ablations_drift"][sc]
@@ -100,7 +100,7 @@ T3.append("\\bottomrule\\end{tabular}\\end{table}")
 T4 = [r"Table~\ref{tab:rt} reports per-step solver time in Python as a conservative upper bound."]
 T4.append("\\begin{table}[t]\\centering\\small")
 T4.append("\\caption{Solver real-time benchmark (per step, $H=18$).}")
-T4.append("\\label{tab:rt}\\begin{tabular}{lcccccc}")
+T4.append("\\label{tab:rt}\\begin{tabular}{lrrrrrc}")
 T4.append("\\toprule Solver & mean & p50 & p95 & p99 & max & $<20$ ms\\\\ \\midrule")
 for name in ["admm", "slsqp"]:
     b = RT[name]
@@ -110,9 +110,9 @@ T4.append("\\bottomrule\\end{tabular}\\end{table}")
 # --- supplementary speed-sweep table (number discipline: from results_speed_sweep.json) --
 SSW = json.loads((SIM / "results_speed_sweep.json").read_text(encoding="utf-8"))
 SPEED_LABEL = {"low": "0.5", "mid": "1.2", "high": "2.0"}
-T5 = ["\\begin{table}[t]\\centering",
+T5 = ["\\begin{table}[t]\\centering\\small",
       "\\caption{Speed-gear sensitivity (drift latency, 10 seeds): hit rate by controller and paired gains vs. baselines.}\\label{tab:speed}",
-      "\\begin{tabular}{lcccccc}",
+      "\\begin{tabular}{lrrrrrr}",
       "\\toprule Scenario & m/s & B0 & B1 & Ours & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\\\\ \\midrule"]
 for _sc in ["line", "circle", "s", "accel"]:
     for _sp in ["low", "mid", "high"]:
@@ -128,9 +128,9 @@ supp_tab = "\n".join(T5)
 
 # --- supplementary dropout table (number discipline: from results_dropout.json) --
 DRO = json.loads((SIM / "results_dropout.json").read_text(encoding="utf-8"))
-T6 = ["\\begin{table}[t]\\centering",
+T6 = ["\\begin{table}[t]\\centering\\small",
       "\\caption{Detection-dropout robustness (drift latency, 10 seeds): hit rate by controller and paired gains vs. B1.}\\label{tab:drop}",
-      "\\begin{tabular}{lcccc}",
+      "\\begin{tabular}{lrrrr}",
       "\\toprule Scenario & Dropout & B1 & Ours & Ours$-$B1 (pp, $p$)\\\\ \\midrule"]
 for _sc in ["line", "accel"]:
     for _dp in [0.0, 0.1, 0.2]:
@@ -144,7 +144,7 @@ supp_tab2 = "\n".join(T6)
 
 # --- supplementary delay-estimator accuracy table (from results_delay_estimation.json) --
 DE = json.loads((SIM / "results_delay_estimation.json").read_text(encoding="utf-8"))
-T7 = ["\\begin{table}[t]\\centering",
+T7 = ["\\begin{table}[t]\\centering\\small",
       "\\caption{Online delay-estimator accuracy (causal lag-1 estimate, steady state $t\\in[1,6]$~s; protocol secondary metric).}\\label{tab:de}",
       "\\begin{tabular}{llrrrrrr}",
       "\\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Warm-up (s)\\\\ \\midrule"]
@@ -196,19 +196,19 @@ doc = [preamble,
 
 \section*{Figures}
 \begin{figure*}[t]\centering
-\includegraphics[width=0.95\textwidth]{fig1_architecture.png}
+\includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
 \caption{System architecture. Detection and PnP are shared with the baselines; the IMM estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
 \end{figure*}
 \begin{figure}[t]\centering
-\includegraphics[width=0.92\columnwidth]{fig2_latency_chain.png}
+\includegraphics[width=0.92\columnwidth]{fig2_latency_chain.pdf}
 \caption{Six-segment latency chain with nominal magnitudes (TJURM order of magnitude). The online estimator provides $\bar\tau_i$ and uncertainty bound $\Delta_i$ used to tighten the firing decision.}\label{fig:chain}
 \end{figure}
 \begin{figure}[t]\centering
-\includegraphics[width=0.9\columnwidth]{results_hitrate.png}
+\includegraphics[width=0.9\columnwidth]{results_hitrate.pdf}
 \caption{Hit rate by scenario / delay mode / controller (10 seeds).}\label{fig:hit}
 \end{figure}
 \begin{figure}[t]\centering
-\includegraphics[width=0.9\columnwidth]{results_ablations.png}
+\includegraphics[width=0.9\columnwidth]{results_ablations.pdf}
 \caption{Ablations under the drift profile.}\label{fig:abl}
 \end{figure}
 \section*{Supplementary Material}

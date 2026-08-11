@@ -57,13 +57,13 @@ def main():
     tex = tex[:disc_old.start(2)] + "\n" + disc_new + "\n" + tex[disc_old.end(2):]
 
     # 3) remove Fig.2 (latency chain) environment
-    fig2 = re.search(r"\\begin\{figure\}\[t\]\\centering\n\\includegraphics\[width=0\.92\\columnwidth\]\{fig2_latency_chain\.png\}.*?\\end\{figure\}", tex, re.S)
+    fig2 = re.search(r"\\begin\{figure\}\[t\]\\centering\n\\includegraphics\[width=0\.92\\columnwidth\]{fig2_latency_chain.pdf}.*?\\end\{figure\}", tex, re.S)
     assert fig2, "Fig.2 env not found"
     tex = tex[:fig2.start()] + tex[fig2.end():]
 
     # 4) remove supplementary tables S1-S3, keep section header + pointer
     for label in ["tab:speed", "tab:drop", "tab:de"]:
-        pat = re.compile(r"\\begin\{table\}\[t\]\\centering\n\\caption\{.*?\\label\{" + label + r"\}.*?\\end\{table\}", re.S)
+        pat = re.compile(r"\\begin\{table\}\[t\]\\centering(?:\\small)?\n\\caption\{.*?\\label\{" + label + r"\}.*?\\end\{table\}", re.S)
         tex, n = pat.subn("", tex, count=1)
         assert n == 1, f"table {label} not removed"
     tex = tex.replace("\\section*{Supplementary Material}\n",

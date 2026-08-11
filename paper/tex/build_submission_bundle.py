@@ -22,10 +22,10 @@ def main():
         (TEX / "manuscript.tex", "manuscript.tex"),
         (TEX / "manuscript_ral.tex", "manuscript_ral.tex"),
         (TEX / "refs.bib", "refs.bib"),
-        (PAPER / "figures" / "fig1_architecture.png", "fig1_architecture.png"),
-        (PAPER / "figures" / "fig2_latency_chain.png", "fig2_latency_chain.png"),
-        (ROOT / "sim" / "results_hitrate.png", "results_hitrate.png"),
-        (ROOT / "sim" / "results_ablations.png", "results_ablations.png"),
+        (PAPER / "figures" / "fig1_architecture.pdf", "fig1_architecture.pdf"),
+        (PAPER / "figures" / "fig2_latency_chain.pdf", "fig2_latency_chain.pdf"),
+        (ROOT / "sim" / "results_hitrate.pdf", "results_hitrate.pdf"),
+        (ROOT / "sim" / "results_ablations.pdf", "results_ablations.pdf"),
     ]
     for src, dst in files:
         assert src.exists(), src

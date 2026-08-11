@@ -124,7 +124,7 @@ Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperfor
 
 \label{tab:primary}
 
-\begin{tabular}{llccccl}
+\begin{tabular}{llrrrrr}
 
 \toprule Scenario & Delay & B0 & B1 & Ours & vs B0 & vs B1\\ \midrule
 
@@ -159,7 +159,7 @@ Table~\ref{tab:b2} gives the zero-delay upper bound of Ours and the residual gap
 
 \caption{Zero-delay upper bound (B2).}
 
-\label{tab:b2}\begin{tabular}{lccc}
+\label{tab:b2}\begin{tabular}{lrrr}
 
 \toprule Scenario & B2 & Ours (drift) & Residual (pp)\\ \midrule
 
@@ -178,7 +178,7 @@ Table~\ref{tab:abl} ablates the contributions under the drift profile.
 
 \caption{Ablations under the drift profile (mean hit rate).}
 
-\label{tab:abl}\begin{tabular}{lcccccc}
+\label{tab:abl}\begin{tabular}{lrrrrrr}
 
 \toprule Scenario & Ours & A1 & A2 & A4 & A6 & CV\%\\ \midrule
 
@@ -197,7 +197,7 @@ Table~\ref{tab:rt} reports per-step solver time in Python as a conservative uppe
 
 \caption{Solver real-time benchmark (per step, $H=18$).}
 
-\label{tab:rt}\begin{tabular}{lcccccc}
+\label{tab:rt}\begin{tabular}{lrrrrrc}
 
 \toprule Solver & mean & p50 & p95 & p99 & max & $<20$ ms\\ \midrule
 
@@ -270,25 +270,25 @@ We presented a delay-aware predictive control framework for moving-target tracki
 
 \section*{Figures}
 \begin{figure*}[t]\centering
-\includegraphics[width=0.95\textwidth]{fig1_architecture.png}
+\includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
 \caption{System architecture. Detection and PnP are shared with the baselines; the IMM estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
 \end{figure*}
 \begin{figure}[t]\centering
-\includegraphics[width=0.92\columnwidth]{fig2_latency_chain.png}
+\includegraphics[width=0.92\columnwidth]{fig2_latency_chain.pdf}
 \caption{Six-segment latency chain with nominal magnitudes (TJURM order of magnitude). The online estimator provides $\bar\tau_i$ and uncertainty bound $\Delta_i$ used to tighten the firing decision.}\label{fig:chain}
 \end{figure}
 \begin{figure}[t]\centering
-\includegraphics[width=0.9\columnwidth]{results_hitrate.png}
+\includegraphics[width=0.9\columnwidth]{results_hitrate.pdf}
 \caption{Hit rate by scenario / delay mode / controller (10 seeds).}\label{fig:hit}
 \end{figure}
 \begin{figure}[t]\centering
-\includegraphics[width=0.9\columnwidth]{results_ablations.png}
+\includegraphics[width=0.9\columnwidth]{results_ablations.pdf}
 \caption{Ablations under the drift profile.}\label{fig:abl}
 \end{figure}
 \section*{Supplementary Material}
-\begin{table}[t]\centering
+\begin{table}[t]\centering\small
 \caption{Speed-gear sensitivity (drift latency, 10 seeds): hit rate by controller and paired gains vs. baselines.}\label{tab:speed}
-\begin{tabular}{lcccccc}
+\begin{tabular}{lrrrrrr}
 \toprule Scenario & m/s & B0 & B1 & Ours & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\\ \midrule
 line & 0.5 & 0.247 & 0.227 & 0.698 & +45.1 (0.000) & +47.1 (0.000)\\
 line & 1.2 & 0.088 & 0.106 & 0.402 & +31.4 (0.000) & +29.6 (0.000)\\
@@ -303,9 +303,9 @@ accel & 0.5 & 0.629 & 0.628 & 0.927 & +29.8 (0.000) & +29.9 (0.001)\\
 accel & 1.2 & 0.424 & 0.305 & 0.774 & +35.0 (0.004) & +46.9 (0.000)\\
 accel & 2.0 & 0.143 & 0.124 & 0.513 & +37.0 (0.000) & +38.8 (0.000)\\
 \bottomrule\end{tabular}\end{table}
-\begin{table}[t]\centering
+\begin{table}[t]\centering\small
 \caption{Detection-dropout robustness (drift latency, 10 seeds): hit rate by controller and paired gains vs. B1.}\label{tab:drop}
-\begin{tabular}{lcccc}
+\begin{tabular}{lrrrr}
 \toprule Scenario & Dropout & B1 & Ours & Ours$-$B1 (pp, $p$)\\ \midrule
 line & 0\% & 0.123 & 0.400 & +27.7 (0.000)\\
 line & 10\% & 0.124 & 0.462 & +33.8 (0.000)\\
@@ -314,7 +314,7 @@ accel & 0\% & 0.124 & 0.513 & +38.8 (0.000)\\
 accel & 10\% & 0.185 & 0.456 & +27.1 (0.000)\\
 accel & 20\% & 0.289 & 0.519 & +23.0 (0.001)\\
 \bottomrule\end{tabular}\end{table}
-\begin{table}[t]\centering
+\begin{table}[t]\centering\small
 \caption{Online delay-estimator accuracy (causal lag-1 estimate, steady state $t\in[1,6]$~s; protocol secondary metric).}\label{tab:de}
 \begin{tabular}{llrrrrrr}
 \toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Warm-up (s)\\ \midrule

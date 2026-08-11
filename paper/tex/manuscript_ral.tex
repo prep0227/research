@@ -115,7 +115,7 @@ Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperfor
 
 \label{tab:primary}
 
-\begin{tabular}{llccccl}
+\begin{tabular}{llrrrrr}
 
 \toprule Scenario & Delay & B0 & B1 & Ours & vs B0 & vs B1\\ \midrule
 
@@ -150,7 +150,7 @@ Table~\ref{tab:b2} gives the zero-delay upper bound of Ours and the residual gap
 
 \caption{Zero-delay upper bound (B2).}
 
-\label{tab:b2}\begin{tabular}{lccc}
+\label{tab:b2}\begin{tabular}{lrrr}
 
 \toprule Scenario & B2 & Ours (drift) & Residual (pp)\\ \midrule
 
@@ -169,7 +169,7 @@ Table~\ref{tab:abl} ablates the contributions under the drift profile.
 
 \caption{Ablations under the drift profile (mean hit rate).}
 
-\label{tab:abl}\begin{tabular}{lcccccc}
+\label{tab:abl}\begin{tabular}{lrrrrrr}
 
 \toprule Scenario & Ours & A1 & A2 & A4 & A6 & CV\%\\ \midrule
 
@@ -188,7 +188,7 @@ Table~\ref{tab:rt} reports per-step solver time in Python as a conservative uppe
 
 \caption{Solver real-time benchmark (per step, $H=18$).}
 
-\label{tab:rt}\begin{tabular}{lcccccc}
+\label{tab:rt}\begin{tabular}{lrrrrrc}
 
 \toprule Solver & mean & p50 & p95 & p99 & max & $<20$ ms\\ \midrule
 
@@ -231,16 +231,16 @@ We presented a delay-aware predictive control framework for moving-target tracki
 
 \section*{Figures}
 \begin{figure*}[t]\centering
-\includegraphics[width=0.95\textwidth]{fig1_architecture.png}
+\includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
 \caption{System architecture. Detection and PnP are shared with the baselines; the IMM estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
 \end{figure*}
 
 \begin{figure}[t]\centering
-\includegraphics[width=0.9\columnwidth]{results_hitrate.png}
+\includegraphics[width=0.9\columnwidth]{results_hitrate.pdf}
 \caption{Hit rate by scenario / delay mode / controller (10 seeds).}\label{fig:hit}
 \end{figure}
 \begin{figure}[t]\centering
-\includegraphics[width=0.9\columnwidth]{results_ablations.png}
+\includegraphics[width=0.9\columnwidth]{results_ablations.pdf}
 \caption{Ablations under the drift profile.}\label{fig:abl}
 \end{figure}
 \section*{Supplementary Material}
