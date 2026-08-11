@@ -56,6 +56,12 @@ def main():
     disc_new = md2tex((PAPER / "ral_discussion.md").read_text(encoding="utf-8")).strip()
     tex = tex[:disc_old.start(2)] + "\n" + disc_new + "\n" + tex[disc_old.end(2):]
 
+    # 2b) compress Section V (real-robot protocol) for the 6-page edition
+    sec5 = re.search(r"(\\section\*\{V\. Real-Robot Experiments \(Pre-registered Protocol\)\})(.*?)(\\section\*\{VI\. Discussion and Limitations\})", tex, re.S)
+    assert sec5, "Section V span not found"
+    sec5_new = md2tex((PAPER / "ral_real_robot.md").read_text(encoding="utf-8")).strip()
+    tex = tex[:sec5.start(2)] + "\n" + sec5_new + "\n" + tex[sec5.end(2):]
+
     # 3) remove Fig.2 (latency chain) environment
     fig2 = re.search(r"\\begin\{figure\}\[t\]\\centering\n\\includegraphics\[width=0\.92\\columnwidth\]{fig2_latency_chain.pdf}.*?\\end\{figure\}", tex, re.S)
     assert fig2, "Fig.2 env not found"
@@ -67,7 +73,7 @@ def main():
         tex, n = pat.subn("", tex, count=1)
         assert n == 1, f"table {label} not removed"
     tex = tex.replace("\\section*{Supplementary Material}\n",
-                      "\\section*{Supplementary Material}\nSee the supplementary document for speed-gear sensitivity, detection-dropout robustness, delay-estimator accuracy, and pointing-error RMSE tables; code, per-seed results, and the pre-registered plan (SHA-256 0361b95b\\ldots) are at \\url{https://github.com/prep0227/research}.\n")
+                      "Supplementary tables (speed-gear sensitivity, detection-dropout robustness, delay-estimator accuracy, pointing-error RMSE), code, per-seed results, and the pre-registered plan (SHA-256 0361b95b\\ldots) are available with the full manuscript at \\url{https://github.com/prep0227/research}.\n")
 
     # 5) drop standalone Data Availability section in the 6-page edition
     #    (code + prereg link already folded into the Supplementary pointer above)

@@ -1,0 +1,6 @@
+**Status**: protocol v1.1 finalized; hardware bring-up and data collection are scheduled after robot hardware becomes available. The research plan (scenarios, delay profiles, controllers, sample sizes, analysis) was time-stamped 2026-08-11T12:41+08:00, before any simulation results were produced (SHA-256 0361b95b...); the full protocol is in the supplementary material.
+
+- **Platform and ground truth**: custom infantry robot (omnidirectional chassis, two-axis gimbal, industrial camera, onboard compute); referee-system hit detection; gimbal encoders for angular error.
+- **Controlled comparison**: B0 / B1 / Ours across four motion classes (line/circle/S/accelerating), 300 shots x 3 rounds per condition, randomized round order; software delay injection (fixed/gamma/drift) via detection-timestamp shifting so the delay-modeling contribution is exercised identically; offline full-chain replay on the same detection stream.
+- **Statistics (pre-registered)**: paired one-sided McNemar exact test, $\alpha=0.05$, Monte-Carlo power analysis ($N=300\times3$, $\approx0.85$ power at +5 pp); primary metric hit rate; decision threshold $\ge5$ pp with $p<0.05$; an escalation rule adds one confirmation round.
+- **Failure condition**: latency measurement below 1 ms precision required; otherwise simulation + hardware-in-the-loop fallback.
