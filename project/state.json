@@ -225,6 +225,27 @@
       "severity": "INFO",
       "description": "Overleaf 上传包独立编译验证通过（7/6 页，0 错误）；zip 9 文件已更新为修复后 tex。",
       "created_at": "2026-08-11T17:08:00+08:00"
+    },
+    {
+      "id": "warn_ci_green",
+      "type": "MILESTONE",
+      "severity": "INFO",
+      "description": "GitHub 仓库 https://github.com/prep0227/research 推送成功；CI 首次完整运行 verify completed success（9 单测 + C++ + 双版本 LaTeX）。",
+      "created_at": "2026-08-11T17:35:00+08:00"
+    },
+    {
+      "id": "warn_figures_ieee",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "图表按 IEEE 规范优化：600dpi PNG + 矢量 PDF、8-10pt 字号、双/单栏尺寸、色盲友好配色、表格数值右对齐+\\small；页数 7/6 不变。",
+      "created_at": "2026-08-11T17:40:00+08:00"
+    },
+    {
+      "id": "warn_strategy_hardware",
+      "type": "PLAN",
+      "severity": "INFO",
+      "description": "投稿策略更新（硬件开学后才到位）：arXiv 仿真版立即 → 真机后 RA-L → 延迟则 JINT/CEP → 中文核心兜底。",
+      "created_at": "2026-08-11T17:42:00+08:00"
     }
   ],
   "failures": [],
@@ -254,7 +275,7 @@
     "max_iterations": 3,
     "usage": {
       "tokens_used": 0,
-      "calls_made": 27,
+      "calls_made": 30,
       "cost_spent": 0.0,
       "iterations_used": 3
     }
