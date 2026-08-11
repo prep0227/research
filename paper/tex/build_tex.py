@@ -228,32 +228,32 @@ preamble = r"""\documentclass[journal]{IEEEtran}
 
 refs_body = ""
 
+FIG1 = r"""\begin{figure*}[t]\centering
+\includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
+\caption{System architecture. Detection and PnP are shared with the baselines; the multi-model estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
+\end{figure*}"""
+FIG2 = r"""\begin{figure}[t]\centering
+\includegraphics[width=0.92\columnwidth]{fig2_latency_chain.pdf}
+\caption{Six-segment latency chain with nominal magnitudes (TJURM order of magnitude). The online estimator provides $\bar\tau_i$ and uncertainty bound $\Delta_i$ used to tighten the firing decision.}\label{fig:chain}
+\end{figure}"""
+FIG3 = r"""\begin{figure}[t]\centering
+\includegraphics[width=0.9\columnwidth]{results_hitrate.pdf}
+\caption{Hit rate by scenario / delay mode / controller (10 seeds).}\label{fig:hit}
+\end{figure}"""
+FIG4 = r"""\begin{figure}[t]\centering
+\includegraphics[width=0.9\columnwidth]{results_ablations.pdf}
+\caption{Ablations under the drift profile.}\label{fig:abl}
+\end{figure}"""
+BIB = r"""\bibliographystyle{IEEEtran}
+\bibliography{refs}"""
+
 doc = [preamble,
        r"\begin{abstract}", abstract, r"\end{abstract}",
        r"\begin{IEEEkeywords} predictive control; visual latency compensation; target tracking; RoboMaster gimbal; delay-aware MPC \end{IEEEkeywords}",
-       intro, related, method,
-       r"\section{Simulation Study}", sim,
-       realrobot, disc, concl,
+       intro, FIG2, related, method, FIG1,
+       r"\section{Simulation Study}", sim, FIG3, FIG4,
+       realrobot, disc, concl, BIB,
        r"""
-\bibliographystyle{IEEEtran}
-\bibliography{refs}
-
-\begin{figure*}[t]\centering
-\includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
-\caption{System architecture. Detection and PnP are shared with the baselines; the multi-model estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
-\end{figure*}
-\begin{figure}[t]\centering
-\includegraphics[width=0.92\columnwidth]{fig2_latency_chain.pdf}
-\caption{Six-segment latency chain with nominal magnitudes (TJURM order of magnitude). The online estimator provides $\bar\tau_i$ and uncertainty bound $\Delta_i$ used to tighten the firing decision.}\label{fig:chain}
-\end{figure}
-\begin{figure}[t]\centering
-\includegraphics[width=0.9\columnwidth]{results_hitrate.pdf}
-\caption{Hit rate by scenario / delay mode / controller (10 seeds).}\label{fig:hit}
-\end{figure}
-\begin{figure}[t]\centering
-\includegraphics[width=0.9\columnwidth]{results_ablations.pdf}
-\caption{Ablations under the drift profile.}\label{fig:abl}
-\end{figure}
 \section*{Supplementary Material}
 """ + supp_tab + r"""
 """ + supp_tab2 + r"""

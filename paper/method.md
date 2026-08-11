@@ -4,7 +4,7 @@ This section summarizes the main components (full formulation in the supplementa
 
 ## A. System architecture
 
-The closed loop is: camera -> detection -> PnP pose -> multi-model estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
+The closed loop is: camera -> detection -> PnP pose -> multi-model estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile (Fig.~\ref{fig:arch}). The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
 
 ## B. Target state estimation (multi-model, MMAE-style)
 

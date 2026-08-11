@@ -29,7 +29,7 @@ In the control and photonics literature, the adverse effect of visual/measuremen
 
 Our contribution is not a new tracker or a new solver; it is a controlled demonstration that explicitly modeling and online-estimating the time-varying, uncertain latency chain -- rather than treating delays as constants -- materially improves hit rate, with an open benchmark on the RoboMaster platform. Specifically:
 
-1. **Delay-chain modeling with online estimation**: we formalize the six-segment latency chain as a time-varying, uncertain quantity ($\tau_i(t)=\bar\tau_i+\delta_i(t)$, $|\delta_i|\le\Delta_i$), and estimate online the two dominant uncertain segments (vision and actuation) with a sliding-window estimator; the remaining segments are treated as constants or analytic functions. The uncertainty spread $\Delta_i$ enters the firing decision as a tightening margin.
+1. **Delay-chain modeling with online estimation**: we formalize the six-segment latency chain (Fig.~\ref{fig:chain}) as a time-varying, uncertain quantity ($\tau_i(t)=\bar\tau_i+\delta_i(t)$, $|\delta_i|\le\Delta_i$), and estimate online the two dominant uncertain segments (vision and actuation) with a sliding-window estimator; the remaining segments are treated as constants or analytic functions. The uncertainty spread $\Delta_i$ enters the firing decision as a tightening margin.
 2. **Delay-aware predictive control**: we embed the (estimated) input delay into the MPC prediction model via input-delay state augmentation, use a multi-model (CV+CT) estimator with out-of-sequence measurement handling for lead references, and solve the box-constrained QP with a warm-started ADMM solver at 20 ms.
 3. **Controlled, reproducible evaluation**: a pre-registered simulation benchmark (4 motion classes $\times$ 3 latency profiles $\times$ 10 seeds) with two baselines, a zero-delay upper bound, and six ablations (A1--A6); code and per-seed results are released.
 
@@ -63,7 +63,7 @@ This section summarizes the main components (full formulation in the supplementa
 
 ## A. System architecture
 
-The closed loop is: camera -> detection -> PnP pose -> multi-model estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
+The closed loop is: camera -> detection -> PnP pose -> multi-model estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile (Fig.~\ref{fig:arch}). The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
 
 ## B. Target state estimation (multi-model, MMAE-style)
 
@@ -122,7 +122,7 @@ where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arc
 
 ### B. Primary results
 
-Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg false-discovery-rate control (max $q$=0.002<0.05). Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$=0.591<0.05). On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from 88.9 to 60.4 mrad versus B1 (and 163.9 to 60.4 mrad versus B0), with analogous RMSE reductions on line, circle, and accel (Table S.4).
+Table I reports mean hit rate over ten seeds (Fig.~\ref{fig:hit} visualizes the per-seed distribution; standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg false-discovery-rate control (max $q$=0.002<0.05). Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$=0.591<0.05). On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from 88.9 to 60.4 mrad versus B1 (and 163.9 to 60.4 mrad versus B0), with analogous RMSE reductions on line, circle, and accel (Table S.4).
 
 **Table I. Hit rate (mean over 10 seeds) and paired comparisons.**
 
@@ -156,7 +156,7 @@ Table II gives the hit rate of Ours under the zero-delay profile. The gap betwee
 
 ### D. Ablations
 
-Table III ablates the contributions under the drift profile (the hardest condition). The ablation set is A1--A6, where A3 is the delay-profile main effect reported in Table I (fixed vs. gamma vs. drift) and A5 is the across-seed coefficient of variation. Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate (except on S, where the no-lead ablation is not worse, 0.129 vs. 0.121); disabling delay-uncertainty tightening (A6) causes a small but consistent drop; replacing the multi-model estimator with a CV estimator (A4) has little effect in these scenarios; the coefficient of variation across seeds (A5) ranges 12--55%.
+Table III ablates the contributions under the drift profile (the hardest condition; Fig.~\ref{{fig:abl}} visualizes the ablation hit rates). The ablation set is A1--A6, where A3 is the delay-profile main effect reported in Table I (fixed vs. gamma vs. drift) and A5 is the across-seed coefficient of variation. Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate (except on S, where the no-lead ablation is not worse, 0.129 vs. 0.121); disabling delay-uncertainty tightening (A6) causes a small but consistent drop; replacing the multi-model estimator with a CV estimator (A4) has little effect in these scenarios; the coefficient of variation across seeds (A5) ranges 12--55%.
 
 **Table III. Ablations (drift profile, mean hit rate over 10 seeds).**
 

@@ -51,7 +51,7 @@ L.append("### B. Primary results\n")
 _q0 = max(bh_q([stat(sc,dm,'ours_vs_B0')['p'] for sc in scenarios for dm in delays]))
 _q1 = max(bh_q([stat(sc,dm,'ours_vs_B1')['p'] for sc in scenarios for dm in delays]))
 _rm = {sc: {c: next(x for x in R["rows"] if x["scenario"]==sc and x["delay_mode"]=="drift" and x["controller"]==c)["err_rmse_mrad"] for c in ctrls} for sc in scenarios}
-L.append(f"Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). "
+L.append(f"Table I reports mean hit rate over ten seeds (Fig.~\\ref{{fig:hit}} visualizes the per-seed distribution; standard deviations omitted for readability; effect sizes in Table I). "
          f"Ours outperforms B0 in all 12 conditions by 12--67 percentage points "
          f"($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67 pp gains on line, circle, and accel "
          f"and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg "
@@ -80,7 +80,7 @@ for sc in scenarios:
     ours_d = next(x for x in R["rows"] if x["scenario"]==sc and x["delay_mode"]=="drift" and x["controller"]=="Ours")["hit_rate"]
     L.append(f"| {sc} | {b2:.3f} | {ours_d:.3f} | {(b2-ours_d)*100:+.1f} |")
 L.append("\n### D. Ablations\n")
-L.append("Table III ablates the contributions under the drift profile (the hardest condition). "
+L.append("Table III ablates the contributions under the drift profile (the hardest condition; Fig.~\\ref{{fig:abl}} visualizes the ablation hit rates). "
          "The ablation set is A1--A6, where A3 is the delay-profile main effect reported in Table I (fixed vs. gamma vs. drift) and A5 is the across-seed coefficient of variation. "
          "Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate (except on S, where the no-lead ablation is not worse, 0.129 vs. 0.121); "
          "disabling delay-uncertainty tightening (A6) causes a small but consistent drop; "
