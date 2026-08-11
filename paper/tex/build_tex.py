@@ -262,7 +262,7 @@ doc = [preamble,
 """ + supp_tab5 + r"""
 """ + supp_tab6 + r"""
 \section*{Data Availability}
-Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{https://github.com/prep0227/research}.
+Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{https://github.com/prep0227/research}. The pre-registered experiment plan is included as \texttt{project/experiment\_plan.md} (timestamp 2026-08-11T12:41+08:00; SHA-256 \texttt{0361b95b\-fe8f6537\-0693572b\-ceac100b\-e757df35\-e7f563c2\-e07ba3af\-fdc828c}).
 \end{document}
 """]
 tex = "\n".join(doc)

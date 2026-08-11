@@ -67,7 +67,13 @@ def main():
         tex, n = pat.subn("", tex, count=1)
         assert n == 1, f"table {label} not removed"
     tex = tex.replace("\\section*{Supplementary Material}\n",
-                      "\\section*{Supplementary Material}\nSee the supplementary document for the speed-gear sensitivity (hit rates and paired gains), detection-dropout robustness, delay-estimator accuracy/settling, and pointing-error RMSE tables.\n")
+                      "\\section*{Supplementary Material}\nSee the supplementary document for speed-gear sensitivity, detection-dropout robustness, delay-estimator accuracy, and pointing-error RMSE tables; code, per-seed results, and the pre-registered plan (SHA-256 0361b95b\\ldots) are at \\url{https://github.com/prep0227/research}.\n")
+
+    # 5) drop standalone Data Availability section in the 6-page edition
+    #    (code + prereg link already folded into the Supplementary pointer above)
+    da_old = re.search(r"\\section\*\{Data Availability\}.*?(?=\\end\{document\})", tex, re.S)
+    assert da_old, "Data Availability span not found"
+    tex = tex[:da_old.start()] + tex[da_old.end():]
 
     (TEX / "manuscript_ral.tex").write_text(tex, encoding="utf-8")
     print(f"manuscript_ral.tex written: {len(tex)} chars")

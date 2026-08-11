@@ -1,6 +1,6 @@
 # V. Real-Robot Experiments (Pre-registered Protocol)
 
-**Status**: protocol v1.1 finalized (see `project/experiment_protocol.md`); hardware bring-up and data collection are scheduled after robot hardware becomes available (P3/P4). This section specifies the pre-registered protocol and will report results:
+**Status**: protocol v1.1 finalized (see `project/experiment_protocol.md`); hardware bring-up and data collection are scheduled after robot hardware becomes available (P3/P4). The research plan (scenarios, delay profiles, controllers, sample sizes, analysis) was time-stamped 2026-08-11T12:41+08:00, before any simulation results were produced (SHA-256 \texttt{0361b95b\-fe8f6537\-0693572b\-ceac100b\-e757df35\-e7f563c2\-e07ba3af\-fdc828c} of `project/experiment_plan.md`); protocol v1.1 (2026-08-11T16:10+08:00) operationalizes it. This section specifies the pre-registered protocol and will report results:
 
 - **Platform**: custom RoboMaster infantry robot -- omnidirectional chassis, two-axis gimbal, industrial camera, onboard compute.
 - **Ground truth**: referee-system hit detection; gimbal encoders for angular error.
