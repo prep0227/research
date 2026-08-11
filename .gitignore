@@ -10,6 +10,9 @@ deploy/cpp/test_mpc_solver
 
 # LaTeX aux
 paper/tex/*.aux
+paper/tex/*.bbl
+paper/tex/*.blg
+paper/tex/pdftex.map
 paper/tex/*.log
 paper/tex/*.out
 paper/tex/*.pdf
