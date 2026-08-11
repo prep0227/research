@@ -236,7 +236,7 @@ The real-robot protocol tests three target speed gears (0.5 / 1.2 / 2.0 m/s). To
 
 ### Detection-dropout robustness (supplementary)
 
-Real vision pipelines occasionally lose detections. We therefore replayed the representative line and accelerating scenarios under 10% and 20% detection-update dropout (drift latency, 10 seeds; Table S2). Ours remains significantly better than B1 at every dropout level ($p<0.01$; line 0.443/0.437/0.422, accel 0.755/0.600/0.624 at 0/10/20%), and its hit rate is approximately flat, consistent with the multi-model prediction absorbing missed frames. Notably B1's hit rate *increases* with dropout on both scenarios (line 0.106->0.233, accel 0.148->0.371); fewer, sparser updates occasionally prevent B1 from over-correcting, yet it remains far below Ours.
+Real vision pipelines occasionally lose detections. We therefore replayed the representative line and accelerating scenarios under 10% and 20% detection-update dropout (drift latency, 10 seeds; Table S2). On line, Ours remains significantly better than B1 at every dropout level (0.443/0.437/0.422 vs. 0.106/0.162/0.233, $p<0.01$), and its hit rate is approximately flat, consistent with the multi-model prediction absorbing missed frames. On accelerating motion the gain is significant at 0% and 10% dropout (0.214 vs. 0.032 and 0.158 vs. 0.054, $p<0.05$) but narrows to $+0.7$ pp at 20% ($p=0.85$), so robustness to missed detections degrades on the fastest trajectory. Notably B1's hit rate increases with dropout on both scenarios (line 0.106$\to$0.233, accel 0.032$\to$0.121); fewer, sparser updates occasionally prevent B1 from over-correcting, yet it remains below Ours.
 
 ## D. Future work
 
