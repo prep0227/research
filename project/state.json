@@ -204,6 +204,20 @@
       "severity": "INFO",
       "description": "sim 单元测试套件（9 tests）就绪，CI direct runner 执行；覆盖轨迹/延迟/估计器/控制器/指标/重放。",
       "created_at": "2026-08-11T17:50:00+08:00"
+    },
+    {
+      "id": "warn_bundle",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "Overleaf 一键上传包（paper/submission_bundle.zip，311KB）：扁平化 tex+bib+4 图，graphicspath=./；生成物 gitignore。",
+      "created_at": "2026-08-11T18:05:00+08:00"
+    },
+    {
+      "id": "warn_runbook",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "P3/P4 执行 runbook（docs/runbook_p3_p4.md）与 IEEE 作者模板（AUTHORS_TEMPLATE.tex）就绪。",
+      "created_at": "2026-08-11T18:08:00+08:00"
     }
   ],
   "failures": [],

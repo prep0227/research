@@ -20,3 +20,7 @@ paper/tex/*.synctex.gz
 # Local scratch
 tmp/
 *.tmp
+
+# Generated submission bundle
+paper/submission_bundle/
+paper/submission_bundle.zip

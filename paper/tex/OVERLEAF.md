@@ -19,7 +19,7 @@
 
 | 占位符 | 位置 | 替换为 |
 |---|---|---|
-| `Team Authors` | manuscript.tex `\author` | 真实作者（IEEE 格式：名 姓） |
+| `Team Authors` | manuscript.tex `\author` | 真实作者（IEEE 格式：名 姓；模板见 `AUTHORS_TEMPLATE.tex`） |
 | `<email>` | `\thanks` | 通信作者邮箱 |
 | `<repo-url>` | Data Availability | GitHub 公开仓库 URL |
 
