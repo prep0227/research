@@ -222,7 +222,7 @@ preamble = r"""\documentclass[journal]{IEEEtran}
 \graphicspath{{../../sim/}{../figures/}}
 \begin{document}
 \title{Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation: A RoboMaster Gimbal Case Study}
-\author{Prep~Geng\thanks{Corresponding author: \texttt{qinghefoever@outlook.com}.}}
+\author{Prep~Geng$^{1}$\thanks{$^{1}$Corresponding author: \texttt{qinghefoever@outlook.com}.}}
 \maketitle
 """
 
