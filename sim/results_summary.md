@@ -1,6 +1,6 @@
 # Phase-2/3 Simulation Results (v0.3, ADMM solver)
 
-Config: dt=0.02s, T=6.0s, H=18, tau_fire=0.08s, tau_vision=0.03s, tau_gimbal=0.06s, estimator=IMM(CV+CT), solver=ADMM, seeds=10, wall=108s
+Config: dt=0.02s, T=6.0s, H=18, tau_fire=0.08s, tau_vision=0.03s, tau_gimbal=0.06s, estimator=IMM(CV+CT), solver=ADMM, seeds=10, wall=38s
 
 ## 1. Primary matrix (hit_rate, mean over 10 seeds)
 

@@ -50,16 +50,16 @@ Table II gives the hit rate of Ours under the zero-delay profile. The gap betwee
 
 ### D. Ablations
 
-Table III ablates the contributions under the drift profile (the hardest condition; Fig.~\ref{{fig:abl}} visualizes the ablation hit rates). The ablation set is A1--A6, where A3 is the delay-profile main effect reported in Table I (fixed vs. gamma vs. drift) and A5 is the across-seed coefficient of variation. Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate (except on S, where the no-lead ablation is not worse, 0.129 vs. 0.121); disabling delay-uncertainty tightening (A6) causes a small but consistent drop; replacing the multi-model estimator with a CV estimator (A4) has little effect in these scenarios; the coefficient of variation across seeds (A5) ranges 12--55%.
+Table III ablates the contributions under the drift profile (the hardest condition; Fig.~\ref{{fig:abl}} visualizes the ablation hit rates). The ablation set is A1--A6: A1 is B1 (no delay model), A2 removes the lead prediction, A3 replaces online latency estimation with the constant nominal delay (and disables uncertainty tightening), A4 uses a CV estimator, A6 disables delay-uncertainty tightening, and A5 is the across-seed coefficient of variation. Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate (except on S, where the no-lead ablation is not worse, 0.129 vs. 0.121); replacing online estimation with the constant nominal delay (A3) costs 1--3 pp on line, circle, and accel (0.443$\to$0.415, 0.427$\to$0.411, 0.214$\to$0.200) and is neutral on S, so in these slow-drift profiles the dominant gains come from modeling the delay at all (A1) and the lead (A2), while online estimation provides a modest additional margin; disabling delay-uncertainty tightening (A6) causes a small drop; replacing the multi-model estimator with a CV estimator (A4) has little effect in these scenarios; the coefficient of variation across seeds (A5) ranges 12--55%.
 
 **Table III. Ablations (drift profile, mean hit rate over 10 seeds).**
 
-| Scenario | Ours | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |
-|---|---|---|---|---|---|---|
-| line | 0.443 | 0.106 | 0.061 | 0.435 | 0.420 | 16.9 |
-| circle | 0.427 | 0.277 | 0.230 | 0.423 | 0.410 | 15.9 |
-| s | 0.121 | 0.074 | 0.129 | 0.121 | 0.098 | 54.5 |
-| accel | 0.214 | 0.032 | 0.191 | 0.304 | 0.221 | 38.6 |
+| Scenario | Ours | A1 no delay model | A2 no lead | A3 const delay | A4 CV estimator | A6 no tightening | A5 CV% |
+|---|---|---|---|---|---|---|---|
+| line | 0.443 | 0.106 | 0.061 | 0.415 | 0.435 | 0.420 | 16.9 |
+| circle | 0.427 | 0.277 | 0.230 | 0.411 | 0.423 | 0.410 | 15.9 |
+| s | 0.121 | 0.074 | 0.129 | 0.124 | 0.121 | 0.098 | 54.5 |
+| accel | 0.214 | 0.032 | 0.191 | 0.200 | 0.304 | 0.221 | 38.6 |
 
 ### E. Real-time feasibility
 

@@ -84,18 +84,22 @@ for sc in scenarios:
     L.append(f"| {sc} | {b2:.3f} | {ours_d:.3f} | {(b2-ours_d)*100:+.1f} |")
 L.append("\n### D. Ablations\n")
 L.append("Table III ablates the contributions under the drift profile (the hardest condition; Fig.~\\ref{{fig:abl}} visualizes the ablation hit rates). "
-         "The ablation set is A1--A6, where A3 is the delay-profile main effect reported in Table I (fixed vs. gamma vs. drift) and A5 is the across-seed coefficient of variation. "
+         "The ablation set is A1--A6: A1 is B1 (no delay model), A2 removes the lead prediction, A3 replaces online latency estimation with the constant nominal "
+         "delay (and disables uncertainty tightening), A4 uses a CV estimator, A6 disables delay-uncertainty tightening, and A5 is the across-seed coefficient of variation. "
          "Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate (except on S, where the no-lead ablation is not worse, 0.129 vs. 0.121); "
-         "disabling delay-uncertainty tightening (A6) causes a small but consistent drop; "
+         "replacing online estimation with the constant nominal delay (A3) costs 1--3 pp on line, circle, and accel "
+         "(0.443$\\to$0.415, 0.427$\\to$0.411, 0.214$\\to$0.200) and is neutral on S, so in these slow-drift profiles the dominant gains come from "
+         "modeling the delay at all (A1) and the lead (A2), while online estimation provides a modest additional margin; "
+         "disabling delay-uncertainty tightening (A6) causes a small drop; "
          "replacing the multi-model estimator with a CV estimator (A4) has little effect in these scenarios; "
          "the coefficient of variation across seeds (A5) ranges 12--55%.\n")
 L.append("**Table III. Ablations (drift profile, mean hit rate over 10 seeds).**\n")
-L.append("| Scenario | Ours | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |")
-L.append("|---|---|---|---|---|---|---|")
+L.append("| Scenario | Ours | A1 no delay model | A2 no lead | A3 const delay | A4 CV estimator | A6 no tightening | A5 CV% |")
+L.append("|---|---|---|---|---|---|---|---|")
 for sc in scenarios:
     a = R["ablations_drift"][sc]
     L.append(f"| {sc} | {a['Ours_IMM']:.3f} | {a['A1_no_delay_model']:.3f} | {a['A2_no_lead']:.3f} | "
-             f"{a['A4_CV_est']:.3f} | {a['A6_no_tighten']:.3f} | {a['A5_cv']*100:.1f} |")
+             f"{a['A3_const_delay']:.3f} | {a['A4_CV_est']:.3f} | {a['A6_no_tighten']:.3f} | {a['A5_cv']*100:.1f} |")
 L.append("\n### E. Real-time feasibility\n")
 L.append(f"Table IV reports per-step solver time in Python (NumPy/SciPy) as a conservative upper bound. "
          f"Both solvers satisfy the 20-ms control period at the 99th percentile; an embedded C++/OSQP implementation "

@@ -66,6 +66,13 @@ def build_controller(name, est, delay_est, lead=True, tighten=True):
                              gimbal_pos=GIMBAL_POS, acc_max=ACC_MAX, rate_max=RATE_MAX,
                              d_steps=int(round(TAU_GIMBAL_NOMINAL/DT)), delay_est=delay_est,
                              lead=lead, tighten=tighten)
+    if name == "A3":
+        # ablation: delay-aware MPC with the constant NOMINAL delay (d_steps),
+        # i.e. no online latency estimation and no uncertainty tightening
+        return DelayAwareMPC(dt=DT, H=H, tau_fire=TAU_FIRE, tau_flight_fn=tf,
+                             gimbal_pos=GIMBAL_POS, acc_max=ACC_MAX, rate_max=RATE_MAX,
+                             d_steps=int(round(TAU_GIMBAL_NOMINAL/DT)), delay_est=None,
+                             lead=lead, tighten=False)
     raise ValueError(name)
 
 def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", lead=True, tighten=True, scale=1.0, dropout=0.0):
@@ -174,6 +181,7 @@ def main():
             todo.append((sc, "drift", "Ours", sd, "IMM", False, True))        # A2 no lead
             todo.append((sc, "drift", "Ours", sd, "CV", True, True))          # A4 CV estimator
             todo.append((sc, "drift", "Ours", sd, "IMM", True, False))        # A6 no tightening
+            todo.append((sc, "drift", "A3", sd, "IMM", True, True))           # A3 constant-delay MPC
     missing = [t for t in todo if t not in raw]
     with open(RAW_FILE, "a", encoding="utf-8") as f:
         for i, (sc, dm, c, sd, est, lead, tighten) in enumerate(missing):
@@ -203,10 +211,12 @@ def main():
         a2 = [r["hit_rate"] for r in results if r["scenario"]==sc and r["delay_mode"]=="drift" and r["controller"]=="Ours" and r["lead"]==False]
         a4 = [r["hit_rate"] for r in results if r["scenario"]==sc and r["delay_mode"]=="drift" and r["controller"]=="Ours" and r["estimator"]=="CV"]
         a6 = [r["hit_rate"] for r in results if r["scenario"]==sc and r["delay_mode"]=="drift" and r["controller"]=="Ours" and r.get("tighten", True)==False]
+        a3 = [r["hit_rate"] for r in results if r["scenario"]==sc and r["delay_mode"]=="drift" and r["controller"]=="A3"]
         ours_d = [r["hit_rate"] for r in results if r["scenario"]==sc and r["delay_mode"]=="drift" and r["controller"]=="Ours" and r["lead"] and r["estimator"]=="IMM" and r.get("tighten", True)]
         cv = float(np.std(ours_d) / (np.mean(ours_d) + 1e-9))
         abl_rows[sc] = {"Ours_IMM": float(np.mean(ours_d)), "A1_no_delay_model": float(np.mean(a1)),
-                        "A2_no_lead": float(np.mean(a2)), "A4_CV_est": float(np.mean(a4)),
+                        "A2_no_lead": float(np.mean(a2)), "A3_const_delay": float(np.mean(a3)),
+                        "A4_CV_est": float(np.mean(a4)),
                         "A6_no_tighten": float(np.mean(a6)), "A5_cv": cv}
 
     out = {"config": {"dt": DT, "T": T, "H": H, "tau_fire": TAU_FIRE,
@@ -234,10 +244,10 @@ def main():
     for sc in scenarios:
         md.append(f"| {sc} | {b2_mean[sc]:.3f} |")
     md += ["", "## 3. Ablations (drift mode, hit_rate)", "",
-           "| scenario | Ours(IMM) | A1 no-delay-model(B1) | A2 no-lead | A4 CV-est | A6 no-tighten | A5 CV% |", "|---|---|---|---|---|---|---|"]
+           "| scenario | Ours(IMM) | A1 no-delay-model(B1) | A2 no-lead | A3 const-delay | A4 CV-est | A6 no-tighten | A5 CV% |", "|---|---|---|---|---|---|---|---|"]
     for sc in scenarios:
         a = abl_rows[sc]
-        md.append(f"| {sc} | {a['Ours_IMM']:.3f} | {a['A1_no_delay_model']:.3f} | {a['A2_no_lead']:.3f} | {a['A4_CV_est']:.3f} | {a['A6_no_tighten']:.3f} | {a['A5_cv']*100:.1f}% |")
+        md.append(f"| {sc} | {a['Ours_IMM']:.3f} | {a['A1_no_delay_model']:.3f} | {a['A2_no_lead']:.3f} | {a['A3_const_delay']:.3f} | {a['A4_CV_est']:.3f} | {a['A6_no_tighten']:.3f} | {a['A5_cv']*100:.1f}% |")
     md += ["", "> v0.3 说明：Ours=时延感知 MPC(IMM+在线时延估计+ADMM 盒约束+时延不确定性约束收紧)；B1=无时延建模 MPC；B0=Kt+B+PID。",
            "> 出口准则：Ours 在 >=2 类轨迹显著优于 B0/B1 且 P99 求解耗时 < 控制周期。"]
     open("results_summary.md", "w").write("\n".join(md))

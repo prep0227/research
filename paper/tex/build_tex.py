@@ -106,14 +106,14 @@ for sc in scenarios:
     T2.append(f"{sc} & {b2:.3f} & {ours_d:.3f} & {(b2-ours_d)*100:+.1f}\\\\")
 T2.append("\\bottomrule\\end{tabular}\\end{table}")
 
-T3 = [r"Table~\ref{tab:abl} ablates the contributions under the drift profile."]
+T3 = [r"Table~\ref{tab:abl} ablates the contributions under the drift profile (A1--A6 as defined in the text)."]
 T3.append("\\begin{table*}[t]\\centering\\small")
 T3.append("\\caption{Ablations under the drift profile (mean hit rate).}")
-T3.append("\\label{tab:abl}\\begin{tabular}{lrrrrrr}")
-T3.append("\\toprule Scenario & Ours & A1 & A2 & A4 & A6 & CV\\%\\\\ \\midrule")
+T3.append("\\label{tab:abl}\\begin{tabular}{lrrrrrrr}")
+T3.append("\\toprule Scenario & Ours & A1 & A2 & A3 & A4 & A6 & CV\\%\\\\ \\midrule")
 for sc in scenarios:
     a = R["ablations_drift"][sc]
-    T3.append(f"{sc} & {a['Ours_IMM']:.3f} & {a['A1_no_delay_model']:.3f} & {a['A2_no_lead']:.3f} & {a['A4_CV_est']:.3f} & {a['A6_no_tighten']:.3f} & {a['A5_cv']*100:.1f}\\\\")
+    T3.append(f"{sc} & {a['Ours_IMM']:.3f} & {a['A1_no_delay_model']:.3f} & {a['A2_no_lead']:.3f} & {a['A3_const_delay']:.3f} & {a['A4_CV_est']:.3f} & {a['A6_no_tighten']:.3f} & {a['A5_cv']*100:.1f}\\\\")
 T3.append("\\bottomrule\\end{tabular}\\end{table*}")
 
 T4 = [r"Table~\ref{tab:rt} reports per-step solver time in Python as a conservative upper bound."]
