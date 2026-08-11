@@ -33,6 +33,7 @@
 - [ ] W17：提交 RA-L
 
 ## 投稿占位符（必须替换）
-- [ ] `uthor{Team Authors}` → 真实作者；`<email>` → 通信邮箱；`<repo-url>` → GitHub 链接（见 OVERLEAF.md）
+- [x] `\author` → **Prep Geng**；`<email>` → **qinghefoever@outlook.com**（已填）
+- [x] `<repo-url>` → **https://github.com/prep0227/research**（已填）
 - [x] RA-L 页数：`manuscript_ral.tex` **本地编译确认 6 页**（0 错误），`manuscript.tex` 完整版 7 页；均满足/接近 RA-L；超限则转 JINT/CEP
 - [ ] CI 首次 push 后确认 latex-build job 产出 manuscript.pdf 且无 warning

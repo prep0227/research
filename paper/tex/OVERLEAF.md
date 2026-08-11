@@ -19,9 +19,9 @@
 
 | 占位符 | 位置 | 替换为 |
 |---|---|---|
-| `Team Authors` | manuscript.tex `\author` | 真实作者（IEEE 格式：名 姓；模板见 `AUTHORS_TEMPLATE.tex`） |
-| `<email>` | `\thanks` | 通信作者邮箱 |
-| `<repo-url>` | Data Availability | GitHub 公开仓库 URL |
+| ~~`Team Authors`~~ | manuscript.tex `\author` | **已填：Prep Geng**（如需多作者，按 `AUTHORS_TEMPLATE.tex` 扩展） |
+| ~~`<email>`~~ | `\thanks` | **已填：qinghefoever@outlook.com** |
+| ~~`<repo-url>`~~ | Data Availability | **已填：https://github.com/prep0227/research** |
 
 ## 编译
 

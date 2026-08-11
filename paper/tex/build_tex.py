@@ -178,7 +178,7 @@ preamble = r"""\documentclass[journal]{IEEEtran}
 \graphicspath{{../../sim/}{../figures/}}
 \begin{document}
 \title{Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation: A RoboMaster Gimbal Case Study}
-\author{Team Authors\thanks{Corresponding author: \texttt{<email>}}}
+\author{Prep~Geng\thanks{Corresponding author: \texttt{qinghefoever@outlook.com}.}}
 \maketitle
 """
 
@@ -216,7 +216,7 @@ doc = [preamble,
 """ + supp_tab2 + r"""
 """ + supp_tab3 + r"""
 \section*{Data Availability}
-Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{<repo-url>}.
+Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{https://github.com/prep0227/research}.
 \end{document}
 """]
 tex = "\n".join(doc)

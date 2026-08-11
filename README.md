@@ -1,5 +1,7 @@
 # Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation (RoboMaster Gimbal Case Study)
 
+**Repo**: https://github.com/prep0227/research for Moving-Target Tracking with Explicit Vision-Latency Compensation (RoboMaster Gimbal Case Study)
+
 Research repository for the project *视觉延迟补偿的移动目标跟踪预测控制（RoboMaster 云台自瞄为载体）*.
 
 **Core idea**: RoboMaster gimbal auto-aim is systematically wrong because it aims at the *current* target position while a
