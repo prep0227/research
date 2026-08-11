@@ -77,13 +77,13 @@ subject to the input-delay-augmented linear dynamics and box constraints, using 
 
 \subsection*{E. Firing decision with delay-uncertainty tightening}
 
-We fire when the predicted pointing error plus a delay-uncertainty margin is below the angular hit tolerance:
+We fire when the predicted pointing error plus a delay-uncertainty margin is below a conservative angular firing threshold:
 
 $$
-\|r(0)-g(0)\| + \kappa\,\hat v\,(\Delta_{\mathrm{vision}}+\Delta_{\mathrm{gimbal}})/\mathrm{dist} < \theta_{\mathrm{hit}},
+\|r(0)-g(0)\| + \kappa\,\hat v\,(\Delta_{\mathrm{vision}}+\Delta_{\mathrm{gimbal}})/\mathrm{dist} < \theta_{\mathrm{fire}},
 $$
 
-where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
+where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{fire}}=0.05$~rad is a fixed conservative threshold ($\approx\arctan(\mathrm{armor\_half}/1.6~\mathrm{m})$, so that over the nominal 1--8~m engagement range we fire only on near-tolerance errors). The margin term (with $\kappa=1$) prevents firing when the latency estimate is unreliable (e.g., during drift or jitter). Hits are scored in the metrics against the distance-adaptive tolerance $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$.
 
 \subsection*{F. Baselines}
 
@@ -110,7 +110,7 @@ where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arc
 \end{itemize}
 
 \begin{itemize}
-\item \textbf{Delay profiles}: (i) \textit{fixed}: vision latency $\tau_v=0.03$~s, actuation latency $\tau_g=0.06$~s; (ii) \textit{gamma}: vision latency drawn from a gamma distribution (mean $\tau_v$, std 15~ms); (iii) \textit{drift}: both latencies ramp linearly from their nominal values to +60~ms over the episode. A zero-delay profile (iv) serves as the ideal upper bound (B2). Nominal engagement range is approximately 1--8~m (hit tolerance $\theta_{\rm hit}=\arctan(0.08/\text{dist})$).
+\item \textbf{Delay profiles}: (i) \textit{fixed}: vision latency $\tau_v=0.03$~s, actuation latency $\tau_g=0.06$~s; (ii) \textit{gamma}: vision latency drawn from a gamma distribution (mean $\tau_v$, std 15~ms); (iii) \textit{drift}: both latencies ramp linearly from their nominal values to +60~ms over the episode. A zero-delay profile (iv) serves as the ideal upper bound (B2). Nominal engagement range is approximately 1--8~m. Firing uses a conservative fixed angular threshold $\theta_{\rm fire}=0.05$~rad (plus the delay-uncertainty margin), and hits are scored against the distance-adaptive tolerance $\theta_{\rm hit}=\arctan(0.08/\text{dist})$.
 \end{itemize}
 
 \begin{itemize}

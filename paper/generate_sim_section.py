@@ -39,7 +39,9 @@ L.append(f"- **Delay profiles**: (i) *fixed*: vision latency $\\tau_v={cfg['tau_
          f"$\\tau_g={cfg['tau_gimbal_nominal']:.2f}$~s; (ii) *gamma*: vision latency drawn from a gamma distribution "
          f"(mean $\\tau_v$, std 15~ms); (iii) *drift*: both latencies ramp linearly from their nominal values to +60~ms over the episode. "
          f"A zero-delay profile (iv) serves as the ideal upper bound (B2). "
-         f"Nominal engagement range is approximately 1--8~m (hit tolerance $\\theta_{{\\rm hit}}=\\arctan(0.08/\\text{{dist}})$).\n")
+         f"Nominal engagement range is approximately 1--8~m. Firing uses a conservative fixed angular threshold "
+         f"$\\theta_{{\\rm fire}}=0.05$~rad (plus the delay-uncertainty margin), and hits are scored against the "
+         f"distance-adaptive tolerance $\\theta_{{\\rm hit}}=\\arctan(0.08/\\text{{dist}})$.\n")
 L.append(f"- **Controllers**: B0 -- community baseline: $Kt+B$ empirical lead + cascade PID driven by the same "
          f"multi-model predictor as Ours (oracle-tuned lead, hence a stronger-than-typical baseline; RMVL practice [R1]); "
          f"B1 -- the same multi-model predictor with an MPC that *ignores* the input delay (delay-unaware, SHtech-style); "

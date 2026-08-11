@@ -27,13 +27,13 @@ subject to the input-delay-augmented linear dynamics and box constraints, using 
 
 ## E. Firing decision with delay-uncertainty tightening
 
-We fire when the predicted pointing error plus a delay-uncertainty margin is below the angular hit tolerance:
+We fire when the predicted pointing error plus a delay-uncertainty margin is below a conservative angular firing threshold:
 
 $$
-\|r(0)-g(0)\| + \kappa\,\hat v\,(\Delta_{\mathrm{vision}}+\Delta_{\mathrm{gimbal}})/\mathrm{dist} < \theta_{\mathrm{hit}},
+\|r(0)-g(0)\| + \kappa\,\hat v\,(\Delta_{\mathrm{vision}}+\Delta_{\mathrm{gimbal}})/\mathrm{dist} < \theta_{\mathrm{fire}},
 $$
 
-where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
+where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{fire}}=0.05$~rad is a fixed conservative threshold ($\approx\arctan(\mathrm{armor\_half}/1.6~\mathrm{m})$, so that over the nominal 1--8~m engagement range we fire only on near-tolerance errors). The margin term (with $\kappa=1$) prevents firing when the latency estimate is unreliable (e.g., during drift or jitter). Hits are scored in the metrics against the distance-adaptive tolerance $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$.
 
 ## F. Baselines
 
