@@ -12,10 +12,11 @@ ADMM box-constrained QP solver. Firing decisions are tightened by the estimated 
 
 | Path | Contents |
 |---|---|
-| `sim/` | Reproducible simulation (canonical v0.3): IMM{CV,CT} + online delay estimator + ADMM QP; 520 runs × 10 seeds; A1–A6 ablations; B2 no-delay upper bound |
-| `paper/` | Manuscript (English, v0.5) + IEEEtran LaTeX package (`tex/`), cover letter, journal selection, submission checklist |
-| `project/` | Research-agent artifacts: research brief, evidence report (17 records), gap/novelty analysis, technical route, experiment protocol (real-robot v1.1), audit trail (34 events), state machine |
+| `sim/` | Reproducible simulation (canonical v0.3): IMM{CV,CT} + online delay estimator + ADMM QP; 520 runs × 10 seeds; A1–A6 ablations; B2 upper bound; supplementary sweeps: speed gears (Table S1), detection dropout (Table S2), delay-estimator accuracy (Table S3) |
+| `paper/` | Manuscript (English, v0.5.3) + IEEEtran LaTeX package (`tex/`, Overleaf guide), cover letter, journal selection, submission checklist, video storyboard, Chinese-core fallback pack (`fallback_zh/`) |
+| `project/` | Research-agent artifacts: research brief, evidence report (17 records), gap/novelty analysis, technical route, experiment protocol (real-robot v1.1), power analysis, audit trail (50 events), state machine |
 | `tools/delay_profiler/` | Real-robot latency profiling: timestamp instrumentation templates, `compute_latency_profile.py`, `latency_profile.yaml` |
+| `tools/replay/` | Offline replay harness: event-log schema, replay B0/B1/Ours on the same detection stream, synthetic-log generator |
 | `deploy/cpp/` | Header-only C++17 ADMM MPC solver (`mpc_solver.hpp`) + unit test, for embedded/real-robot porting |
 
 ## Reproduce the simulation
@@ -50,9 +51,8 @@ N=300 shots × 3 rounds; primary test = paired one-sided McNemar; success = obse
 ## Publication plan
 
 English journal (RA-L → JINT/CEP → Chinese core fallback), submission window 2026-09 to 2027-01
-(see `paper/journal_selection.md` and `project/timeline_publication.md`).
+(see `paper/journal_selection.md`, `project/timeline_publication.md`, and `paper/fallback_zh/` for the Chinese-core fallback pack).
 
 ## Status
 
-Simulation, manuscript draft, submission package, and deployment tooling are complete. Real-robot validation is the
-remaining phase (blocked on hardware + team availability).
+Simulation (canonical + 3 supplementary robustness sweeps), manuscript v0.5.3, submission package (Overleaf guide, video storyboard, Chinese fallback), and deployment tooling are complete. Real-robot validation (P3/P4) is the remaining phase (blocked on hardware + team availability).

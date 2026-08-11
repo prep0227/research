@@ -8,11 +8,13 @@ We are pleased to submit our manuscript, **"Delay-Aware Predictive Control for M
 
 **Results.** On a pre-registered simulation benchmark (four motion classes x three latency profiles x ten seeds), the proposed controller improves hit rate over the community-standard $Kt+B$+PID baseline by 28--67 percentage points ($p<0.001$, Cohen's $d>1.3$) on all conditions, and over a delay-unaware MPC on line, circular, and accelerating motion, with the largest margins under drifting latency. Six ablations and a zero-delay upper bound substantiate the attribution of the gain. Real-robot validation on a custom RoboMaster infantry robot with referee-system hit detection is in progress and will be included in the final version.
 
-**Why this journal.** RA-L's scope covers robot control, visual servoing, and real-time systems, and its emphasis on concise, well-validated contributions matches our paper. The robotic-competition platform makes the work accessible and reproducible; we release simulation code, per-seed data, and latency-profiling tooling.
+**Why this journal.** RA-L's scope covers robot control, visual servoing, and real-time systems, and its emphasis on concise, well-validated contributions matches our paper. The robotic-competition platform makes the work accessible and reproducible; we release simulation code, per-seed data, latency-profiling tooling, an offline replay harness, and an embedded-ready C++17 MPC solver.
 
 **Honest positioning.** We do not claim the first use of MPC for gimbal tracking (see [5], [11]) nor the first delay-compensated visual tracking (see [5], [6]); our contribution is the explicit time-varying delay-chain modeling with online estimation, its integration into delay-aware MPC, and the first controlled ablation benchmark on the RoboMaster platform.
 
-**Manuscript elements.** The submission includes the manuscript (6-page letter format), 4 tables, 2 figures, a supplementary video (to be added with real-robot footage), and open code/data.
+**Manuscript elements.** The submission includes the manuscript (6-page letter format), 4 figures (architecture, latency chain, main results, ablations), 4 main tables plus 3 supplementary robustness tables (speed-gear sensitivity, detection-dropout robustness, online delay-estimator accuracy), a supplementary video (to be added with real-robot footage), and open code/data.
+
+**Supplementary robustness.** Beyond the main benchmark, we verified that the advantage persists across target speed gears (0.5--2.0 m/s) and under 0--20% detection dropout, and we quantify the online delay estimator's accuracy (MAE < 0.4 ms under fixed latency; jitter covered by the uncertainty margin).
 
 We confirm that the manuscript is original, has not been published elsewhere, and is not under consideration by another journal. All authors approve the submission and declare no conflict of interest.
 
