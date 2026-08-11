@@ -96,7 +96,7 @@ where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{fire}}=0.0
 
 ## F. Baselines
 
-- **B0** (community baseline): empirical lead $Kt+B$ + cascade PID, mirroring RMVL practice [R1], driven by the same multi-model predictor as our method (a stronger-than-typical baseline). Its lead parameters are tuned with the ground-truth latency values (an oracle, hence favorable, setting for the baseline).
+- **B0** (community baseline): empirical lead $Kt+B$ + cascade PID, mirroring RMVL practice [R1], driven by the same multi-model predictor as our method (a stronger-than-typical baseline). Its lead parameters are set to the ground-truth values (the static lead $B=\tau_{\mathrm{gimbal}}=0.06$~s equals the true nominal actuation latency, and the flight-time term $Kt$ uses the exact projectile flight time $t=\mathrm{dist}/v_{\mathrm{bullet}}$), an oracle, hence favorable, setting for the baseline.
 - **B1** (delay-unaware MPC): the same MPC but with the input-delay model disabled (d=0); it uses only nominal latency constants in the aim horizon and does not model the time-varying/uncertain chain [R3].
 - **B2** (upper bound): our controller under a zero-delay profile (simulation only).
 
