@@ -94,6 +94,13 @@ def test_replay_end_to_end():
     assert m1["shots"] > 0 and mo["shots"] > 0
     log.unlink(missing_ok=True)
 
+def test_real_robot_stats_selftest():
+    import subprocess, sys
+    r = subprocess.run([sys.executable, "tools/real_robot_stats.py", "--selftest"],
+                       cwd=str(pathlib.Path(__file__).resolve().parent.parent),
+                       capture_output=True, text=True)
+    assert r.returncode == 0 and "SELFTEST OK" in r.stdout, r.stdout + r.stderr
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for fn in fns:
