@@ -20,6 +20,10 @@ We additionally implemented a three-model IMM (CV + CT + constant-acceleration C
 
 The real-robot protocol tests three target speed gears (0.5 / 1.2 / 2.0 m/s). To keep the simulation consistent with that protocol, we ran a supplementary speed sweep (same controllers, drifting latency, 10 seeds; Table S1). Across the 12 speed--scenario cells, Ours improves hit rate over B0 by +1.4 to +62.9 percentage points, significant ($p<0.05$) in 11/12 cells; the only exception is circle at 2.0 m/s, where all controllers collapse to near-zero hit rate (Ours 0.014, $+1.4$ pp, $p=0.343$). Versus B1 the gain is significant in 9/12 cells, with non-significant differences on circle at 1.2 and 2.0 m/s and S at 1.2 m/s -- consistent with the main benchmark, where S is the hardest case for B1. The estimated gain over B0 is positive in all 12 cells; over B1 it is negative only at circle 2.0 m/s ($-1.1$ pp, $p=0.655$). All controllers degrade at 2.0 m/s, so the supplementary sweep also serves as a difficulty calibration for the real-robot speed gears.
 
+### Detection-dropout robustness (supplementary)
+
+Real vision pipelines occasionally lose detections. We therefore replayed the representative line and accelerating scenarios under 10% and 20% detection-update dropout (drift latency, 10 seeds; Table S2). Ours remains significantly better than B1 at every dropout level ($p<0.001$), and its hit rate is approximately flat (line 0.40/0.46/0.41; accel 0.51/0.46/0.52 at 0/10/20%), consistent with the IMM prediction absorbing missed frames. Notably B1's hit rate *increases* with dropout on both scenarios (line 0.12->0.19, accel 0.12->0.29); fewer, sparser updates occasionally prevent B1 from over-correcting, yet it remains far below Ours.
+
 ## D. Future work
 
 - Vehicle-rotation (armor-around-center) motion model in the IMM.

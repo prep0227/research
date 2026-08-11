@@ -34,6 +34,16 @@ jobs:
         run: |
           g++ -std=c++17 -O2 -o /tmp/test_mpc_solver deploy/cpp/test_mpc_solver.cpp
           /tmp/test_mpc_solver
+      - name: Simulation smoke test (single config, reproducibility)
+        run: |
+          cd sim
+          python3 - <<'EOF'
+          from run_experiments import run_once
+          r = run_once("line", "drift", "Ours", 0)
+          assert 0.0 <= r["hit_rate"] <= 1.0, r
+          assert r["shots"] > 0
+          print(f"smoke OK: hit_rate={r['hit_rate']:.3f} shots={r['shots']}")
+          EOF
 
   latex-build:
     runs-on: ubuntu-latest

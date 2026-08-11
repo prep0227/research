@@ -124,6 +124,22 @@ for _sc in ["line", "circle", "s", "accel"]:
 T5.append("\\bottomrule\\end{tabular}\\end{table}")
 supp_tab = "\n".join(T5)
 
+# --- supplementary dropout table (number discipline: from results_dropout.json) --
+DRO = json.loads((SIM / "results_dropout.json").read_text(encoding="utf-8"))
+T6 = ["\\begin{table}[t]\\centering",
+      "\\caption{Detection-dropout robustness (drift latency, 10 seeds): hit rate by controller and paired gains vs. B1.}\\label{tab:drop}",
+      "\\begin{tabular}{lcccc}",
+      "\\toprule Scenario & Dropout & B1 & Ours & Ours$-$B1 (pp, $p$)\\ \\midrule"]
+for _sc in ["line", "accel"]:
+    for _dp in [0.0, 0.1, 0.2]:
+        _d = DRO["results"][f"{_sc}/dropout={_dp:.1f}"]
+        _p1 = _d["ours_vs_B1"]
+        _p1s = f"{_p1['p']:.3f}" if _p1["p"] is not None else "n/a"
+        T6.append(f"{_sc} & {_dp:.0%} & {_d['B1']['hit_rate']:.3f} & {_d['Ours']['hit_rate']:.3f} "
+                  f"& {_p1['mean_diff_pp']:+.1f} ({_p1s})\\")
+T6.append("\\bottomrule\\end{tabular}\\end{table}")
+supp_tab2 = "\n".join(T6)
+
 # --- sections ----------------------------------------------------------------
 abstract = md2tex(load("abstract.md")).replace("\\section*{Abstract}\n", "")
 intro = md2tex(load("introduction.md"))
@@ -180,6 +196,7 @@ doc = [preamble,
 \end{figure}
 \section*{Supplementary Material}
 """ + supp_tab + r"""
+""" + supp_tab2 + r"""
 \section*{Data Availability}
 Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{<repo-url>}.
 \end{document}

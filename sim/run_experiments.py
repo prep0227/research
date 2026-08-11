@@ -68,7 +68,9 @@ def build_controller(name, est, delay_est, lead=True, tighten=True):
                              lead=lead, tighten=tighten)
     raise ValueError(name)
 
-def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", lead=True, tighten=True, scale=1.0):
+def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", lead=True, tighten=True, scale=1.0, dropout=0.0):
+    """dropout: probability of dropping a detection update (missed-frame robustness).
+    Default 0.0 keeps the canonical pipeline bit-identical."""
     rng = np.random.default_rng(seed)
     np.random.seed(seed)
     traj = make_trajectory(scenario, scale=scale)
@@ -91,6 +93,8 @@ def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", 
         else:
             tau_v_used = TAU_VISION_NOMINAL if delay_mode != "none" else 0.0
         t_meas = max(0.0, t - tau_v_used)
+        if dropout > 0.0 and rng.random() < dropout:
+            continue  # detection lost: skip measurement update (estimator propagates)
         z = traj.position(max(0.0, t - tau_v_true)) + rng.normal(0.0, 0.03, 3)
         est.update(z, t, t_meas)
         if delay_est is not None:
@@ -106,7 +110,7 @@ def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", 
                     lambda t: np.linalg.norm(traj.position(t) - np.asarray(GIMBAL_POS)) / V_BULLET)
     m.update({"controller": controller_name, "scenario": scenario, "delay_mode": delay_mode,
               "seed": seed, "estimator": estimator_type, "lead": lead, "tighten": tighten,
-              "scale": float(scale)})
+              "scale": float(scale), "dropout": float(dropout)})
     return m
 
 def paired(a, b):
