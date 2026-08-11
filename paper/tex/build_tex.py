@@ -194,7 +194,6 @@ doc = [preamble,
 \bibliographystyle{IEEEtran}
 \bibliography{refs}
 
-\section*{Figures}
 \begin{figure*}[t]\centering
 \includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
 \caption{System architecture. Detection and PnP are shared with the baselines; the IMM estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}

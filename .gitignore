@@ -27,3 +27,7 @@ tmp/
 # Generated submission bundle
 paper/submission_bundle/
 paper/submission_bundle.zip
+
+# Generated arXiv package
+paper/arxiv/
+paper/arxiv_submission.zip
