@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Build artifacts
+deploy/cpp/test_mpc_solver
+*.o
+*.exe
+
+# LaTeX aux
+paper/tex/*.aux
+paper/tex/*.log
+paper/tex/*.out
+paper/tex/*.pdf
+paper/tex/*.fls
+paper/tex/*.fdb_latexmk
+paper/tex/*.synctex.gz
+
+# Local scratch
+tmp/
+*.tmp

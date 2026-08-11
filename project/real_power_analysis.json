@@ -1,0 +1,182 @@
+{
+  "p0=0.20,N=200,rho=0.5": {
+    "power_ge5pp_and_p05": 0.364,
+    "rejection_rate": 0.364,
+    "mean_obs_improve_pp": 4.97
+  },
+  "p0=0.20,N=200,rho=0.8": {
+    "power_ge5pp_and_p05": 0.473,
+    "rejection_rate": 0.501,
+    "mean_obs_improve_pp": 4.98
+  },
+  "p0=0.20,N=300,rho=0.5": {
+    "power_ge5pp_and_p05": 0.48,
+    "rejection_rate": 0.493,
+    "mean_obs_improve_pp": 5.0
+  },
+  "p0=0.20,N=300,rho=0.8": {
+    "power_ge5pp_and_p05": 0.492,
+    "rejection_rate": 0.663,
+    "mean_obs_improve_pp": 4.98
+  },
+  "p0=0.20,N=400,rho=0.5": {
+    "power_ge5pp_and_p05": 0.505,
+    "rejection_rate": 0.613,
+    "mean_obs_improve_pp": 5.02
+  },
+  "p0=0.20,N=400,rho=0.8": {
+    "power_ge5pp_and_p05": 0.501,
+    "rejection_rate": 0.785,
+    "mean_obs_improve_pp": 5.0
+  },
+  "p0=0.30,N=200,rho=0.5": {
+    "power_ge5pp_and_p05": 0.32,
+    "rejection_rate": 0.32,
+    "mean_obs_improve_pp": 5.01
+  },
+  "p0=0.30,N=200,rho=0.8": {
+    "power_ge5pp_and_p05": 0.429,
+    "rejection_rate": 0.436,
+    "mean_obs_improve_pp": 5.01
+  },
+  "p0=0.30,N=300,rho=0.5": {
+    "power_ge5pp_and_p05": 0.429,
+    "rejection_rate": 0.43,
+    "mean_obs_improve_pp": 5.01
+  },
+  "p0=0.30,N=300,rho=0.8": {
+    "power_ge5pp_and_p05": 0.482,
+    "rejection_rate": 0.597,
+    "mean_obs_improve_pp": 5.0
+  },
+  "p0=0.30,N=400,rho=0.5": {
+    "power_ge5pp_and_p05": 0.489,
+    "rejection_rate": 0.536,
+    "mean_obs_improve_pp": 5.01
+  },
+  "p0=0.30,N=400,rho=0.8": {
+    "power_ge5pp_and_p05": 0.484,
+    "rejection_rate": 0.714,
+    "mean_obs_improve_pp": 5.02
+  },
+  "p0=0.40,N=200,rho=0.5": {
+    "power_ge5pp_and_p05": 0.293,
+    "rejection_rate": 0.293,
+    "mean_obs_improve_pp": 4.98
+  },
+  "p0=0.40,N=200,rho=0.8": {
+    "power_ge5pp_and_p05": 0.413,
+    "rejection_rate": 0.414,
+    "mean_obs_improve_pp": 4.98
+  },
+  "p0=0.40,N=300,rho=0.5": {
+    "power_ge5pp_and_p05": 0.402,
+    "rejection_rate": 0.402,
+    "mean_obs_improve_pp": 4.99
+  },
+  "p0=0.40,N=300,rho=0.8": {
+    "power_ge5pp_and_p05": 0.476,
+    "rejection_rate": 0.558,
+    "mean_obs_improve_pp": 4.99
+  },
+  "p0=0.40,N=400,rho=0.5": {
+    "power_ge5pp_and_p05": 0.487,
+    "rejection_rate": 0.508,
+    "mean_obs_improve_pp": 5.0
+  },
+  "p0=0.40,N=400,rho=0.8": {
+    "power_ge5pp_and_p05": 0.488,
+    "rejection_rate": 0.679,
+    "mean_obs_improve_pp": 5.0
+  },
+  "p0=0.50,N=200,rho=0.5": {
+    "power_ge5pp_and_p05": 0.302,
+    "rejection_rate": 0.302,
+    "mean_obs_improve_pp": 4.98
+  },
+  "p0=0.50,N=200,rho=0.8": {
+    "power_ge5pp_and_p05": 0.403,
+    "rejection_rate": 0.404,
+    "mean_obs_improve_pp": 4.95
+  },
+  "p0=0.50,N=300,rho=0.5": {
+    "power_ge5pp_and_p05": 0.411,
+    "rejection_rate": 0.411,
+    "mean_obs_improve_pp": 5.05
+  },
+  "p0=0.50,N=300,rho=0.8": {
+    "power_ge5pp_and_p05": 0.502,
+    "rejection_rate": 0.562,
+    "mean_obs_improve_pp": 5.02
+  },
+  "p0=0.50,N=400,rho=0.5": {
+    "power_ge5pp_and_p05": 0.493,
+    "rejection_rate": 0.501,
+    "mean_obs_improve_pp": 4.98
+  },
+  "p0=0.50,N=400,rho=0.8": {
+    "power_ge5pp_and_p05": 0.501,
+    "rejection_rate": 0.67,
+    "mean_obs_improve_pp": 4.99
+  },
+  "p0=0.60,N=200,rho=0.5": {
+    "power_ge5pp_and_p05": 0.312,
+    "rejection_rate": 0.312,
+    "mean_obs_improve_pp": 5.07
+  },
+  "p0=0.60,N=200,rho=0.8": {
+    "power_ge5pp_and_p05": 0.421,
+    "rejection_rate": 0.422,
+    "mean_obs_improve_pp": 5.04
+  },
+  "p0=0.60,N=300,rho=0.5": {
+    "power_ge5pp_and_p05": 0.408,
+    "rejection_rate": 0.408,
+    "mean_obs_improve_pp": 4.94
+  },
+  "p0=0.60,N=300,rho=0.8": {
+    "power_ge5pp_and_p05": 0.493,
+    "rejection_rate": 0.567,
+    "mean_obs_improve_pp": 4.96
+  },
+  "p0=0.60,N=400,rho=0.5": {
+    "power_ge5pp_and_p05": 0.491,
+    "rejection_rate": 0.513,
+    "mean_obs_improve_pp": 4.96
+  },
+  "p0=0.60,N=400,rho=0.8": {
+    "power_ge5pp_and_p05": 0.496,
+    "rejection_rate": 0.687,
+    "mean_obs_improve_pp": 4.97
+  },
+  "p0=0.70,N=200,rho=0.5": {
+    "power_ge5pp_and_p05": 0.339,
+    "rejection_rate": 0.339,
+    "mean_obs_improve_pp": 5.0
+  },
+  "p0=0.70,N=200,rho=0.8": {
+    "power_ge5pp_and_p05": 0.457,
+    "rejection_rate": 0.462,
+    "mean_obs_improve_pp": 5.0
+  },
+  "p0=0.70,N=300,rho=0.5": {
+    "power_ge5pp_and_p05": 0.45,
+    "rejection_rate": 0.451,
+    "mean_obs_improve_pp": 4.95
+  },
+  "p0=0.70,N=300,rho=0.8": {
+    "power_ge5pp_and_p05": 0.5,
+    "rejection_rate": 0.616,
+    "mean_obs_improve_pp": 4.96
+  },
+  "p0=0.70,N=400,rho=0.5": {
+    "power_ge5pp_and_p05": 0.498,
+    "rejection_rate": 0.562,
+    "mean_obs_improve_pp": 4.98
+  },
+  "p0=0.70,N=400,rho=0.8": {
+    "power_ge5pp_and_p05": 0.51,
+    "rejection_rate": 0.742,
+    "mean_obs_improve_pp": 5.0
+  }
+}

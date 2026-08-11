@@ -1,0 +1,133 @@
+{
+  "project_id": "proj_robomaster_vision_delay_2026",
+  "current_state": "COMPLETED",
+  "warnings": [
+    {
+      "id": "warn_access_restricted_1",
+      "type": "ACCESS_RESTRICTED",
+      "severity": "MEDIUM",
+      "description": "多条证据仅摘要可访问（ev_harbe_kalman_2022, ev_fme_2024, ev_mdpi_act2023, ev_mdpi_mach2024, ev_kci_gimbal_delay, ev_penc_2025, ev_nudt_mst2025, ev_ndec_2026, ev_patent_cn_strike, ev_guyue_2021），表达上限 MEDIUM",
+      "created_at": "2026-08-11T12:41:57+08:00"
+    },
+    {
+      "id": "warn_novelty_risk_1",
+      "type": "NOVELTY_RISK",
+      "severity": "HIGH",
+      "description": "存在高度相似先例：开源 SHtech_auto_aim(2026) 已实现 IESEKF+MPC 云台规划；Barreto(2002) 已提出 MPC 补偿视觉运动控制延迟。宽泛表述不可行，必须收窄研究问题。",
+      "created_at": "2026-08-11T12:41:57+08:00"
+    },
+    {
+      "id": "warn_numbers_unverified",
+      "type": "NUMBER_UNVERIFIED",
+      "severity": "MEDIUM",
+      "description": "TJURM 延迟数值、Machines 2024 的 36.8% 等具体数字尚未二次核验（部分仅摘要），转述需标注；FME 2024 的 37.6%/66.7%/41.6% 与 Actuators 2023 的 42.9%/58.3%/72% 已于 2026-08-11 二次核验。",
+      "created_at": "2026-08-11T12:41:57+08:00"
+    },
+    {
+      "id": "warn_sim_v03_pass",
+      "type": "MILESTONE",
+      "severity": "INFO",
+      "description": "sim v0.3 完成：ADMM 求解器（P99=4.8ms<20ms）+ 时延不确定性约束收紧 + 消融 A1-A6 齐备；Ours 在直线/圆周/变速 3 类轨迹同时显著优于 B0 与 B1（S 形 vs B1 不显著，诚实报告）；520 runs×10 seeds 落盘。",
+      "created_at": "2026-08-11T14:25:23+08:00"
+    },
+    {
+      "id": "warn_artifacts_round3",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "新增：paper/simulation_section.md（英文初稿，由 results.json 自动生成）、paper/generate_sim_section.py、tools/delay_profiler/（真机延迟画像测量骨架，合成数据测试通过）。",
+      "created_at": "2026-08-11T14:27:34+08:00"
+    },
+    {
+      "id": "warn_manuscript_v04",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "完整英文手稿 paper/manuscript.md v0.4（28.5k chars）：Abstract+Intro+RelatedWork+Method+Simulation+RealRobot协议+Discussion+Conclusion+References（R1-R15 引用一致性核验通过）+Data Availability。",
+      "created_at": "2026-08-11T14:30:11+08:00"
+    },
+    {
+      "id": "warn_submission_pkg",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "投稿包就绪（除真机数据）：journal_selection.md、tex/manuscript.tex+refs.bib（IEEEtran，cite 15/15 一致，Overleaf 可编译）、cover_letter.md、submission_checklist.md。",
+      "created_at": "2026-08-11T14:33:06+08:00"
+    },
+    {
+      "id": "warn_v04_3model_checked",
+      "type": "MILESTONE",
+      "severity": "INFO",
+      "description": "三模型 IMM{CV,CT,CA} 补充实验完成：S-drift 0.111→0.146（p=0.114 不显著），accel-drift 回退 0.713→0.513；保留二模型 IMM{CV,CT} 为主配置（v0.4 备份，v0.3 恢复 canonical）。",
+      "created_at": "2026-08-11T14:43:00+08:00"
+    },
+    {
+      "id": "warn_cpp_solver_ready",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "deploy/cpp/mpc_solver.hpp（header-only ADMM, C++17）+ test_mpc_solver.cpp 编译测试通过（无约束误差 5e-7；有约束可行且目标下降），为嵌入式/真机移植就绪。",
+      "created_at": "2026-08-11T14:44:00+08:00"
+    },
+    {
+      "id": "warn_refs_verified",
+      "type": "INFO",
+      "severity": "INFO",
+      "description": "文献数字二次核验完成：[R7] 37.6%/66.7%/41.6%（官方摘要+万方/Springer）；[R8] 42.9% 响应比+58.3%/72%（MDPI XML 索引+Semantic Scholar）；evidence_report/references/manuscript 已同步。",
+      "created_at": "2026-08-11T14:48:00+08:00"
+    },
+    {
+      "id": "warn_manuscript_v05",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "手稿 v0.5（29.7k chars）重新生成：R7/R8 引用核验标注更新，tex 同步重建，cite 15/15 一致。",
+      "created_at": "2026-08-11T14:50:00+08:00"
+    }
+  ],
+  "failures": [],
+  "retry_counter": {
+    "SCOUT_REFINE": {
+      "count": 0,
+      "max_retries": 3
+    },
+    "GAP_REFINE": {
+      "count": 0,
+      "max_retries": 2
+    },
+    "CRITIC_REVISE": {
+      "count": 1,
+      "max_retries": 2
+    },
+    "EXPERIMENT_REVISE": {
+      "count": 0,
+      "max_retries": 2
+    }
+  },
+  "budget": {
+    "token_budget": 200000,
+    "time_budget_minutes": 45,
+    "retrieval_calls": 17,
+    "api_cost_limit": 1.0,
+    "max_iterations": 3,
+    "usage": {
+      "tokens_used": 0,
+      "calls_made": 21,
+      "cost_spent": 0.0,
+      "iterations_used": 3
+    }
+  },
+  "human_gate_status": [
+    {
+      "gate_id": "GATE_1_RESEARCH_QUESTION",
+      "approved_by": "user:team_lead",
+      "timestamp": "2026-08-11T13:32:36+08:00",
+      "object_version": "brief_rm_vision_delay_mpc v1.1.0",
+      "decision": "APPROVED",
+      "comment": "RQ 认可；平台=自研步兵(全向轮+两轴云台+工业相机)；真值=裁判系统；目标谱=直线/圆周/S形/变速；产出=英文期刊(兜底中文核心)；时间=9月-次年1月"
+    },
+    {
+      "gate_id": "GATE_4_RESEARCH_PLAN",
+      "approved_by": "user:team_lead",
+      "timestamp": "2026-08-11T13:32:36+08:00",
+      "object_version": "exp_delayaware_mpc_rm v1.1.0",
+      "decision": "APPROVED",
+      "comment": "失败阈值确认：命中率提升 >=5pp 可接受"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "platform": "Python 3 / numpy / scipy (conservative upper bound; C++/OSQP expected much faster)",
+  "H": 18,
+  "admm": {
+    "mean_ms": 3.1405002335183476,
+    "p50": 3.0153690022416413,
+    "p95": 4.000072601047577,
+    "p99": 4.880744352267357,
+    "max": 6.337491009617224,
+    "control_period_ms": 20.0,
+    "p99_lt_period": true
+  },
+  "slsqp": {
+    "mean_ms": 3.4529364401532803,
+    "p50": 3.3017169989761896,
+    "p95": 4.363274193747203,
+    "p99": 5.8251050322723925,
+    "max": 10.279194000759162,
+    "control_period_ms": 20.0,
+    "p99_lt_period": true
+  }
+}

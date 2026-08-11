@@ -1,0 +1,562 @@
+{
+  "config": {
+    "dt": 0.02,
+    "T": 6.0,
+    "H": 18,
+    "tau_fire": 0.08,
+    "tau_gimbal_nominal": 0.06,
+    "tau_vision_nominal": 0.03,
+    "v_bullet": 15.0,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "estimator": "IMM(CV+CT)",
+    "solver": "ADMM"
+  },
+  "rows": [
+    {
+      "scenario": "line",
+      "delay_mode": "fixed",
+      "controller": "B0",
+      "hit_rate": 0.07615190365190365,
+      "hit_std": 0.05495763629850142,
+      "shots": 12,
+      "err_rmse_mrad": 158.141656073944
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "fixed",
+      "controller": "B1",
+      "hit_rate": 0.22742549060398026,
+      "hit_std": 0.08942046159812618,
+      "shots": 22,
+      "err_rmse_mrad": 115.84490682022539
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "fixed",
+      "controller": "Ours",
+      "hit_rate": 0.5001666666666666,
+      "hit_std": 0.07871661341054033,
+      "shots": 25,
+      "err_rmse_mrad": 92.86298520357624
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "gamma",
+      "controller": "B0",
+      "hit_rate": 0.08604659229659228,
+      "hit_std": 0.04355862690368619,
+      "shots": 12,
+      "err_rmse_mrad": 153.73474525022434
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "gamma",
+      "controller": "B1",
+      "hit_rate": 0.2185250329380764,
+      "hit_std": 0.09480119076441888,
+      "shots": 23,
+      "err_rmse_mrad": 114.55126676553047
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "gamma",
+      "controller": "Ours",
+      "hit_rate": 0.5050000000000001,
+      "hit_std": 0.09034778300263446,
+      "shots": 24,
+      "err_rmse_mrad": 92.62827755551349
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "drift",
+      "controller": "B0",
+      "hit_rate": 0.05694444444444444,
+      "hit_std": 0.05808478796201801,
+      "shots": 9,
+      "err_rmse_mrad": 176.94196897554966
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "drift",
+      "controller": "B1",
+      "hit_rate": 0.10626206095246345,
+      "hit_std": 0.0619104115984247,
+      "shots": 15,
+      "err_rmse_mrad": 132.52922217460954
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "drift",
+      "controller": "Ours",
+      "hit_rate": 0.4497948717948718,
+      "hit_std": 0.09094091759541824,
+      "shots": 24,
+      "err_rmse_mrad": 94.40869230996405
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "fixed",
+      "controller": "B0",
+      "hit_rate": 0.19582292707292703,
+      "hit_std": 0.10016595423851125,
+      "shots": 13,
+      "err_rmse_mrad": 111.21178260534393
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "fixed",
+      "controller": "B1",
+      "hit_rate": 0.4257692307692308,
+      "hit_std": 0.10986144223134828,
+      "shots": 24,
+      "err_rmse_mrad": 37.986277432628945
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "fixed",
+      "controller": "Ours",
+      "hit_rate": 0.5014115570419919,
+      "hit_std": 0.06326585873919441,
+      "shots": 24,
+      "err_rmse_mrad": 26.62871412067701
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "gamma",
+      "controller": "B0",
+      "hit_rate": 0.21109307359307355,
+      "hit_std": 0.10101786618523988,
+      "shots": 12,
+      "err_rmse_mrad": 112.42544534323221
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "gamma",
+      "controller": "B1",
+      "hit_rate": 0.434948717948718,
+      "hit_std": 0.06752848280156017,
+      "shots": 24,
+      "err_rmse_mrad": 38.40203780348208
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "gamma",
+      "controller": "Ours",
+      "hit_rate": 0.49594370122631004,
+      "hit_std": 0.06541468875179894,
+      "shots": 24,
+      "err_rmse_mrad": 26.605882748242713
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "drift",
+      "controller": "B0",
+      "hit_rate": 0.12346361971361972,
+      "hit_std": 0.07796616639053203,
+      "shots": 13,
+      "err_rmse_mrad": 109.52537293364439
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "drift",
+      "controller": "B1",
+      "hit_rate": 0.27660210185112594,
+      "hit_std": 0.07647946791445222,
+      "shots": 21,
+      "err_rmse_mrad": 54.247075397705196
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "drift",
+      "controller": "Ours",
+      "hit_rate": 0.46789966555183937,
+      "hit_std": 0.0838511949414383,
+      "shots": 24,
+      "err_rmse_mrad": 27.830104708763592
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "fixed",
+      "controller": "B0",
+      "hit_rate": 0.00909090909090909,
+      "hit_std": 0.02727272727272727,
+      "shots": 8,
+      "err_rmse_mrad": 156.1342327569775
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "fixed",
+      "controller": "B1",
+      "hit_rate": 0.12797075693185533,
+      "hit_std": 0.0520551403378979,
+      "shots": 22,
+      "err_rmse_mrad": 74.11725418955058
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "fixed",
+      "controller": "Ours",
+      "hit_rate": 0.14057971014492757,
+      "hit_std": 0.049001530266860174,
+      "shots": 23,
+      "err_rmse_mrad": 59.57743373602083
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "gamma",
+      "controller": "B0",
+      "hit_rate": 0.020833333333333332,
+      "hit_std": 0.042695628191498324,
+      "shots": 8,
+      "err_rmse_mrad": 155.3385865473472
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "gamma",
+      "controller": "B1",
+      "hit_rate": 0.11468419566703321,
+      "hit_std": 0.0646940734061786,
+      "shots": 22,
+      "err_rmse_mrad": 73.41364522928416
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "gamma",
+      "controller": "Ours",
+      "hit_rate": 0.1542391304347826,
+      "hit_std": 0.06943422767292161,
+      "shots": 22,
+      "err_rmse_mrad": 59.157243609058256
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "drift",
+      "controller": "B0",
+      "hit_rate": 0.0,
+      "hit_std": 0.0,
+      "shots": 5,
+      "err_rmse_mrad": 163.91398415562554
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "drift",
+      "controller": "B1",
+      "hit_rate": 0.07390449591687982,
+      "hit_std": 0.06137941794179675,
+      "shots": 16,
+      "err_rmse_mrad": 88.90291287892806
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "drift",
+      "controller": "Ours",
+      "hit_rate": 0.11141304347826086,
+      "hit_std": 0.05257526036569367,
+      "shots": 23,
+      "err_rmse_mrad": 61.12814693440206
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "fixed",
+      "controller": "B0",
+      "hit_rate": 0.0953968253968254,
+      "hit_std": 0.10983496174197757,
+      "shots": 5,
+      "err_rmse_mrad": 276.1611586448374
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "fixed",
+      "controller": "B1",
+      "hit_rate": 0.4093728590250329,
+      "hit_std": 0.09651123244522071,
+      "shots": 23,
+      "err_rmse_mrad": 115.7918109628418
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "fixed",
+      "controller": "Ours",
+      "hit_rate": 0.761231884057971,
+      "hit_std": 0.09747245799308013,
+      "shots": 24,
+      "err_rmse_mrad": 95.94763778325047
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "gamma",
+      "controller": "B0",
+      "hit_rate": 0.13357142857142856,
+      "hit_std": 0.13950207046635218,
+      "shots": 5,
+      "err_rmse_mrad": 269.02713321390104
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "gamma",
+      "controller": "B1",
+      "hit_rate": 0.40763438735177865,
+      "hit_std": 0.11241477341704899,
+      "shots": 23,
+      "err_rmse_mrad": 113.80904535994007
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "gamma",
+      "controller": "Ours",
+      "hit_rate": 0.7730724637681158,
+      "hit_std": 0.10092546031712038,
+      "shots": 23,
+      "err_rmse_mrad": 95.69824084253995
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "drift",
+      "controller": "B0",
+      "hit_rate": 0.08166666666666667,
+      "hit_std": 0.10177589760514684,
+      "shots": 5,
+      "err_rmse_mrad": 310.58752624770506
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "drift",
+      "controller": "B1",
+      "hit_rate": 0.14760752659494078,
+      "hit_std": 0.09339911450911376,
+      "shots": 17,
+      "err_rmse_mrad": 131.57013869431512
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "drift",
+      "controller": "Ours",
+      "hit_rate": 0.7129855072463769,
+      "hit_std": 0.10724184185476504,
+      "shots": 23,
+      "err_rmse_mrad": 98.67485549786333
+    }
+  ],
+  "paired": [
+    {
+      "scenario": "line",
+      "delay_mode": "fixed",
+      "ours_vs_B0": {
+        "mean_diff_pp": 42.40147630147631,
+        "p": 6.064290388324297e-07,
+        "d": 3.9024532379149695
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 27.27411760626864,
+        "p": 8.239823017816691e-05,
+        "d": 2.1387453111984045
+      }
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "gamma",
+      "ours_vs_B0": {
+        "mean_diff_pp": 41.89534077034077,
+        "p": 2.3999506481928904e-07,
+        "d": 4.347312246865959
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 28.64749670619236,
+        "p": 8.644799982570393e-05,
+        "d": 2.1253635167410256
+      }
+    },
+    {
+      "scenario": "line",
+      "delay_mode": "drift",
+      "ours_vs_B0": {
+        "mean_diff_pp": 39.28504273504274,
+        "p": 1.1867404884477704e-07,
+        "d": 4.715815849743995
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 34.353281084240834,
+        "p": 2.589217191606073e-05,
+        "d": 2.4805515032876206
+      }
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "fixed",
+      "ours_vs_B0": {
+        "mean_diff_pp": 30.558862996906477,
+        "p": 1.1446791312562527e-05,
+        "d": 2.7455321753983646
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 7.5642326272761045,
+        "p": 0.024312304730401284,
+        "d": 0.8544603374026435
+      }
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "gamma",
+      "ours_vs_B0": {
+        "mean_diff_pp": 28.485062763323633,
+        "p": 3.0998661793069995e-05,
+        "d": 2.424900044846631
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 6.099498327759199,
+        "p": 0.017048394818087766,
+        "d": 0.923196027213178
+      }
+    },
+    {
+      "scenario": "circle",
+      "delay_mode": "drift",
+      "ours_vs_B0": {
+        "mean_diff_pp": 34.44360458382197,
+        "p": 2.1365395696094397e-05,
+        "d": 2.5410442063334004
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 19.129756370071355,
+        "p": 0.00038609379457598,
+        "d": 1.735486707417071
+      }
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "fixed",
+      "ours_vs_B0": {
+        "mean_diff_pp": 13.148880105401844,
+        "p": 2.6303246506293536e-05,
+        "d": 2.4756428478721255
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 1.2608953213072205,
+        "p": 0.5913826102181252,
+        "d": 0.1760061196158321
+      }
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "gamma",
+      "ours_vs_B0": {
+        "mean_diff_pp": 13.340579710144926,
+        "p": 0.0023106402617324,
+        "d": 1.3277914325879954
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 3.9554934767749415,
+        "p": 0.1291338116665357,
+        "d": 0.5282962684754169
+      }
+    },
+    {
+      "scenario": "s",
+      "delay_mode": "drift",
+      "ours_vs_B0": {
+        "mean_diff_pp": 11.141304347826086,
+        "p": 0.0001317277614680833,
+        "d": 2.0103693790125328
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 3.750854756138105,
+        "p": 0.13819385143832402,
+        "d": 0.5144823027196468
+      }
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "fixed",
+      "ours_vs_B0": {
+        "mean_diff_pp": 66.58350586611455,
+        "p": 3.416737983556014e-08,
+        "d": 5.43947294318131
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 35.18590250329381,
+        "p": 7.1251152138348964e-06,
+        "d": 2.909562509279525
+      }
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "gamma",
+      "ours_vs_B0": {
+        "mean_diff_pp": 63.95010351966873,
+        "p": 1.6118900171352693e-06,
+        "d": 3.478004213219497
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 36.54380764163373,
+        "p": 2.3794686638905808e-05,
+        "d": 2.507005473674831
+      }
+    },
+    {
+      "scenario": "accel",
+      "delay_mode": "drift",
+      "ours_vs_B0": {
+        "mean_diff_pp": 63.13188405797102,
+        "p": 8.141717052376593e-07,
+        "d": 3.7699499685703226
+      },
+      "ours_vs_B1": {
+        "mean_diff_pp": 56.537798065143605,
+        "p": 4.391199373644557e-06,
+        "d": 3.0853035249925824
+      }
+    }
+  ],
+  "b2_zero_delay": {
+    "line": 0.5600128205128205,
+    "circle": 0.5872405372405373,
+    "s": 0.18593589743589742,
+    "accel": 0.8148333333333333
+  },
+  "ablations_drift": {
+    "line": {
+      "Ours_IMM": 0.4497948717948718,
+      "A1_no_delay_model": 0.10626206095246345,
+      "A2_no_lead": 0.06419230769230769,
+      "A4_CV_est": 0.4497948717948718,
+      "A6_no_tighten": 0.4079487179487179,
+      "A5_cv": 0.20218309077278362
+    },
+    "circle": {
+      "Ours_IMM": 0.46789966555183937,
+      "A1_no_delay_model": 0.27660210185112594,
+      "A2_no_lead": 0.23915384615384613,
+      "A4_CV_est": 0.4595663322185062,
+      "A6_no_tighten": 0.4389352780874519,
+      "A5_cv": 0.17920763987582003
+    },
+    "s": {
+      "Ours_IMM": 0.11141304347826086,
+      "A1_no_delay_model": 0.07390449591687982,
+      "A2_no_lead": 0.11750000000000001,
+      "A4_CV_est": 0.11141304347826086,
+      "A6_no_tighten": 0.10442028985507246,
+      "A5_cv": 0.47189501563214403
+    },
+    "accel": {
+      "Ours_IMM": 0.7129855072463769,
+      "A1_no_delay_model": 0.14760752659494078,
+      "A2_no_lead": 0.4871666666666667,
+      "A4_CV_est": 0.7680579710144928,
+      "A6_no_tighten": 0.7021159420289854,
+      "A5_cv": 0.1504123725018362
+    }
+  },
+  "wall_sec": 0.02433919906616211
+}

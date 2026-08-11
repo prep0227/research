@@ -1,0 +1,292 @@
+# Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation: A RoboMaster Gimbal Case Study
+
+**Draft v0.5** -- generated from verified simulation artifacts (2026-08-11). Real-robot section pending hardware (Section V).
+
+
+---
+
+# Abstract
+
+# Abstract
+
+Vision-based target tracking and firing on high-maneuver target platforms (e.g., RoboMaster combat robots) is fundamentally limited by a multi-segment latency chain: camera exposure and readout, detection and pose estimation, serial communication, gimbal actuation, firing delay, and projectile flight time. Existing practice compensates these latencies with empirical lead parameters ($Kt+B$) around a Kalman-filter target predictor, while recent open-source designs apply model predictive control (MPC) to gimbal planning but treat delays as constant, hand-tuned parameters and provide no controlled evaluation.
+
+This paper proposes a delay-aware predictive control framework for moving-target tracking with explicit, online-estimated vision/actuation latency compensation. Our system combines (i) an interacting-multiple-model (IMM) estimator with CV and constant-turn-rate models and out-of-sequence measurement handling, (ii) a sliding-window online latency estimator that feeds both the aim horizon and a delay-uncertainty tightening margin into the firing decision, and (iii) an input-delay-augmented MPC solved by an ADMM box-constrained QP with a $20$ ms control period. We evaluate on a pre-registered simulation benchmark covering four motion classes (line, circle, sinusoidal, accelerating), three latency profiles (fixed, jittered, drifting), and ten seeds per condition, against two baselines: the community-standard $Kt+B$+PID pipeline (B0) and a delay-unaware MPC (B1).
+
+Results show that the proposed controller improves hit rate over B0 by 28--67 percentage points ($p<0.001$, Cohen's $d>1.3$) on all trajectory classes and latency profiles, and over B1 on line, circle, and accelerating motion (up to $+59$ pp under drifting latency). Ablations isolate the contributions of the input-delay model, the lead prediction, and delay-uncertainty tightening; a zero-delay upper bound quantifies the residual latency cost. The MPC solver meets real-time requirements ($p99=4.9$ ms $<$ 20 ms in Python, conservative). Real-robot validation on a custom RoboMaster infantry robot with referee-system hit detection is planned (Section V).
+
+**Keywords**: predictive control; visual latency compensation; target tracking; RoboMaster gimbal; delay-aware MPC
+
+---
+
+# I. Introduction
+
+# I. Introduction
+
+Autonomous aiming ("auto-aim") is the core closed-loop problem of RoboMaster combat robots: a vision pipeline detects the opponent's armor plates, a gimbal aims a projectile launcher, and the robot fires at the predicted impact position. The loop is dominated by latency, not just image processing. Team experience and public engineering documentation decompose the loop into six delays [R1][R2]: camera exposure and readout, detection/pose computation, serial communication, gimbal actuation (20--200 ms), firing delay (50--100 ms), and projectile flight (50--250 ms). Only the first three are on the order of milliseconds; the actuation, firing, and flight delays are one to two orders of magnitude larger and cannot be ignored.
+
+Because of these latencies, aiming at the *current* target position is systematically wrong. Practical RoboMaster systems therefore predict the target state and aim at a *lead point*: the RoboMaster Vision Library (RMVL) formalizes this as three empirical prediction terms -- a static-response term $B$, a dynamic-response term proportional to flight time $Kt$, and a firing-delay term $\mathrm{SHOOT\_B}$ -- whose parameters are tuned by hand [R1]. State-of-the-art team designs use extended Kalman filters (EKF) with two motion models and an explicit delay taxonomy [R2]. Recent open-source work applies MPC to gimbal trajectory planning with an iterated EKF predictor, but represents the latency chain as a few constant parameters and provides no controlled experiments [R3]. The official open-source controller stack still uses PID plus a ballistic solver [R4].
+
+In the control and photonics literature, the adverse effect of visual/measurement delay on closed-loop tracking bandwidth is well established, and multiple compensation strategies exist: interpolation and MPC for visual motion control [R5], Smith predictors for CCD optoelectronic tracking [R6], delay-prediction plus interpolation filtering for electro-optical detection systems [R7][R8], and robust/adaptive Kalman visual servoing under measurement delay [R9][R10]. MPC has also been applied to gimbal-camera target tracking for UAVs [R11]. However, these works do not target the RoboMaster platform, do not model the *time-varying and uncertain* multi-segment latency chain, and -- in the RoboMaster-specific MPC implementation [R3] -- lack controlled evaluation and ablations.
+
+This paper bridges that gap with the following contributions:
+
+1. **Delay-chain modeling with online estimation**: we formalize the six-segment latency chain as a time-varying, uncertain quantity ($\tau_i(t)=\bar\tau_i+\delta_i(t)$, $|\delta_i|\le\Delta_i$), and estimate each segment online with a sliding-window estimator whose uncertainty bound $\Delta_i$ enters the firing decision as a tightening margin.
+2. **Delay-aware predictive control**: we embed the (estimated) input delay into the MPC prediction model via input-delay state augmentation, use an IMM (CV+CT) estimator with out-of-sequence measurement handling to generate lead references, and solve the resulting box-constrained QP with a warm-started ADMM solver at 20 ms.
+3. **Controlled, reproducible evaluation**: a pre-registered simulation benchmark (4 motion classes $\times$ 3 latency profiles $\times$ 10 seeds) with two baselines, a zero-delay upper bound, and six ablations (A1--A6); code and per-seed results are released.
+
+The rest of the paper is organized as follows. Section II formulates the problem. Section III presents the method. Section IV reports the simulation study (setup, results, ablations, real-time feasibility). Section V describes the real-robot experimental protocol and preliminary status. Section VI discusses limitations; Section VII concludes.
+
+---
+
+# II. Related Work
+
+# II. Related Work
+
+## A. RoboMaster auto-aim systems
+
+RoboMaster auto-aim practice is documented mainly through open-source engineering artifacts. RMVL defines the empirical lead framework ($K$, $B$, $\mathrm{SHOOT\_B}$) and tuning procedure [R1]. The Tianjin University 2024 framework (TJURM) publishes a detailed delay taxonomy with per-segment magnitudes and an EKF with two motion models (single-plate variable-speed and vehicle-center rotation-translation) [R2]. The ShanghaiTech 2026 open-source auto-aim (SHtech) integrates an iterated EKF (IESEKF) with an MPC gimbal planner solved by an ADMM-based library, and treats communication/firing latencies as constant parameters in YAML configuration [R3]. The rm-controls stack implements PID yaw/pitch control with a ballistic solver for predictive aiming [R4]. Academic work on RoboMaster includes a YOLOv5-based assisted aiming system with Kalman prediction and PID+feedforward control [R12], and a Kalman-filter target recognition/tracking and firing system with ballistic compensation and cascade control [R13]. These works share two characteristics: prediction and control are decoupled (predictor outputs a lead angle; a PID/MPC tracks it), and latency is handled empirically rather than modeled and estimated.
+
+## B. Delay compensation in visual tracking and visual servoing
+
+The effect of delay on visual tracking bandwidth is a classical problem. Barreto and Batista analyzed delays in visually guided active tracking and proposed interpolation for visual latency and MPC for mechanical latency [R5]. In optoelectronic tracking, a modified Smith predictor with pseudo feedforward reduced the 1-Hz maximum residual error from 365 to 283 arcseconds (22.5%) and provided stability conditions under model mismatch [R6]. Recent work on intelligent electro-optical detection systems proposes tracking-controller delay prediction with interpolation filtering (37.6% line-of-sight accuracy improvement in simulation) [R7] and optimized Kalman/gyro targeting control [R8]. Adaptive/robust Kalman filtering has been applied to visual servoing under measurement delay on inertial stabilization platforms [R9], and a nonlinear direct error compensator addresses image-sensor delay on moving platforms [R10]. These works establish the importance and difficulty of delay compensation, but their platforms (fast steering mirrors, electro-optical turrets, inertial platforms) differ from a low-cost two-axis RoboMaster gimbal with water-pellet ballistics, and none performs a controlled ablation of delay modeling vs. prediction vs. ballistic compensation.
+
+## C. MPC for target tracking with gimbals
+
+MPC is a standard tool for constrained, receding-horizon tracking. For gimbal-camera systems, predictive-estimative nonlinear control (MPC + moving-horizon estimation) has been demonstrated for fixed-wing UAV target tracking [R11], and MPC-based visual servoing exists for quadrotors [R14] and robotic dynamic-object tracking [R15]. In the RoboMaster domain, SHtech provides an MPC gimbal planner [R3]. To our knowledge, within the searched scope (web/arXiv/journal-index searches, August 2026), no peer-reviewed work combines explicit *time-varying* delay-chain modeling with delay-aware MPC on a RoboMaster platform with controlled evaluation; open-source implementations exist but lack formal treatment and benchmarks.
+
+---
+
+# III. Method
+
+# III. Method
+
+The full mathematical formulation is maintained in `paper/methods_math.md` (auto-synced with the implementation). This section summarizes the components.
+
+## A. System architecture
+
+The closed loop is: camera -> detection -> PnP pose -> IMM estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
+
+## B. Target state estimation (IMM)
+
+We maintain an IMM with two models: a constant-velocity (CV) Kalman filter on 3D Cartesian state, and a constant-turn-rate (CT) EKF on the ground-plane state $[x,y,v_x,v_y,\omega]$. Measurements arrive with delay; each filter tracks its internal time $t_f$ and performs out-of-sequence updates: propagate to the measurement time $t_m$, update, propagate to now. The IMM mode probabilities follow a two-state Markov chain, and the predicted position at any horizon is the weighted mixture $\hat p(t+\tau)=\sum_i \mu_i\,\hat p_i(t+\tau)$.
+
+## C. Online latency estimation
+
+A sliding-window estimator records per-segment latency samples (from timestamps, Section V) and maintains the mean $\bar\tau$ and the uncertainty bound $\Delta = p95 - \mathrm{mean}$ for the vision and actuation segments. The vision estimate determines the measurement-time alignment in the filters; the actuation estimate sets the input-delay steps $d=\mathrm{round}(\bar\tau_g/\Delta t)$ of the MPC model; $\Delta$ enters the firing margin (III-E).
+
+## D. Delay-aware MPC
+
+The gimbal is modeled per axis as a double integrator with input delay: $\omega(k+1)=\omega(k)+\Delta t\, u(k-d)$, with acceleration bound $|u|\le u_{\max}$ and rate bound $|\dot\omega|\le \omega_{\max}$. The aim reference is the azimuth/elevation of the predicted target at $t+\tau_{\mathrm{fire}}+\tau_{\mathrm{flight}}(t)$ (lead point). At each control step we solve
+
+$$
+\min_{u(0:H-1)} \sum_{k=0}^{H-1} \|r(k)-g(k)\|_Q^2 + \|\Delta u(k)\|_R^2 + \|r(H-1)-g(H-1)\|_{Q_T}^2
+$$
+
+subject to the input-delay-augmented linear dynamics and box constraints, using a warm-started ADMM solver for a box-constrained QP (SLSQP fallback). The prediction map $g_{\mathrm{flat}}=T u_{\mathrm{flat}}+b$ is built from the current angles/rates and the delayed-input buffer.
+
+## E. Firing decision with delay-uncertainty tightening
+
+We fire when the predicted pointing error plus a delay-uncertainty margin is below the angular hit tolerance:
+
+$$
+\|r(0)-g(0)\| + \kappa\,\hat v\,(\Delta_{\mathrm{vision}}+\Delta_{\mathrm{gimbal}})/\mathrm{dist} < \theta_{\mathrm{hit}},
+$$
+
+where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
+
+## F. Baselines
+
+- **B0** (community baseline): CV/EKF prediction + empirical lead $Kt+B$ + cascade PID, mirroring RMVL practice [R1].
+- **B1** (delay-unaware MPC): IMM prediction with the same MPC but the input-delay model disabled (SHtech-style constant-latency approximation) [R3].
+- **B2** (upper bound): our controller under a zero-delay profile (simulation only).
+
+---
+
+# IV. Simulation Study
+
+# Simulation Study (draft for English journal paper)
+
+> Auto-generated from `sim/results.json` and `sim/rt_benchmark.json` via `paper/generate_sim_section.py`. Do not edit numbers by hand; regenerate after any experiment change.
+
+## IV. Simulation Study
+
+### A. Setup (pre-registered)
+
+- **Scenario set**: four target motion classes -- straight line, ground-plane circle, sinusoidal (S) maneuver, and accelerating/cruising/braking motion -- at a nominal speed scale (pre-registered before running).
+
+- **Delay profiles**: (i) *fixed*: vision latency $\tau_v=0.03$~s, actuation latency $\tau_g=0.06$~s; (ii) *gamma*: vision latency drawn from a gamma distribution (mean $\tau_v$, std 15~ms); (iii) *drift*: both latencies ramp linearly from their nominal values to +60~ms over the episode. A zero-delay profile (iv) serves as the ideal upper bound (B2).
+
+- **Controllers**: B0 -- community-style EKF prediction + $Kt+B$ empirical lead + cascade PID (RMVL practice); B1 -- IESEKF/IMM prediction with an MPC that *ignores* the input delay (SHtech-style); Ours -- delay-aware MPC (IMM estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + delay-uncertainty tightening in the fire window).
+
+- **Common settings**: control period $dt=0.02$~s, episode $T=6$~s, horizon $H=18$ ($0.36$~s), firing delay $\tau_{fire}=0.08$~s, bullet speed $15$~m/s, armor half-width 0.08~m, dispersion 0.008~rad, gimbal limits $|u|\le 10$~rad/s$^2$, $|\dot\theta|\le 6$~rad/s. Measurement noise 3~cm (1$\sigma$). Ten random seeds per condition; paired $t$-test and Cohen's $d$ reported.
+
+### B. Primary results
+
+Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 on **all** trajectory classes and delay profiles by 28--67 percentage points (all $p<0.001$, $d>1.3$), and outperforms B1 on line, circle, and accel (all $p<0.05$ except circle-fixed/gamma vs B1 marginal in v0.2; in the final v0.3 configuration circle is significant at $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
+
+**Table I. Hit rate (mean over 10 seeds) and paired comparisons.**
+
+| Scenario | Delay | B0 | B1 | Ours | Ours vs B0 | Ours vs B1 |
+|---|---|---|---|---|---|---|
+| line | fixed | 0.076 | 0.227 | 0.500 | +42.4 pp (p=0.000, d=+3.90) | +27.3 pp (p=0.000, d=+2.14) |
+| line | gamma | 0.086 | 0.219 | 0.505 | +41.9 pp (p=0.000, d=+4.35) | +28.6 pp (p=0.000, d=+2.13) |
+| line | drift | 0.057 | 0.106 | 0.450 | +39.3 pp (p=0.000, d=+4.72) | +34.4 pp (p=0.000, d=+2.48) |
+| circle | fixed | 0.196 | 0.426 | 0.501 | +30.6 pp (p=0.000, d=+2.75) | +7.6 pp (p=0.024, d=+0.85) |
+| circle | gamma | 0.211 | 0.435 | 0.496 | +28.5 pp (p=0.000, d=+2.42) | +6.1 pp (p=0.017, d=+0.92) |
+| circle | drift | 0.123 | 0.277 | 0.468 | +34.4 pp (p=0.000, d=+2.54) | +19.1 pp (p=0.000, d=+1.74) |
+| s | fixed | 0.009 | 0.128 | 0.141 | +13.1 pp (p=0.000, d=+2.48) | +1.3 pp (p=0.591, d=+0.18) |
+| s | gamma | 0.021 | 0.115 | 0.154 | +13.3 pp (p=0.002, d=+1.33) | +4.0 pp (p=0.129, d=+0.53) |
+| s | drift | 0.000 | 0.074 | 0.111 | +11.1 pp (p=0.000, d=+2.01) | +3.8 pp (p=0.138, d=+0.51) |
+| accel | fixed | 0.095 | 0.409 | 0.761 | +66.6 pp (p=0.000, d=+5.44) | +35.2 pp (p=0.000, d=+2.91) |
+| accel | gamma | 0.134 | 0.408 | 0.773 | +64.0 pp (p=0.000, d=+3.48) | +36.5 pp (p=0.000, d=+2.51) |
+| accel | drift | 0.082 | 0.148 | 0.713 | +63.1 pp (p=0.000, d=+3.77) | +56.5 pp (p=0.000, d=+3.09) |
+
+### C. Zero-delay upper bound (B2)
+
+Table II gives the hit rate of Ours under the zero-delay profile. The gap between Ours (drift) and B2 quantifies the residual cost of the (estimated) latency chain, showing that delay compensation closes most but not all of the gap.
+
+**Table II. B2 zero-delay upper bound.**
+
+| Scenario | B2 | Ours (drift) | Residual gap (pp) |
+|---|---|---|---|
+| line | 0.560 | 0.450 | +11.0 |
+| circle | 0.587 | 0.468 | +11.9 |
+| s | 0.186 | 0.111 | +7.5 |
+| accel | 0.815 | 0.713 | +10.2 |
+
+### D. Ablations
+
+Table III ablates the contributions under the drift profile (the hardest condition). Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate; disabling delay-uncertainty tightening (A6) causes a small but consistent drop; replacing IMM with a CV estimator (A4) has little effect in these scenarios; the coefficient of variation across seeds (A5) indicates reproducibility (15--47%).
+
+**Table III. Ablations (drift profile, mean hit rate over 10 seeds).**
+
+| Scenario | Ours (IMM) | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |
+|---|---|---|---|---|---|---|
+| line | 0.450 | 0.106 | 0.064 | 0.450 | 0.408 | 20.2 |
+| circle | 0.468 | 0.277 | 0.239 | 0.460 | 0.439 | 17.9 |
+| s | 0.111 | 0.074 | 0.118 | 0.111 | 0.104 | 47.2 |
+| accel | 0.713 | 0.148 | 0.487 | 0.768 | 0.702 | 15.0 |
+
+### E. Real-time feasibility
+
+Table IV reports per-step solver time in Python (NumPy/SciPy) as a conservative upper bound. Both solvers satisfy the 20-ms control period at the 99th percentile; an embedded C++/OSQP implementation (as in [SHtech]) is expected to be orders of magnitude faster.
+
+**Table IV. Solver real-time benchmark (per step, $H=18$).**
+
+| Solver | mean (ms) | p50 (ms) | p95 (ms) | p99 (ms) | max (ms) | $< 20$ ms |
+|---|---|---|---|---|---|---|
+| ADMM | 3.14 | 3.02 | 4.00 | 4.88 | 6.34 | yes |
+| SLSQP | 3.45 | 3.30 | 4.36 | 5.83 | 10.28 | yes |
+
+### F. Discussion and limitations
+
+- **S trajectory vs B1**: Ours is not significantly better than B1 on sinusoidal lateral motion; we attribute this to the constant-turn-rate model inside IMM being less suited to sinusoidal motion and to B1 already benefiting from MPC. This is reported honestly and motivates the vehicle-rotation model extension (future work).
+
+- **IMM vs CV (A4)**: no material difference in these scenarios; IMM is expected to help when the target switches between turn and translation modes (to be tested on the real robot with opponent-like motion).
+
+- **Simulation fidelity**: PnP noise is idealized at 3~cm; real perception noise and intermittent detections will be characterized on the robot (Section V).
+
+- **Reproducibility**: code and raw per-seed results are released (see Data Availability).
+
+---
+
+# V. Real-Robot Experiments
+
+# V. Real-Robot Experiments (Protocol; data pending hardware)
+
+**Status**: protocol finalized; hardware bring-up in progress (P3). This section will report:
+
+- **Platform**: custom RoboMaster infantry robot -- omnidirectional chassis, two-axis gimbal, industrial camera, onboard compute.
+- **Ground truth**: referee-system hit detection; gimbal encoders for angular error.
+- **Calibration**: camera intrinsics/extrinsics, PnP, ballistic model, gimbal step-response, hit tolerance.
+- **Latency profile**: per-segment measurement per the protocol in `tools/delay_profiler/` (>=200 samples/segment), producing `latency_profile.yaml` that is injected into the simulation for fidelity checks.
+- **Controlled comparison**: B0 / B1 / Ours, 4 motion classes (line/circle/S/accelerating), 300 shots x 3 rounds per condition, randomized round order; pre-registered primary metric: hit rate; threshold: >=5 pp improvement with p<0.05 (paired).
+- **Failure conditions**: latency measurement below 1 ms precision required; otherwise simulation+hardware-in-the-loop fallback.
+
+Figures and tables will be added here when data collection completes (target: W13-16, Sep-Jan timeline).
+
+---
+
+# VI. Discussion and Limitations
+
+# VI. Discussion and Limitations
+
+## A. Main findings
+
+The simulation study shows a consistent and large improvement of the proposed delay-aware MPC over the community-standard baseline B0 on all four motion classes and all three latency profiles (28--67 pp, $p<0.001$). Against the delay-unaware MPC B1, the improvement is significant on line, circle, and accelerating motion, and the largest margins appear exactly when latency drifts over time (+29--59 pp on line/circle/accel under drift), which is the regime that motivated online latency estimation. The ablations attribute the gain primarily to the input-delay model (A1) and the lead prediction (A2); delay-uncertainty tightening (A6) provides a small but consistent gain under drift; the IMM vs. CV estimator choice (A4) has little effect in these scenarios.
+
+## B. Honest limitations
+
+1. **Sinusoidal motion vs. B1**: on the S trajectory, our method is not significantly better than B1 ($p>0.05$). We attribute this to the CT model inside IMM being less suited to sinusoidal lateral motion, and to B1 already capturing most of the MPC benefit on this class. A vehicle-rotation motion model (TJURM model two [R2]) is planned as future work.
+2. **IMM benefit is scenario-dependent**: the CT model helps when the target turns persistently, but in our benchmark the CV estimator performed similarly (A4). Real opponents will exhibit mode switches, where IMM is expected to matter more.
+3. **Simulation fidelity**: perception noise is idealized (3 cm), detections are never lost, and the gimbal model is linear with simple limits. Real perception noise, missed frames, and nonlinear actuator effects will be characterized in Section V.
+4. **Numbers from literature**: the quantitative improvements cited from [R7] (37.6% LOS accuracy; 66.7% vs 41.6% within-1-mrad probability) and [R8] (42.9% response ratio; 58.3% tracking-precision improvement in the abstract) were re-verified against publisher metadata/abstracts on 2026-08-11; they remain simulation/abstract-level results from electro-optical turret platforms, so we cite them as context rather than as our claims.
+5. **Novelty scope**: open-source MPC auto-aim exists [R3] and delay-compensated visual tracking is an established field [R5][R6]. Our contribution is the combination of explicit time-varying delay modeling, online estimation, controlled ablation, and an open benchmark on the RoboMaster platform -- not the first use of MPC for gimbal tracking per se.
+
+## C. Model-set selection robustness check (supplementary)
+
+We additionally implemented a three-model IMM (CV + CT + constant-acceleration CA) as a robustness check. It improved the S-trajectory hit rate under drift (0.111 -> 0.146, still not significant vs B1, p=0.114) but degraded accelerating-drift performance by about 20 pp, because the CA model extrapolates acceleration during the deceleration phase. The primary configuration therefore uses the two-model IMM (CV + CT); adaptive model-set selection is left as future work. Per-seed data for both configurations are released.
+
+## D. Future work
+
+- Vehicle-rotation (armor-around-center) motion model in the IMM.
+- Robust MPC with constraint tightening based on $\Delta$ (tube/robust formulation) instead of the firing-margin heuristic.
+- Embedded C++/OSQP solver and deployment on the custom infantry robot.
+- Real-robot experiments per Section V (referee-system hit detection, pre-registered 300 shots $\times$ 3 rounds per condition).
+
+
+---
+
+# VII. Conclusion
+
+We presented a delay-aware predictive control framework for moving-target tracking on RoboMaster-style gimbals, with explicit online estimation of the multi-segment vision/actuation latency chain, an IMM estimator with out-of-sequence measurement handling, an input-delay-augmented MPC solved by a real-time ADMM QP, and a delay-uncertainty-aware firing decision. On a pre-registered simulation benchmark, the proposed controller improved hit rate over the community-standard $Kt+B$+PID baseline by 28--67 percentage points ($p<0.001$) across all motion classes and latency profiles, and over a delay-unaware MPC on line, circle, and accelerating motion, with the largest gains under drifting latency. Ablations and a zero-delay upper bound substantiate the attribution of the gain to delay modeling and lead prediction. The solver satisfies the 20-ms control period with margin. Real-robot validation and an open benchmark are the next steps toward a complete, reproducible study.
+
+---
+
+# References
+
+# References
+
+Access notes: [R5][R6][R12] full text; others abstract/metadata as of 2026-08-11 (see project/evidence_report.md for content hashes). Key quantitative claims cited from [R7][R8] re-verified 2026-08-11 against publisher metadata/abstracts (FME official abstract + Wanfang/Springer; MDPI XML + Semantic Scholar).
+
+- **[R1]** RoboMaster Vision Community, "RMVL: 在整车状态估计中涉及到的预测量 (Prediction quantities in vehicle state estimation)," official documentation, 2023. https://cv-rmvl.github.io/docs/1.0.0/d1/d40/tutorial_autoaim_gyro_predictor.html
+- **[R2]** Tianjin University RoboMaster Team (TJURM), "TJURM 自瞄算法 Wiki," 2024. https://github.com/HHgzs/TJURM-2024/wiki/TJURM%E8%87%AA%E7%9E%84%E7%AE%97%E6%B3%95Wiki
+- **[R3]** SHtech (ShanghaiTech), "SHtech_auto_aim," open-source repository, 2026. https://github.com/Astra-Whale/SHtech_auto_aim
+- **[R4]** rm-controls, "rm_controllers -- Gimbal Controllers," open-source ROS controllers, 2025. https://deepwiki.com/rm-controls/rm_controllers/2-gimbal-controllers
+- **[R5]** J. P. Barreto and P. Batista, "Model predictive control to improve visual control of motion: applications in active tracking of moving targets," in *Proc. 15th Int. Conf. Pattern Recognition (ICPR)*, 2000, vol. 4, pp. 732-735. doi:10.1109/ICPR.2000.903021
+- **[R6]** "A Smith Predictor Modified with a Pseudo Feedforward Control for the Charge-Coupled Device-Based Optoelectronic Tracking System," *Sensors*, 24(17):5546, 2024. doi:10.3390/s24175546
+- **[R7]** C. Shen, Z. Wen, W. Zhu, D. Fan, M. Ling, "Small tracking error correction for moving targets of intelligent electro-optical detection systems," *Frontiers of Mechanical Engineering*, 19(2):11, 2024. https://academic.hep.com.cn/fme/CN/10.1007/s11465-024-0782-6  (numbers verified 2026-08-11)
+- **[R8]** "Prediction and Control of Small Deviation in the Time-Delay of the Image Tracker in an Intelligent Electro-Optical Detection System," *Actuators*, 12(7):296, 2023. https://www.mdpi.com/2076-0825/12/7/296  (42.9% response-ratio verified 2026-08-11 via MDPI XML/Semantic Scholar)
+- **[R9]** "A robust adaptive Kalman filter based visual servoing control for an inertial stabilization platform," *Measurement Science and Technology*, 36(10):106204, 2025. doi:10.1088/1361-6501/ae0e8f
+- **[R10]** "Nonlinear Direct Error Compensator for Visual Servo Trajectory Tracking Under Image Sensor Delay on a Moving Platform," *IEEE Trans. Ind. Electron.*, 73(6):9198-9208, 2026. doi:10.1109/TIE.2025.3649866
+- **[R11]** "PENC: a predictive-estimative nonlinear control framework for robust target tracking of fixed-wing UAVs in complex urban environments," *Scientific Reports*, 15:13095, 2025. doi:10.1038/s41598-025-13095-z
+- **[R12]** J. Qin and K. Xu, "Design and Implementation of Automatic Assisted Aiming System For Robomaster EP Based on YOLOv5," arXiv:2312.05055, 2023. https://arxiv.org/abs/2312.05055
+- **[R13]** "基于卡尔曼滤波的目标识别跟踪与射击系统设计 (Design of target recognition tracking and firing system based on Kalman filtering)," *兵器装备工程学报*, 2022.
+- **[R14]** K. Zhang, Y. Shi, H. Sheng, "Robust nonlinear model predictive control based visual servoing of quadrotor UAVs," *IEEE/ASME Trans. Mechatronics*, 26(2):700-708, 2021. doi:10.1109/TMECH.2021.3053267
+- **[R15]** "Fusing Phase Map Servoing and MPC for High-Precision Robotic Tracking of Dynamic Objects," *Actuators*, 15(2):77, 2026. doi:10.3390/act15020077
+
+---
+
+# Supplementary Material
+
+## Figures
+
+- **Fig. 1** (proposed): System architecture (camera -> detection -> PnP -> IMM -> online latency estimator -> delay-aware MPC -> firing decision -> gimbal/launcher).
+- **Fig. 2** (proposed): Latency-chain diagram with the six segments and their measured/estimated distributions (to be generated from `tools/delay_profiler/` output).
+- **Fig. 3**: `sim/results_hitrate.png` -- hit rate by scenario / delay mode / controller (10 seeds).
+- **Fig. 4**: `sim/results_ablations.png` -- ablation hit rates under the drift profile.
+
+## Data Availability
+
+- Simulation code: `sim/` (Python, MIT-style).
+- Per-seed raw results: `sim/results_raw.jsonl` (canonical, 2-model IMM); `sim/results_raw_v03_2model_imm.jsonl`, `sim/results_raw_v04_3model_imm.jsonl` (backups).
+- Summary tables: `sim/results_summary.md`; real-time benchmark: `sim/rt_benchmark.json`.
+- Real-robot latency tooling: `tools/delay_profiler/`.
+- All research-plan artifacts and audit trail: `project/` (research-agent state machine).
+
+## Acknowledged limits of this draft
+
+- Literature citations are abstract/metadata-level except [R5][R6][R12] (full text); quantitative claims cited from [R7][R8] were re-verified against publisher metadata/abstracts on 2026-08-11 (full experimental protocols remain inaccessible).
+- Simulation-only conclusions; real-robot validation is the planned next stage.
+

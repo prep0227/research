@@ -1,0 +1,53 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Rebuild manuscript + LaTeX package (number consistency)
+        run: |
+          python3 paper/assemble_manuscript.py
+          python3 paper/tex/build_tex.py
+      - name: Citation consistency check
+        run: |
+          python3 - <<'EOF'
+          import pathlib, re
+          m = pathlib.Path("paper/manuscript.md").read_text()
+          r = pathlib.Path("paper/references.md").read_text()
+          used = set(re.findall(r"\[R(\d+)\]", m))
+          defined = set(re.findall(r"^-\s*\*\*\[R(\d+)\]\*\*", r, re.M))
+          assert used == defined, (used ^ defined)
+          print("citations OK:", len(used))
+          EOF
+      - name: C++ solver compile + test
+        run: |
+          g++ -std=c++17 -O2 -o /tmp/test_mpc_solver deploy/cpp/test_mpc_solver.cpp
+          /tmp/test_mpc_solver
+
+  latex-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile manuscript.tex (Overleaf-equivalent check)
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: paper/tex
+          root_file: manuscript.tex
+          latexmk_use_xelatex: false
+          args: -pdf -interaction=nonstopmode -halt-on-error
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: manuscript-pdf
+          path: paper/tex/manuscript.pdf
