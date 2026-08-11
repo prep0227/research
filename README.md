@@ -1,22 +1,23 @@
 # Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation (RoboMaster Gimbal Case Study)
 
-**Repo**: https://github.com/prep0227/research for Moving-Target Tracking with Explicit Vision-Latency Compensation (RoboMaster Gimbal Case Study)
+**Repo**: https://github.com/prep0227/research
 
 Research repository for the project *视觉延迟补偿的移动目标跟踪预测控制（RoboMaster 云台自瞄为载体）*.
 
 **Core idea**: RoboMaster gimbal auto-aim is systematically wrong because it aims at the *current* target position while a
 multi-segment latency chain (camera exposure → detection → PnP → serial → gimbal rotation → firing → flight) delays every
 measurement. This project models that latency chain as **time-varying and uncertain** ($\tau_i(t)=\bar\tau_i+\delta_i(t)$,
-$|\delta_i|\le\Delta_i$), estimates it **online**, and embeds it in a **delay-aware MPC** with an IMM target estimator and an
-ADMM box-constrained QP solver. Firing decisions are tightened by the estimated delay uncertainty.
+$|\delta_i|\le\Delta_i$), estimates it **online**, and embeds it in a **delay-aware MPC** with a multi-model (MMAE-style,
+CV+CT) target estimator and an ADMM box-constrained QP solver. Firing decisions are tightened by the estimated delay
+uncertainty; hits are scored against a distance-adaptive tolerance while firing uses a conservative fixed angular gate.
 
 ## Repository layout
 
 | Path | Contents |
 |---|---|
-| `sim/` | Reproducible simulation (canonical v0.3): IMM{CV,CT} + online delay estimator + ADMM QP; 520 runs × 10 seeds; A1–A6 ablations; B2 upper bound; supplementary sweeps: speed gears (Table S1), detection dropout (Table S2), delay-estimator accuracy (Table S3) |
-| `paper/` | Manuscript (English, v0.5.3) + IEEEtran LaTeX package (`tex/`, Overleaf guide), cover letter, journal selection, submission checklist, video storyboard, Chinese-core fallback pack (`fallback_zh/`) |
-| `project/` | Research-agent artifacts: research brief, evidence report (17 records), gap/novelty analysis, technical route, experiment protocol (real-robot v1.1), power analysis, audit trail (50 events), state machine |
+| `sim/` | Reproducible simulation: multi-model estimator + online delay estimator + ADMM QP; **560 runs** (12 main conditions × 10 seeds + B2 upper bound + A2/A3/A4/A6 ablations); supplementary sweeps: speed gears (S1/S2), detection dropout (S3), delay-estimator accuracy/settling (S4/S5), pointing RMSE (S6) |
+| `paper/` | Manuscript (English, v0.6) + IEEEtran LaTeX package (`tex/`, Overleaf guide), cover letter, journal selection, submission checklist, video storyboard, Chinese-core fallback pack (`fallback_zh/`) |
+| `project/` | Research-agent artifacts: research brief, evidence report, gap/novelty analysis, technical route, experiment protocol (real-robot v1.1), power analysis, audit trail, state machine |
 | `tools/delay_profiler/` | Real-robot latency profiling: timestamp instrumentation templates, `compute_latency_profile.py`, `latency_profile.yaml` |
 | `tools/replay/` | Offline replay harness: event-log schema, replay B0/B1/Ours on the same detection stream, synthetic-log generator |
 | `deploy/cpp/` | Header-only C++17 ADMM MPC solver (`mpc_solver.hpp`) + unit test, for embedded/real-robot porting |
@@ -26,26 +27,61 @@ ADMM box-constrained QP solver. Firing decisions are tightened by the estimated 
 ```bash
 pip install -r requirements.txt
 cd sim
-python3 run_experiments.py        # ~8 min, 520 runs, resumes from results_raw.jsonl
-python3 plot_results.py           # regenerate figures
+python3 run_experiments.py        # canonical: resumes from results_raw.jsonl (560 rows incl. A3 const-delay ablation)
+python3 run_speed_sweep.py        # speed gears 0.5/1.2/2.0 m/s (drift), 360 runs
+python3 run_dropout_sweep.py      # detection dropout 0/10/20% (drift), 120 runs
+python3 run_delay_estimation.py   # delay-estimator accuracy/settling
+python3 rt_benchmark.py           # per-step solver timing (ADMM P99 ≈ 5.0 ms < 20 ms)
+python3 test_sim.py               # 9 unit tests (trajectories/delay/estimator/controllers/metrics/replay)
 ```
 
-Key outputs: `sim/results.json` (all numbers used in the paper), `sim/results_summary.md`,
-`sim/results_hitrate.png`, `sim/results_ablations.png`, `sim/rt_benchmark.json` (ADMM P99 ≈ 4.9 ms < 20 ms control period).
+Key outputs: `sim/results.json` (all numbers used in the paper), `sim/results_speed_sweep.json`,
+`sim/results_dropout.json`, `sim/results_delay_estimation.json`, `sim/rt_benchmark.json`,
+`sim/results_summary.md`, `sim/results_hitrate.png`, `sim/results_ablations.png`.
 
-## Reproduce the manuscript
+## Reproduce the manuscript (all numbers are generated from the JSON above)
 
 ```bash
-python3 paper/assemble_manuscript.py   # paper/manuscript.md (citation-consistency asserted)
-python3 paper/tex/build_tex.py         # paper/tex/manuscript.tex + refs.bib (tables from results.json)
+cd paper
+python3 generate_sim_section.py          # Section IV prose + markdown tables
+python3 generate_speed_sweep_section.py  # S1/S2
+python3 generate_dropout_section.py      # S3
+python3 generate_delay_est_section.py    # S4/S5
+python3 assemble_manuscript.py           # paper/manuscript.md (citation consistency asserted: 19/19)
+cd tex
+python3 build_tex.py                     # manuscript.tex + refs.bib (tables from results JSON)
+python3 make_ral.py                      # manuscript_ral.tex (RA-L 6-page edition)
+python3 build_submission_bundle.py       # Overleaf one-click bundle (zip)
+python3 build_arxiv_package.py           # arXiv submission package (zip)
 ```
 
-The GitHub Actions workflow (`.github/workflows/ci.yml`) runs both checks plus a LaTeX compile
-(`xu-cheng/latex-action`) so the paper is verifiably buildable without a local TeX installation.
+Local compile (no root; TeX Live under `$HOME/texlive-local`):
+
+```bash
+export TEXLIVE=$HOME/texlive-local PATH=$TEXLIVE/usr/bin:$PATH \
+       LD_LIBRARY_PATH=$TEXLIVE/usr/lib/x86_64-linux-gnu \
+       TEXMFCNF=$TEXLIVE/usr/share/texlive/texmf-dist/web2c \
+       TEXMFSYSVAR=$TEXLIVE/var/lib/texmf TEXMFSYSCONFIG=$TEXLIVE/etc/texmf \
+       TEXFORMATS=$TEXLIVE/var/lib/texmf/web2c
+cd paper/tex && pdflatex -interaction=nonstopmode manuscript.tex   # ×3, run bibtex.original manuscript in between
+```
+
+Expected results: `manuscript.pdf` **9 pages** / `manuscript_ral.pdf` **6 pages**, 0 errors, 0 Overfull,
+19/19 citations, no margin overflow. The GitHub Actions workflow (`verify`) runs the same checks
+(rebuild + citation consistency + C++ solver test + sim tests + both LaTeX compiles) on every push.
+
+## Current headline results (canonical, post-fix)
+
+- vs B0: **12.1–42.4 pp** hit-rate improvement in all 12 conditions ($p<0.01$; 11/12 at $p<0.001$; BH-FDR $q<0.05$ all);
+- vs B1 (delay-unaware MPC): significant on line/circle/accel (9/12, $p<0.05$); drift margins line +33.7 / circle +15.1 / accel +18.2 pp; S not significant (honest);
+- Ablations: delay model (A1) and lead (A2) dominate; constant-delay MPC (A3) trails online estimation by 1–3 pp;
+  tightening (A6) small; CV vs multi-model (A4) comparable;
+- ADMM solver P99 ≈ 5.0 ms < 20 ms control period.
 
 ## Real-robot protocol (next phase)
 
-`project/experiment_protocol.md` (v1.1) preregisters: calibration → latency profiling (≥200 samples/segment) →
+`project/experiment_plan.md` (pre-registered 2026-08-11T12:41, SHA-256 `0361b95b…`) and
+`project/experiment_protocol.md` (v1.1) preregister: calibration → latency profiling (≥200 samples/segment) →
 software delay-injection (fixed/gamma/drift, matching the simulator) → 3 controllers × 4 trajectory classes ×
 N=300 shots × 3 rounds; primary test = paired one-sided McNemar; success = observed improvement ≥5 pp and p<0.05
 (power analysis in `project/real_power_analysis.json`). `tools/delay_profiler/` is ready for hardware use.
@@ -57,4 +93,6 @@ English journal (RA-L → JINT/CEP → Chinese core fallback), submission window
 
 ## Status
 
-Simulation (canonical + 3 supplementary robustness sweeps), manuscript v0.5.3, submission package (Overleaf guide, video storyboard, Chinese fallback), and deployment tooling are complete. Real-robot validation (P3/P4) is the remaining phase (blocked on hardware + team availability).
+Simulation (canonical post-fix v0.6 + 3 supplementary robustness sweeps), manuscript v0.6 (9-page full / 6-page RA-L),
+submission packages (Overleaf bundle, arXiv zip), and deployment tooling are complete and CI-green.
+Real-robot validation (P3/P4) is the remaining phase (blocked on hardware + team availability).
