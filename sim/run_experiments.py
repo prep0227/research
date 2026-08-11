@@ -98,7 +98,8 @@ def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", 
         z = traj.position(max(0.0, t - tau_v_true)) + rng.normal(0.0, 0.03, 3)
         est.update(z, t, t_meas)
         if delay_est is not None:
-            delay_est.gimbal.add(gfn(t) + rng.normal(0.0, 0.003))
+            # causal: only samples completed before the current step are observable
+            delay_est.gimbal.add(gfn(max(0.0, t - DT)) + rng.normal(0.0, 0.003))
         gun_pre = gimbal.pointing()
         u, fire = ctrl.step(t, gimbal, est, fs)
         gimbal.step(t, u)

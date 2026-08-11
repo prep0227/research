@@ -48,6 +48,8 @@ def test_estimator_tracks_constant_velocity():
     assert np.linalg.norm(p - tr.position(100*0.02)) < 0.15
 
 def test_metrics_hit_when_aimed():
+    import numpy as np
+    np.random.seed(0)  # dispersion noise is random in simulate_hits; fix seed
     from metrics import simulate_hits, run_metrics
     from trajectories import LineTraj, az_el
     tr = LineTraj(p0=[1.0, -0.6, 0.0], v=[1.2, 0.5, 0.0])

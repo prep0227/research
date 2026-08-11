@@ -8,7 +8,7 @@ def read(name):
 
 title = """# Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation: A RoboMaster Gimbal Case Study
 
-**Draft v0.5.4** -- generated from verified simulation artifacts (2026-08-11). Real-robot section pending hardware (Section V).
+**Version 0.5.4** -- simulation study with a pre-registered real-robot protocol (Section V); hardware data collection scheduled.
 """
 
 def _supplementary():

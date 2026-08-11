@@ -199,39 +199,35 @@ class CAKF:
         return x[:3], x[3:6]
 
 class TargetIMM:
-    """IMM with three models: CV-KF (3D), CT-EKF (2D ground plane), CA-KF (3D).
-    Outputs weighted mixture prediction. Mode probabilities adapt online.
+    """Multi-model Bayesian estimator (MMAE-style) with two models: CV-KF (3D)
+    and CT-EKF (2D ground plane). Outputs a weighted mixture prediction with
+    Markov prior on mode probabilities (no interactive mixing; see text).
     """
     def __init__(self, dt=0.02, q=0.6, qw=0.05, r=0.03**2, p_switch=0.05):
         self.dt = dt
         self.cv = TargetKF(dt=dt, q=q, r=r)
         self.ct = CTEKF(dt=dt, q=q, qw=qw, r=r)
-        self.ca = CAKF(dt=dt, q=q, r=r)
-        self.mu = np.array([1/3, 1/3, 1/3])   # [P(CV), P(CT), P(CA)]
+        self.mu = np.array([0.5, 0.5])   # [P(CV), P(CT)]
         self.p_switch = p_switch
 
     def update(self, z, t_now, t_meas):
         self.cv.update(z, t_now, t_meas)
         self.ct.update(z, t_now, t_meas)
-        self.ca.update(z, t_now, t_meas)
-        l = np.array([self.cv.likelihood(z), self.ct.likelihood(z), self.ca.likelihood(z)])
-        P = np.array([[1-2*self.p_switch, self.p_switch, self.p_switch],
-                      [self.p_switch, 1-2*self.p_switch, self.p_switch],
-                      [self.p_switch, self.p_switch, 1-2*self.p_switch]])
+        l = np.array([self.cv.likelihood(z), self.ct.likelihood(z)])
+        P = np.array([[1-self.p_switch, self.p_switch],
+                      [self.p_switch, 1-self.p_switch]])
         mu_pred = P.T @ self.mu
         w = mu_pred * np.exp(np.clip(l, -50, 50))
         self.mu = w / (w.sum() + 1e-12)
 
     def predict(self, horizon):
         return (self.mu[0]*self.cv.predict(horizon) +
-                self.mu[1]*self.ct.predict(horizon) +
-                self.mu[2]*self.ca.predict(horizon))
+                self.mu[1]*self.ct.predict(horizon))
 
     def predict_pos_vel(self, horizon):
         p = self.predict(horizon)
         v = (self.mu[0]*self.cv.predict_pos_vel(horizon)[1] +
-             self.mu[1]*np.array([self.ct.f(self.ct.x, horizon)[2], self.ct.f(self.ct.x, horizon)[3], 0.0]) +
-             self.mu[2]*self.ca.predict_pos_vel(horizon)[1])
+             self.mu[1]*np.array([self.ct.f(self.ct.x, horizon)[2], self.ct.f(self.ct.x, horizon)[3], 0.0]))
         return p, v
 
 

@@ -18,9 +18,8 @@ def fmt_stat(s):
     return f"{s['mean_diff_pp']:+.1f} pp (p={s['p']:.3f}, d={s['d']:+.2f})" if s["p"] is not None else "-"
 
 L = []
-L.append("# Simulation Study (draft for English journal paper)\n")
-L.append("> Auto-generated from `sim/results.json` and `sim/rt_benchmark.json` via `paper/generate_sim_section.py`. "
-         "Do not edit numbers by hand; regenerate after any experiment change.\n")
+L.append("# IV. Simulation Study\n")
+L.append("\n")
 L.append("## IV. Simulation Study\n")
 L.append("### A. Setup (pre-registered)\n")
 L.append(f"- **Scenario set**: four target motion classes -- straight line, ground-plane circle, sinusoidal (S) maneuver, and "
@@ -28,7 +27,8 @@ L.append(f"- **Scenario set**: four target motion classes -- straight line, grou
 L.append(f"- **Delay profiles**: (i) *fixed*: vision latency $\\tau_v={cfg['tau_vision_nominal']:.2f}$~s, actuation latency "
          f"$\\tau_g={cfg['tau_gimbal_nominal']:.2f}$~s; (ii) *gamma*: vision latency drawn from a gamma distribution "
          f"(mean $\\tau_v$, std 15~ms); (iii) *drift*: both latencies ramp linearly from their nominal values to +60~ms over the episode. "
-         f"A zero-delay profile (iv) serves as the ideal upper bound (B2).\n")
+         f"A zero-delay profile (iv) serves as the ideal upper bound (B2). "
+         f"Nominal engagement range is approximately 1--8~m (hit tolerance $\\theta_{{\\rm hit}}=\\arctan(0.08/\\text{{dist}})$).\n")
 L.append(f"- **Controllers**: B0 -- community-style EKF prediction + $Kt+B$ empirical lead + cascade PID (RMVL practice); "
          f"B1 -- IESEKF/IMM prediction with an MPC that *ignores* the input delay (SHtech-style); "
          f"Ours -- delay-aware MPC (IMM estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + "
@@ -39,9 +39,9 @@ L.append(f"- **Common settings**: control period $dt={cfg['dt']:.2f}$~s, episode
          f"Measurement noise 3~cm (1$\\sigma$). Ten random seeds per condition; paired $t$-test and Cohen's $d$ reported.\n")
 L.append("### B. Primary results\n")
 L.append("Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). "
-         "Ours outperforms B0 in all 12 conditions by 11--67 percentage points "
+         "Ours outperforms B0 in all 12 conditions by 12--67 percentage points "
          "($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67 pp gains on line, circle, and accel "
-         "and 11--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel "
+         "and 12--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel "
          "(9 of 12 cells, $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), "
          "an honest limitation discussed in Section VII.\n")
 L.append("**Table I. Hit rate (mean over 10 seeds) and paired comparisons.**\n")
@@ -64,10 +64,11 @@ for sc in scenarios:
     L.append(f"| {sc} | {b2:.3f} | {ours_d:.3f} | {(b2-ours_d)*100:+.1f} |")
 L.append("\n### D. Ablations\n")
 L.append("Table III ablates the contributions under the drift profile (the hardest condition). "
-         "Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate; "
+         "The ablation set is A1--A6, where A3 is the delay-profile main effect reported in Table I (fixed vs. gamma vs. drift) and A5 is the across-seed coefficient of variation. "
+         "Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate (except on S, where the no-lead ablation is not worse, 0.129 vs. 0.121); "
          "disabling delay-uncertainty tightening (A6) causes a small but consistent drop; "
-         "replacing IMM with a CV estimator (A4) has little effect in these scenarios; "
-         "the coefficient of variation across seeds (A5) indicates reproducibility (15--47%).\n")
+         "replacing the multi-model estimator with a CV estimator (A4) has little effect in these scenarios; "
+         "the coefficient of variation across seeds (A5) ranges 12--55%.\n")
 L.append("**Table III. Ablations (drift profile, mean hit rate over 10 seeds).**\n")
 L.append("| Scenario | Ours (IMM) | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |")
 L.append("|---|---|---|---|---|---|---|")

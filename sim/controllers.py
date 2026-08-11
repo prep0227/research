@@ -217,8 +217,8 @@ class ADMMSolver:
 
     def solve(self, A, c, lb, ub, u0=None):
         n = A.shape[1]
-        if self._L is None or self._L.shape[0] != n:
-            self._factor(A)
+        # Rebuild whenever A changes (input-delay steps d alter A even when n is fixed)
+        self._factor(A)
         rho = self.rho
         g = -(self._At @ c)
         z = u0.copy() if u0 is not None else np.zeros(n)

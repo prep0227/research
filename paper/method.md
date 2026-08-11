@@ -36,6 +36,6 @@ where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mat
 
 ## F. Baselines
 
-- **B0** (community baseline): CV/EKF prediction + empirical lead $Kt+B$ + cascade PID, mirroring RMVL practice [R1].
-- **B1** (delay-unaware MPC): IMM prediction with the same MPC but the input-delay model disabled (SHtech-style constant-latency approximation) [R3].
+- **B0** (community baseline): empirical lead $Kt+B$ + cascade PID, mirroring RMVL practice [R1], driven by the same multi-model predictor as our method (a stronger-than-typical baseline). Its lead parameters are tuned with the ground-truth latency values (an oracle, hence favorable, setting for the baseline).
+- **B1** (delay-unaware MPC): the same MPC but with the input-delay model disabled (d=0); it uses only nominal latency constants in the aim horizon and does not model the time-varying/uncertain chain [R3].
 - **B2** (upper bound): our controller under a zero-delay profile (simulation only).

@@ -41,7 +41,7 @@ def run(mode, seed=0):
     warmup_vis = None; warmup_gim = None
     for k in range(int(T / DT)):
         t = k * DT
-        tv, tg = vfn(t), gfn(t)
+        tv, tg = vfn(t), gfn(max(0.0, t - DT))
         lag_vis.append(ev.mean() - tv)          # before adding current sample
         lag_gim.append(eg.mean() - tg)
         ev.add(tv + rng.normal(0.0, N_VIS))
@@ -49,10 +49,15 @@ def run(mode, seed=0):
         used_vis.append(ev.mean() - tv)
         used_gim.append(eg.mean() - tg)
         true_vis.append(tv); true_gim.append(tg)
-        if warmup_vis is None and abs(lag_vis[-1]) < 0.005:
-            warmup_vis = t
-        if warmup_gim is None and abs(lag_gim[-1]) < 0.005:
-            warmup_gim = t
+        # settling time: first t such that the next 1 s window keeps |bias|<5 ms on >=90% of steps
+        if warmup_vis is None:
+            win = np.abs(np.asarray(lag_vis[-50:]))
+            if len(win) == 50 and (win < 0.005).mean() >= 0.9:
+                warmup_vis = t
+        if warmup_gim is None:
+            win = np.abs(np.asarray(lag_gim[-50:]))
+            if len(win) == 50 and (win < 0.005).mean() >= 0.9:
+                warmup_gim = t
     def stats(err):
         a = np.asarray(err)
         return {"bias_ms": float(np.mean(a)*1e3), "mae_ms": float(np.mean(np.abs(a))*1e3),
@@ -77,7 +82,7 @@ def main():
     md = ["# Online Delay-Estimator Accuracy (protocol secondary metric)\n",
           "Sliding-window (W=50) estimator vs. true latency; per-step feed as in run_once.",
           "Steady-state window t in [1,6] s; 'lag-1' = causal (samples before current step).",
-          "", "| mode | segment | true mean (ms) | bias (ms) | MAE (ms) | RMSE (ms) | P95 abs err (ms) | warm-up to 5 ms (s) |",
+          "", "| mode | segment | true mean (ms) | bias (ms) | MAE (ms) | RMSE (ms) | P95 abs err (ms) | settling to 5 ms (s) |",
           "|---|---|---|---|---|---|---|---|"]
     for r in out:
         for seg in ["vision", "gimbal"]:

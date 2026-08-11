@@ -246,6 +246,20 @@
       "severity": "INFO",
       "description": "投稿策略更新（硬件开学后才到位）：arXiv 仿真版立即 → 真机后 RA-L → 延迟则 JINT/CEP → 中文核心兜底。",
       "created_at": "2026-08-11T17:42:00+08:00"
+    },
+    {
+      "id": "warn_p0_correctness_fixed",
+      "type": "VERIFICATION",
+      "severity": "INFO",
+      "description": "P0 正确性修复完成（审稿发现）：ADMM 分解缓存、2-model IMM 恢复、gimbal 时延因果化、B0/B1 如实描述；全量重跑新基准 v0.5，fixed/gamma 与旧版逐位一致。",
+      "created_at": "2026-08-11T18:50:00+08:00"
+    },
+    {
+      "id": "warn_v05_benchmark",
+      "type": "MILESTONE",
+      "severity": "INFO",
+      "description": "新基准 v0.5：drift 更新（vs B0 12.1-67.3pp；vs B1 drift +33.7/+15.1/+60.7pp）；0% 丢帧=Table I；ADMM P99=5.0ms。",
+      "created_at": "2026-08-11T19:00:00+08:00"
     }
   ],
   "failures": [],

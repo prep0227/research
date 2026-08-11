@@ -18,7 +18,7 @@ lines = [
     "$\\Delta_i$ (P95 $\\approx27$ ms) is designed to cover in the firing tightening; under drift the "
     "lag-1 estimate lags by $\\approx-5$ ms (half the sliding window times the drift rate).",
     "",
-    "| mode | segment | true mean (ms) | bias (ms) | MAE (ms) | RMSE (ms) | P95 abs err (ms) | warm-up to 5 ms (s) |",
+    "| mode | segment | true mean (ms) | bias (ms) | MAE (ms) | RMSE (ms) | P95 abs err (ms) | settling to 5 ms (s) |",
     "|---|---|---|---|---|---|---|---|",
 ]
 for r in D:

@@ -1,6 +1,6 @@
-# V. Real-Robot Experiments (Protocol; data pending hardware)
+# V. Real-Robot Experiments (Pre-registered Protocol)
 
-**Status**: protocol v1.1 finalized (see `project/experiment_protocol.md`); hardware bring-up in progress (P3). This section will report:
+**Status**: protocol v1.1 finalized (see `project/experiment_protocol.md`); hardware bring-up and data collection are scheduled after robot hardware becomes available (P3/P4). This section specifies the pre-registered protocol and will report results:
 
 - **Platform**: custom RoboMaster infantry robot -- omnidirectional chassis, two-axis gimbal, industrial camera, onboard compute.
 - **Ground truth**: referee-system hit detection; gimbal encoders for angular error.

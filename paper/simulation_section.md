@@ -1,6 +1,6 @@
-# Simulation Study (draft for English journal paper)
+# IV. Simulation Study
 
-> Auto-generated from `sim/results.json` and `sim/rt_benchmark.json` via `paper/generate_sim_section.py`. Do not edit numbers by hand; regenerate after any experiment change.
+
 
 ## IV. Simulation Study
 
@@ -8,7 +8,7 @@
 
 - **Scenario set**: four target motion classes -- straight line, ground-plane circle, sinusoidal (S) maneuver, and accelerating/cruising/braking motion -- at a nominal speed scale (pre-registered before running).
 
-- **Delay profiles**: (i) *fixed*: vision latency $\tau_v=0.03$~s, actuation latency $\tau_g=0.06$~s; (ii) *gamma*: vision latency drawn from a gamma distribution (mean $\tau_v$, std 15~ms); (iii) *drift*: both latencies ramp linearly from their nominal values to +60~ms over the episode. A zero-delay profile (iv) serves as the ideal upper bound (B2).
+- **Delay profiles**: (i) *fixed*: vision latency $\tau_v=0.03$~s, actuation latency $\tau_g=0.06$~s; (ii) *gamma*: vision latency drawn from a gamma distribution (mean $\tau_v$, std 15~ms); (iii) *drift*: both latencies ramp linearly from their nominal values to +60~ms over the episode. A zero-delay profile (iv) serves as the ideal upper bound (B2). Nominal engagement range is approximately 1--8~m (hit tolerance $\theta_{\rm hit}=\arctan(0.08/\text{dist})$).
 
 - **Controllers**: B0 -- community-style EKF prediction + $Kt+B$ empirical lead + cascade PID (RMVL practice); B1 -- IESEKF/IMM prediction with an MPC that *ignores* the input delay (SHtech-style); Ours -- delay-aware MPC (IMM estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + delay-uncertainty tightening in the fire window).
 
@@ -16,7 +16,7 @@
 
 ### B. Primary results
 
-Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 11--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 11--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
+Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
 
 **Table I. Hit rate (mean over 10 seeds) and paired comparisons.**
 
@@ -24,16 +24,16 @@ Table I reports mean hit rate over ten seeds (standard deviations omitted for re
 |---|---|---|---|---|---|---|
 | line | fixed | 0.076 | 0.227 | 0.500 | +42.4 pp (p=0.000, d=+3.90) | +27.3 pp (p=0.000, d=+2.14) |
 | line | gamma | 0.086 | 0.219 | 0.505 | +41.9 pp (p=0.000, d=+4.35) | +28.6 pp (p=0.000, d=+2.13) |
-| line | drift | 0.057 | 0.106 | 0.450 | +39.3 pp (p=0.000, d=+4.72) | +34.4 pp (p=0.000, d=+2.48) |
+| line | drift | 0.057 | 0.106 | 0.443 | +38.7 pp (p=0.000, d=+4.52) | +33.7 pp (p=0.000, d=+2.93) |
 | circle | fixed | 0.196 | 0.426 | 0.501 | +30.6 pp (p=0.000, d=+2.75) | +7.6 pp (p=0.024, d=+0.85) |
 | circle | gamma | 0.211 | 0.435 | 0.496 | +28.5 pp (p=0.000, d=+2.42) | +6.1 pp (p=0.017, d=+0.92) |
-| circle | drift | 0.123 | 0.277 | 0.468 | +34.4 pp (p=0.000, d=+2.54) | +19.1 pp (p=0.000, d=+1.74) |
+| circle | drift | 0.123 | 0.277 | 0.427 | +30.4 pp (p=0.000, d=+2.61) | +15.1 pp (p=0.001, d=+1.52) |
 | s | fixed | 0.009 | 0.128 | 0.141 | +13.1 pp (p=0.000, d=+2.48) | +1.3 pp (p=0.591, d=+0.18) |
 | s | gamma | 0.021 | 0.115 | 0.154 | +13.3 pp (p=0.002, d=+1.33) | +4.0 pp (p=0.129, d=+0.53) |
-| s | drift | 0.000 | 0.074 | 0.111 | +11.1 pp (p=0.000, d=+2.01) | +3.8 pp (p=0.138, d=+0.51) |
+| s | drift | 0.000 | 0.074 | 0.121 | +12.1 pp (p=0.000, d=+1.74) | +4.7 pp (p=0.110, d=+0.56) |
 | accel | fixed | 0.095 | 0.409 | 0.761 | +66.6 pp (p=0.000, d=+5.44) | +35.2 pp (p=0.000, d=+2.91) |
 | accel | gamma | 0.134 | 0.408 | 0.773 | +64.0 pp (p=0.000, d=+3.48) | +36.5 pp (p=0.000, d=+2.51) |
-| accel | drift | 0.082 | 0.148 | 0.713 | +63.1 pp (p=0.000, d=+3.77) | +56.5 pp (p=0.000, d=+3.09) |
+| accel | drift | 0.082 | 0.148 | 0.755 | +67.3 pp (p=0.000, d=+4.28) | +60.7 pp (p=0.000, d=+3.97) |
 
 ### C. Zero-delay upper bound (B2)
 
@@ -43,23 +43,23 @@ Table II gives the hit rate of Ours under the zero-delay profile. The gap betwee
 
 | Scenario | B2 | Ours (drift) | Residual gap (pp) |
 |---|---|---|---|
-| line | 0.560 | 0.450 | +11.0 |
-| circle | 0.587 | 0.468 | +11.9 |
-| s | 0.186 | 0.111 | +7.5 |
-| accel | 0.815 | 0.713 | +10.2 |
+| line | 0.560 | 0.443 | +11.7 |
+| circle | 0.587 | 0.427 | +16.0 |
+| s | 0.186 | 0.121 | +6.5 |
+| accel | 0.815 | 0.755 | +6.0 |
 
 ### D. Ablations
 
-Table III ablates the contributions under the drift profile (the hardest condition). Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate; disabling delay-uncertainty tightening (A6) causes a small but consistent drop; replacing IMM with a CV estimator (A4) has little effect in these scenarios; the coefficient of variation across seeds (A5) indicates reproducibility (15--47%).
+Table III ablates the contributions under the drift profile (the hardest condition). The ablation set is A1--A6, where A3 is the delay-profile main effect reported in Table I (fixed vs. gamma vs. drift) and A5 is the across-seed coefficient of variation. Removing the input-delay model (A1 $=$ B1) or the lead prediction (A2) severely degrades hit rate (except on S, where the no-lead ablation is not worse, 0.129 vs. 0.121); disabling delay-uncertainty tightening (A6) causes a small but consistent drop; replacing the multi-model estimator with a CV estimator (A4) has little effect in these scenarios; the coefficient of variation across seeds (A5) ranges 12--55%.
 
 **Table III. Ablations (drift profile, mean hit rate over 10 seeds).**
 
 | Scenario | Ours (IMM) | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |
 |---|---|---|---|---|---|---|
-| line | 0.450 | 0.106 | 0.064 | 0.450 | 0.408 | 20.2 |
-| circle | 0.468 | 0.277 | 0.239 | 0.460 | 0.439 | 17.9 |
-| s | 0.111 | 0.074 | 0.118 | 0.111 | 0.104 | 47.2 |
-| accel | 0.713 | 0.148 | 0.487 | 0.768 | 0.702 | 15.0 |
+| line | 0.443 | 0.106 | 0.061 | 0.435 | 0.420 | 16.9 |
+| circle | 0.427 | 0.277 | 0.230 | 0.423 | 0.410 | 15.9 |
+| s | 0.121 | 0.074 | 0.129 | 0.121 | 0.098 | 54.5 |
+| accel | 0.755 | 0.148 | 0.450 | 0.776 | 0.753 | 11.9 |
 
 ### E. Real-time feasibility
 
@@ -69,8 +69,8 @@ Table IV reports per-step solver time in Python (NumPy/SciPy) as a conservative 
 
 | Solver | mean (ms) | p50 (ms) | p95 (ms) | p99 (ms) | max (ms) | $< 20$ ms |
 |---|---|---|---|---|---|---|
-| ADMM | 3.14 | 3.02 | 4.00 | 4.88 | 6.34 | yes |
-| SLSQP | 3.45 | 3.30 | 4.36 | 5.83 | 10.28 | yes |
+| ADMM | 2.61 | 2.52 | 3.05 | 4.98 | 9.40 | yes |
+| SLSQP | 0.83 | 0.79 | 1.05 | 1.85 | 3.42 | yes |
 
 ### F. Discussion and limitations
 

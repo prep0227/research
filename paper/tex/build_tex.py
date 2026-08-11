@@ -64,7 +64,7 @@ def fmt_stat(s):
     if s["p"] is None: return "--"
     return f"{s['mean_diff_pp']:+.1f} pp ($p$={s['p']:.3f}, $d$={s['d']:+.2f})"
 
-T1 = [r"Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperforms B0 in all 12 conditions by 11--67~pp ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67~pp gains on line, circle, and accelerating motion and 11--13~pp on the sinusoidal trajectory, and outperforms B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$)."]
+T1 = [r"Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperforms B0 in all 12 conditions by 12--67~pp ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67~pp gains on line, circle, and accelerating motion and 11--13~pp on the sinusoidal trajectory, and outperforms B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$)."]
 T1.append("\\begin{table}[t]\\centering\\small")
 T1.append("\\caption{Hit rate (mean over 10 seeds) and paired comparisons.}")
 T1.append("\\label{tab:primary}")
@@ -147,7 +147,7 @@ DE = json.loads((SIM / "results_delay_estimation.json").read_text(encoding="utf-
 T7 = ["\\begin{table}[t]\\centering\\small",
       "\\caption{Online delay-estimator accuracy (causal lag-1 estimate, steady state $t\\in[1,6]$~s; protocol secondary metric).}\\label{tab:de}",
       "\\begin{tabular}{llrrrrrr}",
-      "\\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Warm-up (s)\\\\ \\midrule"]
+      "\\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Settling (s)\\\\ \\midrule"]
 for _r in DE:
     for _seg in ["vision", "gimbal"]:
         _d = _r[_seg]; _s = _d["lag1"]
