@@ -21,6 +21,7 @@
 - 论文：`paper/tex/manuscript.pdf`（9 页）与 `manuscript_ral.pdf`（6 页），0 错误、0 Overfull、无越界、引用 19/19；arXiv 包独立编译通过。
 - 数据/代码：`sim/results*.json`（canonical 560 runs + 速度/丢帧/延迟估计/实时基准）、生成器、`deploy/cpp` C++ 求解器；CI（`verify`）每次 push 全绿。
 - 统计严谨性：两尾 paired t-test + Cohen's d + BH-FDR（vs B0 12/12 q<0.05）；p<0.001 格式；诚实报告（S 形 vs B1 不显著、accel 20% 丢帧不显著、accel RMSE vs B1 略差、A3 常数时延仅差 1–3pp）。
+- 真机分析闭环：`tools/replay_to_stats.py`（事件日志→重放→配对 McNemar/门限/CI/升级，CI 端到端测试 11/11）。
 - 可复现：README 全流程 runbook、Overleaf 指南（含 xelatex+bibtex）、示例统计输入。
 - 审计：`project/audit/events.jsonl`（80+ 条）、`project/state.json`。
 
