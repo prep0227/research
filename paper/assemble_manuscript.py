@@ -11,13 +11,20 @@ title = """# Delay-Aware Predictive Control for Moving-Target Tracking with Expl
 **Draft v0.5** -- generated from verified simulation artifacts (2026-08-11). Real-robot section pending hardware (Section V).
 """
 
-figures = """## Figures
+def _supplementary():
+    """Figures + auto-generated speed-sweep table (if present)."""
+    txt = """## Figures
 
 - **Fig. 1**: `paper/figures/fig1_architecture.png` -- system architecture (shared detection/PnP -> proposed IMM estimator, online latency estimator, delay-aware MPC, firing decision; referee hit feedback).
 - **Fig. 2**: `paper/figures/fig2_latency_chain.png` -- six-segment latency chain with per-segment magnitudes and online uncertainty estimate (mean +/- Delta_i) for firing tightening.
 - **Fig. 3**: `sim/results_hitrate.png` -- hit rate by scenario / delay mode / controller (10 seeds).
 - **Fig. 4**: `sim/results_ablations.png` -- ablation hit rates under the drift profile.
-
+"""
+    try:
+        txt += "\n\n" + read("speed_sweep_section.md")
+    except FileNotFoundError:
+        pass
+    txt += """
 ## Data Availability
 
 - Simulation code: `sim/` (Python, MIT-style).
@@ -31,6 +38,7 @@ figures = """## Figures
 - Literature citations are abstract/metadata-level except [R5][R6][R12] (full text); quantitative claims cited from [R7][R8] were re-verified against publisher metadata/abstracts on 2026-08-11 (full experimental protocols remain inaccessible).
 - Simulation-only conclusions; real-robot validation is the planned next stage.
 """
+    return txt
 
 sections = [
     ("# Abstract", read("abstract.md")),
@@ -41,7 +49,7 @@ sections = [
     ("# V. Real-Robot Experiments", read("real_robot_section.md")),
     ("# VI. Discussion and Limitations", read("discussion_conclusion.md")),
     ("# References", read("references.md")),
-    ("# Supplementary Material", figures),
+    ("# Supplementary Material", _supplementary()),
 ]
 parts = [title, "# Abstract\n\n" + read("abstract.md")]
 for h, c in sections:

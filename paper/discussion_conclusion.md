@@ -16,6 +16,10 @@ The simulation study shows a consistent and large improvement of the proposed de
 
 We additionally implemented a three-model IMM (CV + CT + constant-acceleration CA) as a robustness check. It improved the S-trajectory hit rate under drift (0.111 -> 0.146, still not significant vs B1, p=0.114) but degraded accelerating-drift performance by about 20 pp, because the CA model extrapolates acceleration during the deceleration phase. The primary configuration therefore uses the two-model IMM (CV + CT); adaptive model-set selection is left as future work. Per-seed data for both configurations are released.
 
+### Speed-gear sensitivity (supplementary)
+
+The real-robot protocol tests three target speed gears (0.5 / 1.2 / 2.0 m/s). To keep the simulation consistent with that protocol, we ran a supplementary speed sweep (same controllers, drifting latency, 10 seeds; Table S1). Across the 12 speed--scenario cells, Ours improves hit rate over B0 by +1.4 to +62.9 percentage points, significant ($p<0.05$) in 11/12 cells; the only exception is circle at 2.0 m/s, where all controllers collapse to near-zero hit rate (Ours 0.014, $+1.4$ pp, $p=0.343$). Versus B1 the gain is significant in 9/12 cells, with non-significant differences on circle at 1.2 and 2.0 m/s and S at 1.2 m/s -- consistent with the main benchmark, where S is the hardest case for B1. The estimated gain over B0 is positive in all 12 cells; over B1 it is negative only at circle 2.0 m/s ($-1.1$ pp, $p=0.655$). All controllers degrade at 2.0 m/s, so the supplementary sweep also serves as a difficulty calibration for the real-robot speed gears.
+
 ## D. Future work
 
 - Vehicle-rotation (armor-around-center) motion model in the IMM.

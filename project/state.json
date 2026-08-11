@@ -120,6 +120,20 @@
       "severity": "INFO",
       "description": "本机 LaTeX 编译验证受环境限制（无 sudo/网络下载失败）；由 CI latex-action 在 push 时执行编译验证，tex 静态自检通过。",
       "created_at": "2026-08-11T15:20:00+08:00"
+    },
+    {
+      "id": "warn_speed_sweep",
+      "type": "MILESTONE",
+      "severity": "INFO",
+      "description": "速度档敏感性补充实验完成（360 runs）：Ours vs B0 显著 11/12（circle@2.0 除外，全方法崩溃）；vs B1 9/12；为真机速度档提供仿真依据（Table S1）。",
+      "created_at": "2026-08-11T15:55:00+08:00"
+    },
+    {
+      "id": "warn_replay_tool",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "离线重放工具 tools/replay/ 就绪：事件日志 schema + replay.py + 合成日志生成器，合成数据验证通过（Ours>B1>B0）。",
+      "created_at": "2026-08-11T16:00:00+08:00"
     }
   ],
   "failures": [],

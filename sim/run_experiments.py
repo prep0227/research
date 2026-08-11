@@ -68,10 +68,10 @@ def build_controller(name, est, delay_est, lead=True, tighten=True):
                              lead=lead, tighten=tighten)
     raise ValueError(name)
 
-def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", lead=True, tighten=True):
+def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", lead=True, tighten=True, scale=1.0):
     rng = np.random.default_rng(seed)
     np.random.seed(seed)
-    traj = make_trajectory(scenario, scale=1.0)
+    traj = make_trajectory(scenario, scale=scale)
     vfn, gfn = delay_fns(delay_mode)
     gimbal = Gimbal(dt=DT, delay=gfn, acc_max=ACC_MAX, rate_max=RATE_MAX)
     est = TargetIMM(dt=DT) if estimator_type == "IMM" else TargetKF(dt=DT)
@@ -105,7 +105,8 @@ def run_once(scenario, delay_mode, controller_name, seed, estimator_type="IMM", 
     m = run_metrics(log, traj, GIMBAL_POS, TAU_FIRE,
                     lambda t: np.linalg.norm(traj.position(t) - np.asarray(GIMBAL_POS)) / V_BULLET)
     m.update({"controller": controller_name, "scenario": scenario, "delay_mode": delay_mode,
-              "seed": seed, "estimator": estimator_type, "lead": lead, "tighten": tighten})
+              "seed": seed, "estimator": estimator_type, "lead": lead, "tighten": tighten,
+              "scale": float(scale)})
     return m
 
 def paired(a, b):

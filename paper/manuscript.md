@@ -228,6 +228,10 @@ The simulation study shows a consistent and large improvement of the proposed de
 
 We additionally implemented a three-model IMM (CV + CT + constant-acceleration CA) as a robustness check. It improved the S-trajectory hit rate under drift (0.111 -> 0.146, still not significant vs B1, p=0.114) but degraded accelerating-drift performance by about 20 pp, because the CA model extrapolates acceleration during the deceleration phase. The primary configuration therefore uses the two-model IMM (CV + CT); adaptive model-set selection is left as future work. Per-seed data for both configurations are released.
 
+### Speed-gear sensitivity (supplementary)
+
+The real-robot protocol tests three target speed gears (0.5 / 1.2 / 2.0 m/s). To keep the simulation consistent with that protocol, we ran a supplementary speed sweep (same controllers, drifting latency, 10 seeds; Table S1). Across the 12 speed--scenario cells, Ours improves hit rate over B0 by +1.4 to +62.9 percentage points, significant ($p<0.05$) in 11/12 cells; the only exception is circle at 2.0 m/s, where all controllers collapse to near-zero hit rate (Ours 0.014, $+1.4$ pp, $p=0.343$). Versus B1 the gain is significant in 9/12 cells, with non-significant differences on circle at 1.2 and 2.0 m/s and S at 1.2 m/s -- consistent with the main benchmark, where S is the hardest case for B1. The estimated gain over B0 is positive in all 12 cells; over B1 it is negative only at circle 2.0 m/s ($-1.1$ pp, $p=0.655$). All controllers degrade at 2.0 m/s, so the supplementary sweep also serves as a difficulty calibration for the real-robot speed gears.
+
 ## D. Future work
 
 - Vehicle-rotation (armor-around-center) motion model in the IMM.
@@ -277,6 +281,25 @@ Access notes: [R5][R6][R12] full text; others abstract/metadata as of 2026-08-11
 - **Fig. 3**: `sim/results_hitrate.png` -- hit rate by scenario / delay mode / controller (10 seeds).
 - **Fig. 4**: `sim/results_ablations.png` -- ablation hit rates under the drift profile.
 
+
+### S.1 Speed-gear sensitivity (supplementary)
+
+Nominal target speed gears 0.5 / 1.2 / 2.0 m/s, drifting-latency profile, 10 seeds. Hit rate (mean) by controller; gains are paired mean differences with one-sided paired t-test p-values (statistics computed from per-seed data in `sim/results_speed_sweep.json`).
+
+| scenario | speed (m/s) | B0 | B1 | Ours | Ours$-$B0 (pp, p) | Ours$-$B1 (pp, p) |
+|---|---|---|---|---|---|---|
+| line | 0.5 | 0.247 | 0.227 | 0.698 | +45.1 (0.000) | +47.1 (0.000) |
+| line | 1.2 | 0.088 | 0.106 | 0.402 | +31.4 (0.000) | +29.6 (0.000) |
+| line | 2.0 | 0.072 | 0.065 | 0.273 | +20.2 (0.000) | +20.8 (0.000) |
+| circle | 0.5 | 0.252 | 0.254 | 0.560 | +30.8 (0.000) | +30.5 (0.000) |
+| circle | 1.2 | 0.048 | 0.119 | 0.145 | +9.8 (0.005) | +2.6 (0.347) |
+| circle | 2.0 | 0.000 | 0.025 | 0.014 | +1.4 (0.343) | -1.1 (0.655) |
+| s | 0.5 | 0.009 | 0.198 | 0.638 | +62.9 (0.000) | +44.0 (0.000) |
+| s | 1.2 | 0.000 | 0.074 | 0.070 | +7.0 (0.000) | -0.4 (0.806) |
+| s | 2.0 | 0.000 | 0.014 | 0.062 | +6.2 (0.001) | +4.8 (0.002) |
+| accel | 0.5 | 0.629 | 0.628 | 0.927 | +29.8 (0.000) | +29.9 (0.001) |
+| accel | 1.2 | 0.424 | 0.305 | 0.774 | +35.0 (0.004) | +46.9 (0.000) |
+| accel | 2.0 | 0.143 | 0.124 | 0.513 | +37.0 (0.000) | +38.8 (0.000) |
 ## Data Availability
 
 - Simulation code: `sim/` (Python, MIT-style).

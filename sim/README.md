@@ -72,6 +72,12 @@ python3 plot_results.py            # 重新生成结果图
 - **消融（drift）**：A1 无时延建模（=B1）远差（line 0.450 vs 0.106）；A2 无预测 line 0.450→0.064；A6 关闭时延不确定性收紧 0.450→0.408（小幅一致增益）；A4 IMM vs CV 差异小（诚实报告）；A5 跨种子 CV 15–47%。
 - 求解器实现：`controllers.py` 中 `ADMMSolver`（warm-start，60 iter），SLSQP 保留为兜底。
 
+## 补充实验：速度档敏感性扫掠（非主配置，`run_speed_sweep.py`）
+
+- 设计：4 场景 × 3 速度档（0.5/1.2/2.0 m/s，按场景换算 scale） × B0/B1/Ours × 10 seeds，drift 延迟，360 runs。
+- 输出：`results_speed_sweep.jsonl`（原始）+ `results_speed_sweep.json`（聚合）+ `results_speed_sweep.md`（汇总表）。
+- 用途：为真机协议的速度档选择提供仿真依据（论文 Table S1）。
+
 ## 补充实验：三模型 IMM（CV+CT+CA）鲁棒性检查（非主配置）
 
 实现于 `estimator.py`（`CAKF` + 三模型 `TargetIMM`），作为主配置的鲁棒性对照：

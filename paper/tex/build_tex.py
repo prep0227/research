@@ -105,6 +105,25 @@ for name in ["admm", "slsqp"]:
     T4.append(f"{name.upper()} & {b['mean_ms']:.2f} & {b['p50']:.2f} & {b['p95']:.2f} & {b['p99']:.2f} & {b['max']:.2f} & {'yes' if b['p99_lt_period'] else 'no'}\\\\")
 T4.append("\\bottomrule\\end{tabular}\\end{table}")
 
+# --- supplementary speed-sweep table (number discipline: from results_speed_sweep.json) --
+SSW = json.loads((SIM / "results_speed_sweep.json").read_text(encoding="utf-8"))
+SPEED_LABEL = {"low": "0.5", "mid": "1.2", "high": "2.0"}
+T5 = ["\\begin{table}[t]\\centering",
+      "\\caption{Speed-gear sensitivity (drift latency, 10 seeds): hit rate by controller and paired gains vs. baselines.}\\label{tab:speed}",
+      "\\begin{tabular}{lcccccc}",
+      "\\toprule Scenario & m/s & B0 & B1 & Ours & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\\ \\midrule"]
+for _sc in ["line", "circle", "s", "accel"]:
+    for _sp in ["low", "mid", "high"]:
+        _d = SSW["results"][f"{_sc}/{_sp}"]
+        _p0, _p1 = _d["ours_vs_B0"], _d["ours_vs_B1"]
+        _p0s = f"{_p0['p']:.3f}" if _p0["p"] is not None else "n/a"
+        _p1s = f"{_p1['p']:.3f}" if _p1["p"] is not None else "n/a"
+        T5.append(f"{_sc} & {SPEED_LABEL[_sp]} & {_d['B0']['hit_rate']:.3f} & {_d['B1']['hit_rate']:.3f} "
+                  f"& {_d['Ours']['hit_rate']:.3f} & {_p0['mean_diff_pp']:+.1f} ({_p0s}) "
+                  f"& {_p1['mean_diff_pp']:+.1f} ({_p1s})\\")
+T5.append("\\bottomrule\\end{tabular}\\end{table}")
+supp_tab = "\n".join(T5)
+
 # --- sections ----------------------------------------------------------------
 abstract = md2tex(load("abstract.md")).replace("\\section*{Abstract}\n", "")
 intro = md2tex(load("introduction.md"))
@@ -159,6 +178,8 @@ doc = [preamble,
 \includegraphics[width=0.9\columnwidth]{results_ablations.png}
 \caption{Ablations under the drift profile.}\label{fig:abl}
 \end{figure}
+\section*{Supplementary Material}
+""" + supp_tab + r"""
 \section*{Data Availability}
 Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{<repo-url>}.
 \end{document}
