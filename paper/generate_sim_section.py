@@ -63,7 +63,7 @@ L.append(f"Table I reports mean hit rate over ten seeds (Fig.~\\ref{{fig:hit}} v
          f"false-discovery-rate control (max $q$={_q0:.3f}<0.05). Ours also outperforms B1 on line, circle, and accel "
          f"(9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$={_q1:.3f}<0.05). "
          f"On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation "
-         f"discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from "
+         f"discussed in Section VI; pointing-error RMSE under the drift profile nonetheless improves from "
          f"{_rm['s']['B1']:.1f} to {_rm['s']['Ours']:.1f} mrad versus B1 (and {_rm['s']['B0']:.1f} to {_rm['s']['Ours']:.1f} mrad versus B0), "
          f"with analogous RMSE reductions versus B0 on line, circle, and accel (Table S.4).\n")
 L.append("**Table I. Hit rate (mean over 10 seeds) and paired comparisons.**\n")
