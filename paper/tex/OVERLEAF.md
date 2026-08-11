@@ -4,7 +4,7 @@
 
 ## 上传（推荐：zip 整个 `paper/tex/`）
 
-1. `paper/tex/manuscript.tex`（主文件）
+1. `paper/tex/manuscript.tex`（完整版，JINT/CEP 用）或 `paper/tex/manuscript_ral.tex`（**RA-L 6 页压缩版**，Related Work/Discussion 已压缩、Fig.2 与 Table S1–S3 移补充材料）
 2. `paper/tex/refs.bib`（15 条参考文献，全部含 DOI/卷期页）
 3. `paper/tex/figures/` 不存在 —— 图片在 `paper/figures/` 与 `sim/`：
    - `paper/figures/fig1_architecture.png`

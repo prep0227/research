@@ -49,11 +49,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Generate RA-L 6-page edition
+        run: python3 paper/tex/make_ral.py
       - name: Compile manuscript.tex (Overleaf-equivalent check)
         uses: xu-cheng/latex-action@v3
         with:
           working_directory: paper/tex
           root_file: manuscript.tex
+          latexmk_use_xelatex: false
+          args: -pdf -interaction=nonstopmode -halt-on-error
+      - name: Compile manuscript_ral.tex (RA-L 6-page edition)
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: paper/tex
+          root_file: manuscript_ral.tex
           latexmk_use_xelatex: false
           args: -pdf -interaction=nonstopmode -halt-on-error
       - name: Upload PDF

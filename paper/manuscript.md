@@ -9,11 +9,9 @@
 
 # Abstract
 
-Vision-based target tracking and firing on high-maneuver target platforms (e.g., RoboMaster combat robots) is fundamentally limited by a multi-segment latency chain: camera exposure and readout, detection and pose estimation, serial communication, gimbal actuation, firing delay, and projectile flight time. Existing practice compensates these latencies with empirical lead parameters ($Kt+B$) around a Kalman-filter target predictor, while recent open-source designs apply model predictive control (MPC) to gimbal planning but treat delays as constant, hand-tuned parameters and provide no controlled evaluation.
+Vision-based aiming on RoboMaster combat robots is limited by a multi-segment latency chain: camera exposure/readout, detection and pose estimation, serial communication, gimbal actuation, firing delay, and projectile flight. Existing practice uses hand-tuned lead parameters ($Kt+B$) around a Kalman predictor; recent open-source designs apply model predictive control (MPC) to gimbal planning but treat delays as constant parameters and lack controlled evaluation.
 
-This paper proposes a delay-aware predictive control framework for moving-target tracking with explicit, online-estimated vision/actuation latency compensation. Our system combines (i) an interacting-multiple-model (IMM) estimator with CV and constant-turn-rate models and out-of-sequence measurement handling, (ii) a sliding-window online latency estimator that feeds both the aim horizon and a delay-uncertainty tightening margin into the firing decision, and (iii) an input-delay-augmented MPC solved by an ADMM box-constrained QP with a $20$ ms control period. We evaluate on a pre-registered simulation benchmark covering four motion classes (line, circle, sinusoidal, accelerating), three latency profiles (fixed, jittered, drifting), and ten seeds per condition, against two baselines: the community-standard $Kt+B$+PID pipeline (B0) and a delay-unaware MPC (B1).
-
-Results show that the proposed controller improves hit rate over B0 by 28--67 percentage points ($p<0.001$, Cohen's $d>1.3$) on all trajectory classes and latency profiles, and over B1 on line, circle, and accelerating motion (up to $+59$ pp under drifting latency). Ablations isolate the contributions of the input-delay model, the lead prediction, and delay-uncertainty tightening; a zero-delay upper bound quantifies the residual latency cost. The MPC solver meets real-time requirements ($p99=4.9$ ms $<$ 20 ms in Python, conservative). Real-robot validation on a custom RoboMaster infantry robot with referee-system hit detection is planned (Section V).
+We propose a delay-aware predictive control framework that models this latency chain as time-varying and uncertain and estimates it online. The system combines (i) an interacting-multiple-model (IMM) estimator with constant-velocity and constant-turn-rate models and out-of-sequence measurement handling, (ii) a sliding-window online latency estimator that feeds both the aim horizon and a delay-uncertainty tightening margin into the firing decision, and (iii) an input-delay-augmented MPC solved by an ADMM box-constrained QP at a $20$ ms control period. On a pre-registered simulation benchmark (four motion classes, three latency profiles, ten seeds), the proposed controller improves hit rate over the community-standard $Kt+B$+PID baseline by 28--67 percentage points ($p<0.001$) and over a delay-unaware MPC on line, circle, and accelerating motion. Ablations isolate the contributions of delay modeling, lead prediction, and uncertainty tightening; a zero-delay upper bound quantifies the residual latency cost. The solver meets the real-time requirement ($p99=4.9$ ms $<$ 20 ms). Real-robot validation with referee-system hit detection is planned.
 
 **Keywords**: predictive control; visual latency compensation; target tracking; RoboMaster gimbal; delay-aware MPC
 
@@ -61,7 +59,7 @@ MPC is a standard tool for constrained, receding-horizon tracking. For gimbal-ca
 
 # III. Method
 
-The full mathematical formulation is maintained in `paper/methods_math.md` (auto-synced with the implementation). This section summarizes the components.
+This section summarizes the main components (full formulation in the supplementary material).
 
 ## A. System architecture
 

@@ -1,6 +1,6 @@
 # III. Method
 
-The full mathematical formulation is maintained in `paper/methods_math.md` (auto-synced with the implementation). This section summarizes the components.
+This section summarizes the main components (full formulation in the supplementary material).
 
 ## A. System architecture
 

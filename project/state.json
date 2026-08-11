@@ -176,6 +176,20 @@
       "severity": "INFO",
       "description": "cover letter 与根 README 刷新至 v0.5.3；全量验证通过（assemble/build_tex/C++/cite 15/15）。",
       "created_at": "2026-08-11T17:08:00+08:00"
+    },
+    {
+      "id": "warn_ral_edition",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "RA-L 6 页压缩版 manuscript_ral.tex 已生成（-26%，压缩 II/VI、Fig.2 与 S1-S3 移补充）；CI 双版本编译；编译后确认正文页数。",
+      "created_at": "2026-08-11T17:30:00+08:00"
+    },
+    {
+      "id": "warn_abstract_compliant",
+      "type": "VERIFICATION",
+      "severity": "INFO",
+      "description": "摘要 294→221 词（≤250 IEEE 限制）；Method 开发注释已清理；md+tex 同步。",
+      "created_at": "2026-08-11T17:32:00+08:00"
     }
   ],
   "failures": [],
