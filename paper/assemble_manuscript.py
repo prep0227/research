@@ -13,8 +13,8 @@ title = """# Delay-Aware Predictive Control for Moving-Target Tracking with Expl
 
 figures = """## Figures
 
-- **Fig. 1** (proposed): System architecture (camera -> detection -> PnP -> IMM -> online latency estimator -> delay-aware MPC -> firing decision -> gimbal/launcher).
-- **Fig. 2** (proposed): Latency-chain diagram with the six segments and their measured/estimated distributions (to be generated from `tools/delay_profiler/` output).
+- **Fig. 1**: `paper/figures/fig1_architecture.png` -- system architecture (shared detection/PnP -> proposed IMM estimator, online latency estimator, delay-aware MPC, firing decision; referee hit feedback).
+- **Fig. 2**: `paper/figures/fig2_latency_chain.png` -- six-segment latency chain with per-segment magnitudes and online uncertainty estimate (mean +/- Delta_i) for firing tightening.
 - **Fig. 3**: `sim/results_hitrate.png` -- hit rate by scenario / delay mode / controller (10 seeds).
 - **Fig. 4**: `sim/results_ablations.png` -- ablation hit rates under the drift profile.
 

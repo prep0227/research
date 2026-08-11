@@ -20,7 +20,7 @@
       "id": "warn_numbers_unverified",
       "type": "NUMBER_UNVERIFIED",
       "severity": "MEDIUM",
-      "description": "TJURM 延迟数值（单战队 wiki）尚未与第二来源交叉核验，转述需标注；FME 2024 37.6%/66.7%/41.6%、Actuators 2023 42.9%/58.3%/72%、Axioms 2024 36.8% 均已核验（2026-08-11）。",
+      "description": "TJURM 机械段延迟（旋转/发弹/飞行量级）仍为单战队来源（无第二来源直接复现，转述标注为工程量级估计）；视觉侧量级已获古月居教程佐证；R13 命中率（95.37%/68.27%）已从官方全文 PDF 核验；其余引用数字均已核验（2026-08-11）。",
       "created_at": "2026-08-11T12:41:57+08:00"
     },
     {
@@ -99,6 +99,27 @@
       "severity": "INFO",
       "description": "GitHub 投稿就绪：git 仓库 main@ad7d726，根 README + CI（Python 一致性 + C++ 测试 + LaTeX 编译）。",
       "created_at": "2026-08-11T15:05:00+08:00"
+    },
+    {
+      "id": "warn_figures_qa",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "Fig.1 架构图 + Fig.2 延迟链图已生成并接入手稿/tex（figure*/figure）；内置确定性几何自检通过（无文本/方框重叠）。",
+      "created_at": "2026-08-11T15:10:00+08:00"
+    },
+    {
+      "id": "warn_r13_verified",
+      "type": "VERIFICATION",
+      "severity": "INFO",
+      "description": "R13 全文核验：兵器装备工程学报 2022, 43(11):286-296, DOI 10.11809/bqzbgcxb2022.11.041；命中率 95.37%/68.27% 与初速 15m/s 已确认；references/bib 已更新。",
+      "created_at": "2026-08-11T15:15:00+08:00"
+    },
+    {
+      "id": "warn_latex_local_blocked",
+      "type": "INFO",
+      "severity": "INFO",
+      "description": "本机 LaTeX 编译验证受环境限制（无 sudo/网络下载失败）；由 CI latex-action 在 push 时执行编译验证，tex 静态自检通过。",
+      "created_at": "2026-08-11T15:20:00+08:00"
     }
   ],
   "failures": [],
@@ -128,7 +149,7 @@
     "max_iterations": 3,
     "usage": {
       "tokens_used": 0,
-      "calls_made": 23,
+      "calls_made": 27,
       "cost_spent": 0.0,
       "iterations_used": 3
     }

@@ -262,7 +262,7 @@ Access notes: [R5][R6][R12] full text; others abstract/metadata as of 2026-08-11
 - **[R10]** "Nonlinear Direct Error Compensator for Visual Servo Trajectory Tracking Under Image Sensor Delay on a Moving Platform," *IEEE Trans. Ind. Electron.*, 73(6):9198-9208, 2026. doi:10.1109/TIE.2025.3649866
 - **[R11]** "PENC: a predictive-estimative nonlinear control framework for robust target tracking of fixed-wing UAVs in complex urban environments," *Scientific Reports*, 15:13095, 2025. doi:10.1038/s41598-025-13095-z
 - **[R12]** J. Qin and K. Xu, "Design and Implementation of Automatic Assisted Aiming System For Robomaster EP Based on YOLOv5," arXiv:2312.05055, 2023. https://arxiv.org/abs/2312.05055
-- **[R13]** "基于卡尔曼滤波的目标识别跟踪与射击系统设计 (Design of target recognition tracking and firing system based on Kalman filtering)," *兵器装备工程学报*, 2022.
+- **[R13]** H. Wang, Z. Ji, and L. Zhang, "基于卡尔曼滤波的目标识别跟踪与射击系统设计 (Design of target recognition tracking and attack system based on Kalman filter)," *兵器装备工程学报 (Journal of Ordnance Equipment Engineering)*, 43(11):286-296, 2022. doi:10.11809/bqzbgcxb2022.11.041
 - **[R14]** K. Zhang, Y. Shi, H. Sheng, "Robust nonlinear model predictive control based visual servoing of quadrotor UAVs," *IEEE/ASME Trans. Mechatronics*, 26(2):700-708, 2021. doi:10.1109/TMECH.2021.3053267
 - **[R15]** "Fusing Phase Map Servoing and MPC for High-Precision Robotic Tracking of Dynamic Objects," *Actuators*, 15(2):77, 2026. doi:10.3390/act15020077
 
@@ -272,8 +272,8 @@ Access notes: [R5][R6][R12] full text; others abstract/metadata as of 2026-08-11
 
 ## Figures
 
-- **Fig. 1** (proposed): System architecture (camera -> detection -> PnP -> IMM -> online latency estimator -> delay-aware MPC -> firing decision -> gimbal/launcher).
-- **Fig. 2** (proposed): Latency-chain diagram with the six segments and their measured/estimated distributions (to be generated from `tools/delay_profiler/` output).
+- **Fig. 1**: `paper/figures/fig1_architecture.png` -- system architecture (shared detection/PnP -> proposed IMM estimator, online latency estimator, delay-aware MPC, firing decision; referee hit feedback).
+- **Fig. 2**: `paper/figures/fig2_latency_chain.png` -- six-segment latency chain with per-segment magnitudes and online uncertainty estimate (mean +/- Delta_i) for firing tightening.
 - **Fig. 3**: `sim/results_hitrate.png` -- hit rate by scenario / delay mode / controller (10 seeds).
 - **Fig. 4**: `sim/results_ablations.png` -- ablation hit rates under the drift profile.
 

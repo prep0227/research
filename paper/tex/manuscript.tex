@@ -1,7 +1,7 @@
 \documentclass[journal]{IEEEtran}
 \usepackage{amsmath,amssymb,graphicx,booktabs,url,hyperref}
 \usepackage[margin=1in]{geometry}
-\graphicspath{{../../sim/}}
+\graphicspath{{../../sim/}{../figures/}}
 \begin{document}
 \title{Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation: A RoboMaster Gimbal Case Study}
 \author{Team Authors\thanks{Corresponding author: \texttt{<email>}}}
@@ -260,6 +260,14 @@ We presented a delay-aware predictive control framework for moving-target tracki
 \bibliography{refs}
 
 \section*{Figures}
+\begin{figure*}[t]\centering
+\includegraphics[width=0.95\textwidth]{fig1_architecture.png}
+\caption{System architecture. Detection and PnP are shared with the baselines; the IMM estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
+\end{figure*}
+\begin{figure}[t]\centering
+\includegraphics[width=0.92\columnwidth]{fig2_latency_chain.png}
+\caption{Six-segment latency chain with nominal magnitudes (TJURM order of magnitude). The online estimator provides $\bar\tau_i$ and uncertainty bound $\Delta_i$ used to tighten the firing decision.}\label{fig:chain}
+\end{figure}
 \begin{figure}[t]\centering
 \includegraphics[width=0.9\columnwidth]{results_hitrate.png}
 \caption{Hit rate by scenario / delay mode / controller (10 seeds).}\label{fig:hit}

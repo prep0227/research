@@ -123,7 +123,7 @@ sim += "\n" + "\n\n".join(T1) + "\n" + "\n\n".join(T2) + "\n" + "\n\n".join(T3) 
 preamble = r"""\documentclass[journal]{IEEEtran}
 \usepackage{amsmath,amssymb,graphicx,booktabs,url,hyperref}
 \usepackage[margin=1in]{geometry}
-\graphicspath{{../../sim/}}
+\graphicspath{{../../sim/}{../figures/}}
 \begin{document}
 \title{Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation: A RoboMaster Gimbal Case Study}
 \author{Team Authors\thanks{Corresponding author: \texttt{<email>}}}
@@ -143,6 +143,14 @@ doc = [preamble,
 \bibliography{refs}
 
 \section*{Figures}
+\begin{figure*}[t]\centering
+\includegraphics[width=0.95\textwidth]{fig1_architecture.png}
+\caption{System architecture. Detection and PnP are shared with the baselines; the IMM estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
+\end{figure*}
+\begin{figure}[t]\centering
+\includegraphics[width=0.92\columnwidth]{fig2_latency_chain.png}
+\caption{Six-segment latency chain with nominal magnitudes (TJURM order of magnitude). The online estimator provides $\bar\tau_i$ and uncertainty bound $\Delta_i$ used to tighten the firing decision.}\label{fig:chain}
+\end{figure}
 \begin{figure}[t]\centering
 \includegraphics[width=0.9\columnwidth]{results_hitrate.png}
 \caption{Hit rate by scenario / delay mode / controller (10 seeds).}\label{fig:hit}
@@ -171,7 +179,7 @@ bib = r"""@misc{ref1, title={RMVL: Prediction quantities in vehicle state estima
 @article{ref10, title={Nonlinear Direct Error Compensator for Visual Servo Trajectory Tracking Under Image Sensor Delay on a Moving Platform}, journal={IEEE Transactions on Industrial Electronics}, volume={73}, number={6}, pages={9198--9208}, year={2026}, doi={10.1109/TIE.2025.3649866}}
 @article{ref11, title={PENC: a predictive-estimative nonlinear control framework for robust target tracking of fixed-wing UAVs in complex urban environments}, journal={Scientific Reports}, volume={15}, pages={13095}, year={2025}, doi={10.1038/s41598-025-13095-z}}
 @misc{ref12, title={Design and Implementation of Automatic Assisted Aiming System For Robomaster EP Based on YOLOv5}, howpublished={arXiv:2312.05055}, year={2023}}
-@article{ref13, title={Design of target recognition tracking and firing system based on Kalman filtering}, journal={Journal of Ordnance Equipment Engineering}, year={2022}}
+@article{ref13, author={Wang, Hongxi and Ji, Zexian and Zhang, Lanyong}, title={Design of target recognition tracking and attack system based on Kalman filter}, journal={Journal of Ordnance Equipment Engineering}, volume={43}, number={11}, pages={286--296}, year={2022}, doi={10.11809/bqzbgcxb2022.11.041}}
 @article{ref14, title={Robust nonlinear model predictive control based visual servoing of quadrotor UAVs}, journal={IEEE/ASME Transactions on Mechatronics}, volume={26}, number={2}, pages={700--708}, year={2021}, doi={10.1109/TMECH.2021.3053267}}
 @article{ref15, title={Fusing Phase Map Servoing and MPC for High-Precision Robotic Tracking of Dynamic Objects}, journal={Actuators}, volume={15}, number={2}, pages={77}, year={2026}, doi={10.3390/act15020077}}
 """

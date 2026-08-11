@@ -12,7 +12,7 @@
 
 ### clm_delay_chain — Confidence: MEDIUM
 - **Claim**: RM 自瞄总延迟由多段组成：视觉采集/计算约 10ms 量级，信号/通信 1ms 量级，机械旋转 20–200ms，发弹 50–100ms，弹丸飞行 50–250ms；后三段远大于视觉计算段。
-- **Allowed Expression**: Current evidence suggests：具体数值主要来自 TJURM 单战队 wiki（未经第二来源核验），但延迟分段结构被 RMVL 与社区教程定性支持。
+- **Allowed Expression**: Current evidence suggests：延迟分段结构被 RMVL 与古月居教程支持；视觉侧量级（曝光/处理/串口合计约 10–15ms）已被古月居教程（120fps 约 8ms + 处理 + 串口 ≈ 十几 ms）佐证；机械段（旋转 20–200ms、发弹 50–100ms、飞行 50–250ms）仍仅 TJURM 单来源，论文中标注为工程量级估计。
 - **Evidence**: ev_tjurm_delay, ev_rmvl_predictor, ev_guyue_2021
 
 ### clm_delay_hurts — Confidence: HIGH
@@ -73,12 +73,13 @@
 - 局限: 预印本，系统设计类，定量评估有限（主要报告 mAP 与结构）。
 
 ### ev_harbe_kalman_2022 — 基于卡尔曼滤波的目标识别跟踪与射击系统设计 (2022)
-- 来源: 兵器装备工程学报（北大核心） | 标识: https://d.wanfangdata.com.cn/periodical/scbgxb202211041 | 访问: abstract
-- 质量: R=3 D=2 X=3 P=2 A=2 | bias: UNKNOWN/None
-- 摘录: 以 RoboMaster 哈工程自瞄系统为例：目标识别与位置解算、云台姿态估计、目标运动预测与弹道补偿、云台运动控制四部分；KF 估计目标运动与云台姿态，弹道模型预测，串级反馈云台控制，弹丸初速 15 m/s。
-- 摘要: 国内核心期刊：RM 自瞄的 KF+弹道+串级控制完整链路（摘要级）。
+- 来源: 兵器装备工程学报（北大核心），43(11):286-296，DOI 10.11809/bqzbgcxb2022.11.041 | 标识: https://d.wanfangdata.com.cn/periodical/scbgxb202211041 | 访问: fulltext
+- 质量: R=3 D=3 X=3 P=2 A=2 | bias: UNKNOWN/None
+- 作者: 王洪玺（哈尔滨工程大学 智能科学与工程学院）、计泽贤（机电工程学院）、张兰勇（通信作者，副教授）
+- 摘录: 以 RoboMaster 哈工程自瞄系统为例：目标识别与位置解算、云台姿态估计、目标运动预测与弹道补偿、云台运动控制四部分；KF 估计目标运动与云台姿态，弹道模型预测，串级反馈云台控制，弹丸初速 15 m/s；4m 有效距离内匀速目标命中率 95.37%，综合机动目标命中率 68.27%。
+- 摘要: 国内核心期刊：RM 自瞄的 KF+弹道+串级控制完整链路；命中率数据已从全文 PDF 核验（2026-08-11）。
 - content_hash: sha256:7b12ba1d1e029a727a81a31a468161aa24d9258197327d7cc8c61c576123bc90
-- 局限: 仅摘要，实验细节/命中率数据不可访问。
+- 局限: 全文已获取（bzxb.cqut.edu.cn 官方 PDF）；命中率基于其自研平台，与本文指标定义不同，仅作文脉参照。
 
 ### ev_barreto_mpc — Model predictive control to improve visual control of motion: applications in active tracking of moving targets (2000)
 - 来源: IEEE ICPR 2000（15th Int. Conf. on Pattern Recognition），vol.4 pp.732-735，DOI 10.1109/icpr.2000.903021 | 标识: https://ieeexplore.ieee.org/document/903021 | 访问: abstract
@@ -166,4 +167,4 @@
 - 摘录: 120fps 下摄像头约 8ms 延迟，加上处理与串口传输共十几毫秒；上位机发送频率低于下位机控制频率时，下位机每周期对装甲板位置预测后再控制云台旋转。
 - 摘要: 社区教程证实 RM 自瞄存在约 8ms 相机延迟 + 处理/通信延迟，社区做法为下位机预测（摘要/片段级）。
 - content_hash: sha256:335ad935aa219f81a5ec05f8179a1010ce04d43def8bc07cba3b8a607b6dc110
-- 局限: 仅检索片段；页面正文未能抓取，访问受限。
+- 局限: 检索片段 + 官方页二次核验；视觉侧量级与 TJURM 一致（约 8–13ms），机械段量级未覆盖。
