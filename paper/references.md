@@ -17,3 +17,7 @@ Access notes: [R5][R6][R12] full text; others abstract/metadata as of 2026-08-11
 - **[R13]** H. Wang, Z. Ji, and L. Zhang, "基于卡尔曼滤波的目标识别跟踪与射击系统设计 (Design of target recognition tracking and attack system based on Kalman filter)," *兵器装备工程学报 (Journal of Ordnance Equipment Engineering)*, 43(11):286-296, 2022. doi:10.11809/bqzbgcxb2022.11.041
 - **[R14]** K. Zhang, Y. Shi, H. Sheng, "Robust nonlinear model predictive control based visual servoing of quadrotor UAVs," *IEEE/ASME Trans. Mechatronics*, 26(2):700-708, 2021. doi:10.1109/TMECH.2021.3053267
 - **[R15]** "Fusing Phase Map Servoing and MPC for High-Precision Robotic Tracking of Dynamic Objects," *Actuators*, 15(2):77, 2026. doi:10.3390/act15020077
+- **[R16]** H. A. P. Blom and Y. Bar-Shalom, "The interacting multiple model algorithm for systems with Markovian switching coefficients," *IEEE Trans. Autom. Control*, 33(8):780-783, 1988. doi:10.1109/9.1299
+- **[R17]** Y. Bar-Shalom, "Update with out-of-sequence measurements in tracking: exact solution," *IEEE Trans. Aerosp. Electron. Syst.*, 38(3):769-778, 2002. doi:10.1109/TAES.2002.1039398
+- **[R18]** D. Q. Mayne, J. B. Rawlings, C. V. Rao, and P. O. M. Scokaert, "Constrained model predictive control: Stability and optimality," *Automatica*, 36(6):789-814, 2000. doi:10.1016/S0005-1098(99)00214-9
+- **[R19]** O. J. M. Smith, "A controller to overcome dead time," *ISA Journal*, 6(2):28-33, 1959.

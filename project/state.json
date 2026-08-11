@@ -274,6 +274,13 @@
       "severity": "INFO",
       "description": "CI 对新基准 v0.5（a1bc40c）completed success：9 单测 + C++ + 双版本 LaTeX 全绿。",
       "created_at": "2026-08-11T19:40:00+08:00"
+    },
+    {
+      "id": "warn_mimo_high_demand_20260811",
+      "type": "EXTERNAL",
+      "severity": "WARNING",
+      "description": "mimo-v2.5 服务端持续 high demand（'We're currently experiencing high demand...'），视觉排版审查 10 次失败；agent thread limit 已通过关闭遗留代理解决；待服务恢复后重试逐页审查。",
+      "created_at": "2026-08-11T19:35:47+08:00"
     }
   ],
   "failures": [],

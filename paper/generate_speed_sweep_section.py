@@ -12,6 +12,9 @@ SPEEDS = {"low": "0.5", "mid": "1.2", "high": "2.0"}
 def fmt(v):
     return f"{v:.3f}"
 
+def fmt_p(p):
+    return "p<0.001" if p is not None and p < 0.001 else (f"{p:.3f}" if p is not None else "n/a")
+
 lines = [
     "### S.1 Speed-gear sensitivity (supplementary)",
     "",
@@ -28,8 +31,8 @@ for sc in ["line", "circle", "s", "accel"]:
         d = D["results"][key]
         b0, b1, o = d["B0"]["hit_rate"], d["B1"]["hit_rate"], d["Ours"]["hit_rate"]
         p0 = d["ours_vs_B0"]; p1 = d["ours_vs_B1"]
-        p0s = f"{p0['p']:.3f}" if p0["p"] is not None else "n/a"
-        p1s = f"{p1['p']:.3f}" if p1["p"] is not None else "n/a"
+        p0s = fmt_p(p0["p"])
+        p1s = fmt_p(p1["p"])
         lines.append(f"| {sc} | {SPEEDS[sp]} | {fmt(b0)} | {fmt(b1)} | {fmt(o)} | "
                      f"{p0['mean_diff_pp']:+.1f} ({p0s}) | {p1['mean_diff_pp']:+.1f} ({p1s}) |")
 (PAPER / "speed_sweep_section.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

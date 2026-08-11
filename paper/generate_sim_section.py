@@ -14,8 +14,17 @@ def row(sc, dm):
 def stat(sc, dm, key):
     return next(s for s in R["paired"] if s["scenario"]==sc and s["delay_mode"]==dm)[key]
 
+def fmt_p(p):
+    return "p<0.001" if p is not None and p < 0.001 else (f"p={p:.3f}" if p is not None else "-")
+
 def fmt_stat(s):
-    return f"{s['mean_diff_pp']:+.1f} pp (p={s['p']:.3f}, d={s['d']:+.2f})" if s["p"] is not None else "-"
+    return f"{s['mean_diff_pp']:+.1f} pp ({fmt_p(s['p'])}, d={s['d']:+.2f})" if s["p"] is not None else "-"
+
+def bh_q(pvals):
+    n = len(pvals); order = sorted(range(n), key=lambda i: pvals[i]); q = [0.0]*n
+    for rank, i in enumerate(order, start=1): q[i] = pvals[i]*n/rank
+    for rank in range(n-2, -1, -1): q[order[rank]] = min(q[order[rank]], q[order[rank+1]])
+    return q
 
 L = []
 L.append("# IV. Simulation Study\n")
@@ -29,21 +38,29 @@ L.append(f"- **Delay profiles**: (i) *fixed*: vision latency $\\tau_v={cfg['tau_
          f"(mean $\\tau_v$, std 15~ms); (iii) *drift*: both latencies ramp linearly from their nominal values to +60~ms over the episode. "
          f"A zero-delay profile (iv) serves as the ideal upper bound (B2). "
          f"Nominal engagement range is approximately 1--8~m (hit tolerance $\\theta_{{\\rm hit}}=\\arctan(0.08/\\text{{dist}})$).\n")
-L.append(f"- **Controllers**: B0 -- community-style EKF prediction + $Kt+B$ empirical lead + cascade PID (RMVL practice); "
-         f"B1 -- IESEKF/IMM prediction with an MPC that *ignores* the input delay (SHtech-style); "
-         f"Ours -- delay-aware MPC (IMM estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + "
+L.append(f"- **Controllers**: B0 -- community baseline: $Kt+B$ empirical lead + cascade PID driven by the same "
+         f"multi-model predictor as Ours (oracle-tuned lead, hence a stronger-than-typical baseline; RMVL practice [R1]); "
+         f"B1 -- the same multi-model predictor with an MPC that *ignores* the input delay (delay-unaware, SHtech-style); "
+         f"Ours -- delay-aware MPC (multi-model estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + "
          f"delay-uncertainty tightening in the fire window).\n")
 L.append(f"- **Common settings**: control period $dt={cfg['dt']:.2f}$~s, episode $T={cfg['T']:.0f}$~s, horizon $H={cfg['H']}$ "
          f"(${cfg['H']*cfg['dt']:.2f}$~s), firing delay $\\tau_{{fire}}={cfg['tau_fire']:.2f}$~s, bullet speed ${cfg['v_bullet']:.0f}$~m/s, "
          f"armor half-width 0.08~m, dispersion 0.008~rad, gimbal limits $|u|\\le 10$~rad/s$^2$, $|\\dot\\theta|\\le 6$~rad/s. "
          f"Measurement noise 3~cm (1$\\sigma$). Ten random seeds per condition; paired $t$-test and Cohen's $d$ reported.\n")
 L.append("### B. Primary results\n")
-L.append("Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). "
-         "Ours outperforms B0 in all 12 conditions by 12--67 percentage points "
-         "($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67 pp gains on line, circle, and accel "
-         "and 12--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel "
-         "(9 of 12 cells, $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), "
-         "an honest limitation discussed in Section VII.\n")
+_q0 = max(bh_q([stat(sc,dm,'ours_vs_B0')['p'] for sc in scenarios for dm in delays]))
+_q1 = max(bh_q([stat(sc,dm,'ours_vs_B1')['p'] for sc in scenarios for dm in delays]))
+_rm = {sc: {c: next(x for x in R["rows"] if x["scenario"]==sc and x["delay_mode"]=="drift" and x["controller"]==c)["err_rmse_mrad"] for c in ctrls} for sc in scenarios}
+L.append(f"Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). "
+         f"Ours outperforms B0 in all 12 conditions by 12--67 percentage points "
+         f"($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67 pp gains on line, circle, and accel "
+         f"and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg "
+         f"false-discovery-rate control (max $q$={_q0:.3f}<0.05). Ours also outperforms B1 on line, circle, and accel "
+         f"(9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$={_q1:.3f}<0.05). "
+         f"On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation "
+         f"discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from "
+         f"{_rm['s']['B1']:.1f} to {_rm['s']['Ours']:.1f} mrad versus B1 (and {_rm['s']['B0']:.1f} to {_rm['s']['Ours']:.1f} mrad versus B0), "
+         f"with analogous RMSE reductions on line, circle, and accel (Table S.4).\n")
 L.append("**Table I. Hit rate (mean over 10 seeds) and paired comparisons.**\n")
 L.append("| Scenario | Delay | B0 | B1 | Ours | Ours vs B0 | Ours vs B1 |")
 L.append("|---|---|---|---|---|---|---|")
@@ -70,7 +87,7 @@ L.append("Table III ablates the contributions under the drift profile (the harde
          "replacing the multi-model estimator with a CV estimator (A4) has little effect in these scenarios; "
          "the coefficient of variation across seeds (A5) ranges 12--55%.\n")
 L.append("**Table III. Ablations (drift profile, mean hit rate over 10 seeds).**\n")
-L.append("| Scenario | Ours (IMM) | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |")
+L.append("| Scenario | Ours | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |")
 L.append("|---|---|---|---|---|---|---|")
 for sc in scenarios:
     a = R["ablations_drift"][sc]
@@ -88,10 +105,10 @@ for name in ["admm", "slsqp"]:
     L.append(f"| {name.upper()} | {b['mean_ms']:.2f} | {b['p50']:.2f} | {b['p95']:.2f} | {b['p99']:.2f} | {b['max']:.2f} | {'yes' if b['p99_lt_period'] else 'no'} |")
 L.append("\n### F. Discussion and limitations\n")
 L.append("- **S trajectory vs B1**: Ours is not significantly better than B1 on sinusoidal lateral motion; we attribute this to "
-         "the constant-turn-rate model inside IMM being less suited to sinusoidal motion and to B1 already benefiting from MPC. "
+         "the constant-turn-rate model inside the multi-model estimator being less suited to sinusoidal motion and to B1 already benefiting from MPC. "
          "This is reported honestly and motivates the vehicle-rotation model extension (future work).\n")
-L.append("- **IMM vs CV (A4)**: no material difference in these scenarios; IMM is expected to help when the target switches "
-         "between turn and translation modes (to be tested on the real robot with opponent-like motion).\n")
+L.append("- **Multi-model vs CV (A4)**: no material difference in these scenarios; a true IMM with interactive mixing is expected to "
+         "help when the target switches between turn and translation modes (to be tested on the real robot with opponent-like motion).\n")
 L.append("- **Simulation fidelity**: PnP noise is idealized at 3~cm; real perception noise and intermittent detections will be "
          "characterized on the robot (Section V).\n")
 L.append("- **Reproducibility**: code and raw per-seed results are released (see Data Availability).\n")

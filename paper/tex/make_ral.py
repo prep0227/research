@@ -61,13 +61,13 @@ def main():
     assert fig2, "Fig.2 env not found"
     tex = tex[:fig2.start()] + tex[fig2.end():]
 
-    # 4) remove supplementary tables S1-S3, keep section header + pointer
-    for label in ["tab:speed", "tab:drop", "tab:de"]:
-        pat = re.compile(r"\\begin\{table\}\[t\]\\centering(?:\\small)?\n\\caption\{.*?\\label\{" + label + r"\}.*?\\end\{table\}", re.S)
+    # 4) remove supplementary tables S1-S6, keep section header + pointer
+    for label in ["tab:speed_a", "tab:speed_b", "tab:drop", "tab:de_a", "tab:de_b", "tab:rmse"]:
+        pat = re.compile(r"\\begin\{table\}\[t\]\\centering\\small\n\\caption\{.*?\\label\{" + label + r"\}.*?\\end\{table\}", re.S)
         tex, n = pat.subn("", tex, count=1)
         assert n == 1, f"table {label} not removed"
     tex = tex.replace("\\section*{Supplementary Material}\n",
-                      "\\section*{Supplementary Material}\nSee the supplementary document for Tables S1--S3 (speed-gear sensitivity, detection-dropout robustness, delay-estimator accuracy).\n")
+                      "\\section*{Supplementary Material}\nSee the supplementary document for the speed-gear sensitivity (hit rates and paired gains), detection-dropout robustness, delay-estimator accuracy/settling, and pointing-error RMSE tables.\n")
 
     (TEX / "manuscript_ral.tex").write_text(tex, encoding="utf-8")
     print(f"manuscript_ral.tex written: {len(tex)} chars")

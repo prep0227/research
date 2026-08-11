@@ -8,6 +8,9 @@ PAPER = pathlib.Path(__file__).resolve().parent
 SIM = PAPER.parent / "sim"
 D = json.loads((SIM / "results_dropout.json").read_text(encoding="utf-8"))
 
+def fmt_p(p):
+    return "p<0.001" if p is not None and p < 0.001 else (f"{p:.3f}" if p is not None else "n/a")
+
 lines = [
     "### S.2 Detection-dropout robustness (supplementary)",
     "",
@@ -23,7 +26,7 @@ for sc in ["line", "accel"]:
         key = f"{sc}/dropout={dp:.1f}"
         d = D["results"][key]
         p1 = d["ours_vs_B1"]
-        p1s = f"{p1['p']:.3f}" if p1["p"] is not None else "n/a"
+        p1s = fmt_p(p1["p"])
         lines.append(f"| {sc} | {dp:.0%} | {d['B1']['hit_rate']:.3f} | {d['Ours']['hit_rate']:.3f} | "
                      f"{p1['mean_diff_pp']:+.1f} ({p1s}) |")
 (PAPER / "dropout_section.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

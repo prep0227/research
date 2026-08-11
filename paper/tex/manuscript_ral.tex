@@ -41,11 +41,11 @@ This section summarizes the main components (full formulation in the supplementa
 
 \subsection*{A. System architecture}
 
-The closed loop is: camera -> detection -> PnP pose -> IMM estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
+The closed loop is: camera -> detection -> PnP pose -> multi-model estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
 
-\subsection*{B. Target state estimation (IMM)}
+\subsection*{B. Target state estimation (multi-model, MMAE-style)}
 
-We maintain an IMM with two models: a constant-velocity (CV) Kalman filter on 3D Cartesian state, and a constant-turn-rate (CT) EKF on the ground-plane state $[x,y,v_x,v_y,\omega]$. Measurements arrive with delay; each filter tracks its internal time $t_f$ and performs out-of-sequence updates: propagate to the measurement time $t_m$, update, propagate to now. The IMM mode probabilities follow a two-state Markov chain, and the predicted position at any horizon is the weighted mixture $\hat p(t+\tau)=\sum_i \mu_i\,\hat p_i(t+\tau)$.
+We maintain a two-model Bayesian multi-model estimator with a CV Kalman filter on 3D Cartesian state and a CT EKF on the ground-plane state $[x,y,v_x,v_y,\omega]$, weighting model outputs by posterior mode probabilities as in \cite{ref16} (MMAE-style: we use the mode-probability weighting without interactive mixing, the common simplification used by RoboMaster trackers). Measurements arrive with delay; each filter tracks its internal time $t_f$ and performs out-of-sequence updates following \cite{ref17}: propagate to the measurement time $t_m$, update, propagate to now. The mode probabilities follow a two-state Markov prior, and the predicted position at any horizon is the weighted mixture $\hat p(t+\tau)=\sum_i \mu_i\,\hat p_i(t+\tau)$.
 
 \subsection*{C. Online latency estimation}
 
@@ -55,9 +55,10 @@ A sliding-window estimator records per-segment latency samples (from timestamps,
 
 The gimbal is modeled per axis as a double integrator with input delay: $\omega(k+1)=\omega(k)+\Delta t\, u(k-d)$, with acceleration bound $|u|\le u_{\max}$ and rate bound $|\dot\omega|\le \omega_{\max}$. The aim reference is the azimuth/elevation of the predicted target at $t+\tau_{\mathrm{fire}}+\tau_{\mathrm{flight}}(t)$ (lead point). At each control step we solve
 
-$$
-\min_{u(0:H-1)} \sum_{k=0}^{H-1} \|r(k)-g(k)\|_Q^2 + \|\Delta u(k)\|_R^2 + \|r(H-1)-g(H-1)\|_{Q_T}^2
-$$
+\begin{multline*}
+\min_{u(0:H-1)} \sum_{k=0}^{H-1} \|r(k)-g(k)\|_Q^2 + \|\Delta u(k)\|_R^2 \\
++ \|r(H-1)-g(H-1)\|_{Q_T}^2
+\end{multline*}
 
 subject to the input-delay-augmented linear dynamics and box constraints, using a warm-started ADMM solver for a box-constrained QP (SLSQP fallback). The prediction map $g_{\mathrm{flat}}=T u_{\mathrm{flat}}+b$ is built from the current angles/rates and the delayed-input buffer.
 
@@ -69,7 +70,7 @@ $$
 \|r(0)-g(0)\| + \kappa\,\hat v\,(\Delta_{\mathrm{vision}}+\Delta_{\mathrm{gimbal}})/\mathrm{dist} < \theta_{\mathrm{hit}},
 $$
 
-where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
+where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
 
 \subsection*{F. Baselines}
 
@@ -96,7 +97,7 @@ where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mat
 \end{itemize}
 
 \begin{itemize}
-\item \textbf{Controllers}: B0 -- community-style EKF prediction + $Kt+B$ empirical lead + cascade PID (RMVL practice); B1 -- IESEKF/IMM prediction with an MPC that \textit{ignores} the input delay (SHtech-style); Ours -- delay-aware MPC (IMM estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + delay-uncertainty tightening in the fire window).
+\item \textbf{Controllers}: B0 -- community baseline: $Kt+B$ empirical lead + cascade PID driven by the same multi-model predictor as Ours (oracle-tuned lead, hence a stronger-than-typical baseline; RMVL practice \cite{ref1}); B1 -- the same multi-model predictor with an MPC that \textit{ignores} the input delay (delay-unaware, SHtech-style); Ours -- delay-aware MPC (multi-model estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + delay-uncertainty tightening in the fire window).
 \end{itemize}
 
 \begin{itemize}
@@ -105,11 +106,15 @@ where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mat
 
 \subsubsection*{B. Primary results}
 
-Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
+Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg false-discovery-rate control (max $q$=0.002<0.05). Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$=0.591<0.05). On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from 88.9 to 60.4 mrad versus B1 (and 163.9 to 60.4 mrad versus B0), with analogous RMSE reductions on line, circle, and accel (Table S.4).
 
 Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperforms B0 in all 12 conditions by 12--67~pp ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67~pp gains on line, circle, and accelerating motion and 11--13~pp on the sinusoidal trajectory, and outperforms B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$).
 
-\begin{table}[t]\centering\small
+All 12 comparisons versus B0 and all 9 significant comparisons versus B1 remain significant after Benjamini--Hochberg false-discovery-rate control ($q<0.05$).
+
+Under the drift profile, Ours reduces pointing-error RMSE versus B0 from 176.9 to 94.2~mrad (line), 109.5 to 26.2~mrad (circle), 163.9 to 60.4~mrad (S), and 310.6 to 98.6~mrad (accel); on the S trajectory the RMSE also improves from 88.9 to 60.4~mrad versus B1 even though the hit-rate gain is not significant (Table~\ref{tab:rmse}).
+
+\begin{table*}[t]\centering\small
 
 \caption{Hit rate (mean over 10 seeds) and paired comparisons.}
 
@@ -119,31 +124,31 @@ Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperfor
 
 \toprule Scenario & Delay & B0 & B1 & Ours & vs B0 & vs B1\\ \midrule
 
-line & fixed & 0.076 & 0.227 & 0.500 & +42.4 pp ($p$=0.000, $d$=+3.90) & +27.3 pp ($p$=0.000, $d$=+2.14)\\
+line & fixed & 0.076 & 0.227 & 0.500 & +42.4 pp ($p<0.001$, $d$=+3.90) & +27.3 pp ($p<0.001$, $d$=+2.14)\\
 
-line & gamma & 0.086 & 0.219 & 0.505 & +41.9 pp ($p$=0.000, $d$=+4.35) & +28.6 pp ($p$=0.000, $d$=+2.13)\\
+line & gamma & 0.086 & 0.219 & 0.505 & +41.9 pp ($p<0.001$, $d$=+4.35) & +28.6 pp ($p<0.001$, $d$=+2.13)\\
 
-line & drift & 0.057 & 0.106 & 0.443 & +38.7 pp ($p$=0.000, $d$=+4.52) & +33.7 pp ($p$=0.000, $d$=+2.93)\\
+line & drift & 0.057 & 0.106 & 0.443 & +38.7 pp ($p<0.001$, $d$=+4.52) & +33.7 pp ($p<0.001$, $d$=+2.93)\\
 
-circle & fixed & 0.196 & 0.426 & 0.501 & +30.6 pp ($p$=0.000, $d$=+2.75) & +7.6 pp ($p$=0.024, $d$=+0.85)\\
+circle & fixed & 0.196 & 0.426 & 0.501 & +30.6 pp ($p<0.001$, $d$=+2.75) & +7.6 pp ($p=0.024$, $d$=+0.85)\\
 
-circle & gamma & 0.211 & 0.435 & 0.496 & +28.5 pp ($p$=0.000, $d$=+2.42) & +6.1 pp ($p$=0.017, $d$=+0.92)\\
+circle & gamma & 0.211 & 0.435 & 0.496 & +28.5 pp ($p<0.001$, $d$=+2.42) & +6.1 pp ($p=0.017$, $d$=+0.92)\\
 
-circle & drift & 0.123 & 0.277 & 0.427 & +30.4 pp ($p$=0.000, $d$=+2.61) & +15.1 pp ($p$=0.001, $d$=+1.52)\\
+circle & drift & 0.123 & 0.277 & 0.427 & +30.4 pp ($p<0.001$, $d$=+2.61) & +15.1 pp ($p<0.001$, $d$=+1.52)\\
 
-s & fixed & 0.009 & 0.128 & 0.141 & +13.1 pp ($p$=0.000, $d$=+2.48) & +1.3 pp ($p$=0.591, $d$=+0.18)\\
+s & fixed & 0.009 & 0.128 & 0.141 & +13.1 pp ($p<0.001$, $d$=+2.48) & +1.3 pp ($p=0.591$, $d$=+0.18)\\
 
-s & gamma & 0.021 & 0.115 & 0.154 & +13.3 pp ($p$=0.002, $d$=+1.33) & +4.0 pp ($p$=0.129, $d$=+0.53)\\
+s & gamma & 0.021 & 0.115 & 0.154 & +13.3 pp ($p=0.002$, $d$=+1.33) & +4.0 pp ($p=0.129$, $d$=+0.53)\\
 
-s & drift & 0.000 & 0.074 & 0.121 & +12.1 pp ($p$=0.000, $d$=+1.74) & +4.7 pp ($p$=0.110, $d$=+0.56)\\
+s & drift & 0.000 & 0.074 & 0.121 & +12.1 pp ($p<0.001$, $d$=+1.74) & +4.7 pp ($p=0.110$, $d$=+0.56)\\
 
-accel & fixed & 0.095 & 0.409 & 0.761 & +66.6 pp ($p$=0.000, $d$=+5.44) & +35.2 pp ($p$=0.000, $d$=+2.91)\\
+accel & fixed & 0.095 & 0.409 & 0.761 & +66.6 pp ($p<0.001$, $d$=+5.44) & +35.2 pp ($p<0.001$, $d$=+2.91)\\
 
-accel & gamma & 0.134 & 0.408 & 0.773 & +64.0 pp ($p$=0.000, $d$=+3.48) & +36.5 pp ($p$=0.000, $d$=+2.51)\\
+accel & gamma & 0.134 & 0.408 & 0.773 & +64.0 pp ($p<0.001$, $d$=+3.48) & +36.5 pp ($p<0.001$, $d$=+2.51)\\
 
-accel & drift & 0.082 & 0.148 & 0.755 & +67.3 pp ($p$=0.000, $d$=+4.28) & +60.7 pp ($p$=0.000, $d$=+3.97)\\
+accel & drift & 0.082 & 0.148 & 0.755 & +67.3 pp ($p<0.001$, $d$=+4.28) & +60.7 pp ($p<0.001$, $d$=+3.97)\\
 
-\bottomrule\end{tabular}\end{table}
+\bottomrule\end{tabular}\end{table*}
 Table~\ref{tab:b2} gives the zero-delay upper bound of Ours and the residual gap under the drift profile.
 
 \begin{table}[t]\centering\small
@@ -165,7 +170,7 @@ accel & 0.815 & 0.755 & +6.0\\
 \bottomrule\end{tabular}\end{table}
 Table~\ref{tab:abl} ablates the contributions under the drift profile.
 
-\begin{table}[t]\centering\small
+\begin{table*}[t]\centering\small
 
 \caption{Ablations under the drift profile (mean hit rate).}
 
@@ -181,7 +186,7 @@ s & 0.121 & 0.074 & 0.129 & 0.121 & 0.098 & 54.5\\
 
 accel & 0.755 & 0.148 & 0.450 & 0.776 & 0.753 & 11.9\\
 
-\bottomrule\end{tabular}\end{table}
+\bottomrule\end{tabular}\end{table*}
 Table~\ref{tab:rt} reports per-step solver time in Python as a conservative upper bound.
 
 \begin{table}[t]\centering\small
@@ -229,10 +234,9 @@ We presented a delay-aware predictive control framework for moving-target tracki
 \bibliographystyle{IEEEtran}
 \bibliography{refs}
 
-\section*{Figures}
 \begin{figure*}[t]\centering
 \includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
-\caption{System architecture. Detection and PnP are shared with the baselines; the IMM estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
+\caption{System architecture. Detection and PnP are shared with the baselines; the multi-model estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
 \end{figure*}
 
 \begin{figure}[t]\centering
@@ -244,7 +248,10 @@ We presented a delay-aware predictive control framework for moving-target tracki
 \caption{Ablations under the drift profile.}\label{fig:abl}
 \end{figure}
 \section*{Supplementary Material}
-See the supplementary document for Tables S1--S3 (speed-gear sensitivity, detection-dropout robustness, delay-estimator accuracy).
+See the supplementary document for the speed-gear sensitivity (hit rates and paired gains), detection-dropout robustness, delay-estimator accuracy/settling, and pointing-error RMSE tables.
+
+
+
 
 
 

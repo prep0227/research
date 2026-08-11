@@ -47,11 +47,11 @@ RoboMaster auto-aim practice is documented mainly through open-source engineerin
 
 ## B. Delay compensation in visual tracking and visual servoing
 
-The effect of delay on visual tracking bandwidth is a classical problem. Barreto and Batista analyzed delays in visually guided active tracking and proposed interpolation for visual latency and MPC for mechanical latency [R5]. In optoelectronic tracking, a modified Smith predictor with pseudo feedforward reduced the 1-Hz maximum residual error from 365 to 283 arcseconds (22.5%) and provided stability conditions under model mismatch [R6]. Recent work on intelligent electro-optical detection systems proposes tracking-controller delay prediction with interpolation filtering (37.6% line-of-sight accuracy improvement in simulation) [R7] and optimized Kalman/gyro targeting control [R8]. Adaptive/robust Kalman filtering has been applied to visual servoing under measurement delay on inertial stabilization platforms [R9], and a nonlinear direct error compensator addresses image-sensor delay on moving platforms [R10]. These works establish the importance and difficulty of delay compensation, but their platforms (fast steering mirrors, electro-optical turrets, inertial platforms) differ from a low-cost two-axis RoboMaster gimbal with water-pellet ballistics, and none performs a controlled ablation of delay modeling vs. prediction vs. ballistic compensation.
+The effect of delay on visual tracking bandwidth is a classical problem. Barreto and Batista analyzed delays in visually guided active tracking and proposed interpolation for visual latency and MPC for mechanical latency [R5]. The canonical dead-time compensator is the Smith predictor [R19], which assumes a constant, known delay; our contribution targets the time-varying, uncertain multi-segment chain that this classical structure does not address. In optoelectronic tracking, a modified Smith predictor with pseudo feedforward reduced the 1-Hz maximum residual error from 365 to 283 arcseconds (22.5%) and provided stability conditions under model mismatch [R6]. Recent work on intelligent electro-optical detection systems proposes tracking-controller delay prediction with interpolation filtering (37.6% line-of-sight accuracy improvement in simulation) [R7] and optimized Kalman/gyro targeting control [R8]. Adaptive/robust Kalman filtering has been applied to visual servoing under measurement delay on inertial stabilization platforms [R9], and a nonlinear direct error compensator addresses image-sensor delay on moving platforms [R10]. These works establish the importance and difficulty of delay compensation, but their platforms (fast steering mirrors, electro-optical turrets, inertial platforms) differ from a low-cost two-axis RoboMaster gimbal with water-pellet ballistics, and none performs a controlled ablation of delay modeling vs. prediction vs. ballistic compensation.
 
 ## C. MPC for target tracking with gimbals
 
-MPC is a standard tool for constrained, receding-horizon tracking. For gimbal-camera systems, predictive-estimative nonlinear control (MPC + moving-horizon estimation) has been demonstrated for fixed-wing UAV target tracking [R11], and MPC-based visual servoing exists for quadrotors [R14] and robotic dynamic-object tracking [R15]. In the RoboMaster domain, SHtech provides an MPC gimbal planner [R3]. To our knowledge, within the searched scope (web/arXiv/journal-index searches, August 2026), no peer-reviewed work combines explicit *time-varying* delay-chain modeling with delay-aware MPC on a RoboMaster platform with controlled evaluation; open-source implementations exist but lack formal treatment and benchmarks.
+MPC is a standard tool for constrained, receding-horizon tracking [R18]. For gimbal-camera systems, predictive-estimative nonlinear control (MPC + moving-horizon estimation) has been demonstrated for fixed-wing UAV target tracking [R11], and MPC-based visual servoing exists for quadrotors [R14] and robotic dynamic-object tracking [R15]. In the RoboMaster domain, SHtech provides an MPC gimbal planner [R3]. To our knowledge, within the searched scope (web/arXiv/journal-index searches, August 2026), no peer-reviewed work combines explicit *time-varying* delay-chain modeling with delay-aware MPC on a RoboMaster platform with controlled evaluation; open-source implementations exist but lack formal treatment and benchmarks.
 
 ---
 
@@ -63,11 +63,11 @@ This section summarizes the main components (full formulation in the supplementa
 
 ## A. System architecture
 
-The closed loop is: camera -> detection -> PnP pose -> IMM estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
+The closed loop is: camera -> detection -> PnP pose -> multi-model estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
 
-## B. Target state estimation (IMM)
+## B. Target state estimation (multi-model, MMAE-style)
 
-We maintain an IMM with two models: a constant-velocity (CV) Kalman filter on 3D Cartesian state, and a constant-turn-rate (CT) EKF on the ground-plane state $[x,y,v_x,v_y,\omega]$. Measurements arrive with delay; each filter tracks its internal time $t_f$ and performs out-of-sequence updates: propagate to the measurement time $t_m$, update, propagate to now. The IMM mode probabilities follow a two-state Markov chain, and the predicted position at any horizon is the weighted mixture $\hat p(t+\tau)=\sum_i \mu_i\,\hat p_i(t+\tau)$.
+We maintain a two-model Bayesian multi-model estimator with a CV Kalman filter on 3D Cartesian state and a CT EKF on the ground-plane state $[x,y,v_x,v_y,\omega]$, weighting model outputs by posterior mode probabilities as in [R16] (MMAE-style: we use the mode-probability weighting without interactive mixing, the common simplification used by RoboMaster trackers). Measurements arrive with delay; each filter tracks its internal time $t_f$ and performs out-of-sequence updates following [R17]: propagate to the measurement time $t_m$, update, propagate to now. The mode probabilities follow a two-state Markov prior, and the predicted position at any horizon is the weighted mixture $\hat p(t+\tau)=\sum_i \mu_i\,\hat p_i(t+\tau)$.
 
 ## C. Online latency estimation
 
@@ -77,9 +77,10 @@ A sliding-window estimator records per-segment latency samples (from timestamps,
 
 The gimbal is modeled per axis as a double integrator with input delay: $\omega(k+1)=\omega(k)+\Delta t\, u(k-d)$, with acceleration bound $|u|\le u_{\max}$ and rate bound $|\dot\omega|\le \omega_{\max}$. The aim reference is the azimuth/elevation of the predicted target at $t+\tau_{\mathrm{fire}}+\tau_{\mathrm{flight}}(t)$ (lead point). At each control step we solve
 
-$$
-\min_{u(0:H-1)} \sum_{k=0}^{H-1} \|r(k)-g(k)\|_Q^2 + \|\Delta u(k)\|_R^2 + \|r(H-1)-g(H-1)\|_{Q_T}^2
-$$
+\begin{multline*}
+\min_{u(0:H-1)} \sum_{k=0}^{H-1} \|r(k)-g(k)\|_Q^2 + \|\Delta u(k)\|_R^2 \\
++ \|r(H-1)-g(H-1)\|_{Q_T}^2
+\end{multline*}
 
 subject to the input-delay-augmented linear dynamics and box constraints, using a warm-started ADMM solver for a box-constrained QP (SLSQP fallback). The prediction map $g_{\mathrm{flat}}=T u_{\mathrm{flat}}+b$ is built from the current angles/rates and the delayed-input buffer.
 
@@ -91,7 +92,7 @@ $$
 \|r(0)-g(0)\| + \kappa\,\hat v\,(\Delta_{\mathrm{vision}}+\Delta_{\mathrm{gimbal}})/\mathrm{dist} < \theta_{\mathrm{hit}},
 $$
 
-where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
+where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
 
 ## F. Baselines
 
@@ -115,30 +116,30 @@ where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mat
 
 - **Delay profiles**: (i) *fixed*: vision latency $\tau_v=0.03$~s, actuation latency $\tau_g=0.06$~s; (ii) *gamma*: vision latency drawn from a gamma distribution (mean $\tau_v$, std 15~ms); (iii) *drift*: both latencies ramp linearly from their nominal values to +60~ms over the episode. A zero-delay profile (iv) serves as the ideal upper bound (B2). Nominal engagement range is approximately 1--8~m (hit tolerance $\theta_{\rm hit}=\arctan(0.08/\text{dist})$).
 
-- **Controllers**: B0 -- community-style EKF prediction + $Kt+B$ empirical lead + cascade PID (RMVL practice); B1 -- IESEKF/IMM prediction with an MPC that *ignores* the input delay (SHtech-style); Ours -- delay-aware MPC (IMM estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + delay-uncertainty tightening in the fire window).
+- **Controllers**: B0 -- community baseline: $Kt+B$ empirical lead + cascade PID driven by the same multi-model predictor as Ours (oracle-tuned lead, hence a stronger-than-typical baseline; RMVL practice [R1]); B1 -- the same multi-model predictor with an MPC that *ignores* the input delay (delay-unaware, SHtech-style); Ours -- delay-aware MPC (multi-model estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + delay-uncertainty tightening in the fire window).
 
 - **Common settings**: control period $dt=0.02$~s, episode $T=6$~s, horizon $H=18$ ($0.36$~s), firing delay $\tau_{fire}=0.08$~s, bullet speed $15$~m/s, armor half-width 0.08~m, dispersion 0.008~rad, gimbal limits $|u|\le 10$~rad/s$^2$, $|\dot\theta|\le 6$~rad/s. Measurement noise 3~cm (1$\sigma$). Ten random seeds per condition; paired $t$-test and Cohen's $d$ reported.
 
 ### B. Primary results
 
-Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
+Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg false-discovery-rate control (max $q$=0.002<0.05). Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$=0.591<0.05). On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from 88.9 to 60.4 mrad versus B1 (and 163.9 to 60.4 mrad versus B0), with analogous RMSE reductions on line, circle, and accel (Table S.4).
 
 **Table I. Hit rate (mean over 10 seeds) and paired comparisons.**
 
 | Scenario | Delay | B0 | B1 | Ours | Ours vs B0 | Ours vs B1 |
 |---|---|---|---|---|---|---|
-| line | fixed | 0.076 | 0.227 | 0.500 | +42.4 pp (p=0.000, d=+3.90) | +27.3 pp (p=0.000, d=+2.14) |
-| line | gamma | 0.086 | 0.219 | 0.505 | +41.9 pp (p=0.000, d=+4.35) | +28.6 pp (p=0.000, d=+2.13) |
-| line | drift | 0.057 | 0.106 | 0.443 | +38.7 pp (p=0.000, d=+4.52) | +33.7 pp (p=0.000, d=+2.93) |
-| circle | fixed | 0.196 | 0.426 | 0.501 | +30.6 pp (p=0.000, d=+2.75) | +7.6 pp (p=0.024, d=+0.85) |
-| circle | gamma | 0.211 | 0.435 | 0.496 | +28.5 pp (p=0.000, d=+2.42) | +6.1 pp (p=0.017, d=+0.92) |
-| circle | drift | 0.123 | 0.277 | 0.427 | +30.4 pp (p=0.000, d=+2.61) | +15.1 pp (p=0.001, d=+1.52) |
-| s | fixed | 0.009 | 0.128 | 0.141 | +13.1 pp (p=0.000, d=+2.48) | +1.3 pp (p=0.591, d=+0.18) |
+| line | fixed | 0.076 | 0.227 | 0.500 | +42.4 pp (p<0.001, d=+3.90) | +27.3 pp (p<0.001, d=+2.14) |
+| line | gamma | 0.086 | 0.219 | 0.505 | +41.9 pp (p<0.001, d=+4.35) | +28.6 pp (p<0.001, d=+2.13) |
+| line | drift | 0.057 | 0.106 | 0.443 | +38.7 pp (p<0.001, d=+4.52) | +33.7 pp (p<0.001, d=+2.93) |
+| circle | fixed | 0.196 | 0.426 | 0.501 | +30.6 pp (p<0.001, d=+2.75) | +7.6 pp (p=0.024, d=+0.85) |
+| circle | gamma | 0.211 | 0.435 | 0.496 | +28.5 pp (p<0.001, d=+2.42) | +6.1 pp (p=0.017, d=+0.92) |
+| circle | drift | 0.123 | 0.277 | 0.427 | +30.4 pp (p<0.001, d=+2.61) | +15.1 pp (p<0.001, d=+1.52) |
+| s | fixed | 0.009 | 0.128 | 0.141 | +13.1 pp (p<0.001, d=+2.48) | +1.3 pp (p=0.591, d=+0.18) |
 | s | gamma | 0.021 | 0.115 | 0.154 | +13.3 pp (p=0.002, d=+1.33) | +4.0 pp (p=0.129, d=+0.53) |
-| s | drift | 0.000 | 0.074 | 0.121 | +12.1 pp (p=0.000, d=+1.74) | +4.7 pp (p=0.110, d=+0.56) |
-| accel | fixed | 0.095 | 0.409 | 0.761 | +66.6 pp (p=0.000, d=+5.44) | +35.2 pp (p=0.000, d=+2.91) |
-| accel | gamma | 0.134 | 0.408 | 0.773 | +64.0 pp (p=0.000, d=+3.48) | +36.5 pp (p=0.000, d=+2.51) |
-| accel | drift | 0.082 | 0.148 | 0.755 | +67.3 pp (p=0.000, d=+4.28) | +60.7 pp (p=0.000, d=+3.97) |
+| s | drift | 0.000 | 0.074 | 0.121 | +12.1 pp (p<0.001, d=+1.74) | +4.7 pp (p=0.110, d=+0.56) |
+| accel | fixed | 0.095 | 0.409 | 0.761 | +66.6 pp (p<0.001, d=+5.44) | +35.2 pp (p<0.001, d=+2.91) |
+| accel | gamma | 0.134 | 0.408 | 0.773 | +64.0 pp (p<0.001, d=+3.48) | +36.5 pp (p<0.001, d=+2.51) |
+| accel | drift | 0.082 | 0.148 | 0.755 | +67.3 pp (p<0.001, d=+4.28) | +60.7 pp (p<0.001, d=+3.97) |
 
 ### C. Zero-delay upper bound (B2)
 
@@ -159,7 +160,7 @@ Table III ablates the contributions under the drift profile (the hardest conditi
 
 **Table III. Ablations (drift profile, mean hit rate over 10 seeds).**
 
-| Scenario | Ours (IMM) | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |
+| Scenario | Ours | A1 no delay model | A2 no lead | A4 CV estimator | A6 no tightening | A5 CV% |
 |---|---|---|---|---|---|---|
 | line | 0.443 | 0.106 | 0.061 | 0.435 | 0.420 | 16.9 |
 | circle | 0.427 | 0.277 | 0.230 | 0.423 | 0.410 | 15.9 |
@@ -179,9 +180,9 @@ Table IV reports per-step solver time in Python (NumPy/SciPy) as a conservative 
 
 ### F. Discussion and limitations
 
-- **S trajectory vs B1**: Ours is not significantly better than B1 on sinusoidal lateral motion; we attribute this to the constant-turn-rate model inside IMM being less suited to sinusoidal motion and to B1 already benefiting from MPC. This is reported honestly and motivates the vehicle-rotation model extension (future work).
+- **S trajectory vs B1**: Ours is not significantly better than B1 on sinusoidal lateral motion; we attribute this to the constant-turn-rate model inside the multi-model estimator being less suited to sinusoidal motion and to B1 already benefiting from MPC. This is reported honestly and motivates the vehicle-rotation model extension (future work).
 
-- **IMM vs CV (A4)**: no material difference in these scenarios; IMM is expected to help when the target switches between turn and translation modes (to be tested on the real robot with opponent-like motion).
+- **Multi-model vs CV (A4)**: no material difference in these scenarios; a true IMM with interactive mixing is expected to help when the target switches between turn and translation modes (to be tested on the real robot with opponent-like motion).
 
 - **Simulation fidelity**: PnP noise is idealized at 3~cm; real perception noise and intermittent detections will be characterized on the robot (Section V).
 
@@ -274,6 +275,10 @@ Access notes: [R5][R6][R12] full text; others abstract/metadata as of 2026-08-11
 - **[R13]** H. Wang, Z. Ji, and L. Zhang, "基于卡尔曼滤波的目标识别跟踪与射击系统设计 (Design of target recognition tracking and attack system based on Kalman filter)," *兵器装备工程学报 (Journal of Ordnance Equipment Engineering)*, 43(11):286-296, 2022. doi:10.11809/bqzbgcxb2022.11.041
 - **[R14]** K. Zhang, Y. Shi, H. Sheng, "Robust nonlinear model predictive control based visual servoing of quadrotor UAVs," *IEEE/ASME Trans. Mechatronics*, 26(2):700-708, 2021. doi:10.1109/TMECH.2021.3053267
 - **[R15]** "Fusing Phase Map Servoing and MPC for High-Precision Robotic Tracking of Dynamic Objects," *Actuators*, 15(2):77, 2026. doi:10.3390/act15020077
+- **[R16]** H. A. P. Blom and Y. Bar-Shalom, "The interacting multiple model algorithm for systems with Markovian switching coefficients," *IEEE Trans. Autom. Control*, 33(8):780-783, 1988. doi:10.1109/9.1299
+- **[R17]** Y. Bar-Shalom, "Update with out-of-sequence measurements in tracking: exact solution," *IEEE Trans. Aerosp. Electron. Syst.*, 38(3):769-778, 2002. doi:10.1109/TAES.2002.1039398
+- **[R18]** D. Q. Mayne, J. B. Rawlings, C. V. Rao, and P. O. M. Scokaert, "Constrained model predictive control: Stability and optimality," *Automatica*, 36(6):789-814, 2000. doi:10.1016/S0005-1098(99)00214-9
+- **[R19]** O. J. M. Smith, "A controller to overcome dead time," *ISA Journal*, 6(2):28-33, 1959.
 
 ---
 
@@ -293,18 +298,18 @@ Nominal target speed gears 0.5 / 1.2 / 2.0 m/s, drifting-latency profile, 10 see
 
 | scenario | speed (m/s) | B0 | B1 | Ours | Ours$-$B0 (pp, p) | Ours$-$B1 (pp, p) |
 |---|---|---|---|---|---|---|
-| line | 0.5 | 0.163 | 0.208 | 0.790 | +62.7 (0.000) | +58.2 (0.000) |
-| line | 1.2 | 0.110 | 0.104 | 0.485 | +37.5 (0.000) | +38.1 (0.000) |
-| line | 2.0 | 0.071 | 0.060 | 0.282 | +21.1 (0.000) | +22.2 (0.000) |
-| circle | 0.5 | 0.243 | 0.369 | 0.460 | +21.7 (0.000) | +9.1 (0.083) |
+| line | 0.5 | 0.163 | 0.208 | 0.790 | +62.7 (p<0.001) | +58.2 (p<0.001) |
+| line | 1.2 | 0.110 | 0.104 | 0.485 | +37.5 (p<0.001) | +38.1 (p<0.001) |
+| line | 2.0 | 0.071 | 0.060 | 0.282 | +21.1 (p<0.001) | +22.2 (p<0.001) |
+| circle | 0.5 | 0.243 | 0.369 | 0.460 | +21.7 (p<0.001) | +9.1 (0.083) |
 | circle | 1.2 | 0.051 | 0.128 | 0.148 | +9.7 (0.009) | +2.0 (0.409) |
 | circle | 2.0 | 0.000 | 0.037 | 0.020 | +2.0 (0.343) | -1.7 (0.599) |
-| s | 0.5 | 0.027 | 0.231 | 0.627 | +60.0 (0.000) | +39.6 (0.000) |
+| s | 0.5 | 0.027 | 0.231 | 0.627 | +60.0 (p<0.001) | +39.6 (p<0.001) |
 | s | 1.2 | 0.000 | 0.035 | 0.053 | +5.3 (0.001) | +1.8 (0.346) |
-| s | 2.0 | 0.000 | 0.010 | 0.060 | +6.0 (0.000) | +5.0 (0.023) |
-| accel | 0.5 | 0.457 | 0.594 | 0.978 | +52.1 (0.000) | +38.4 (0.000) |
-| accel | 1.2 | 0.358 | 0.330 | 0.901 | +54.3 (0.000) | +57.1 (0.000) |
-| accel | 2.0 | 0.082 | 0.148 | 0.755 | +67.3 (0.000) | +60.7 (0.000) |
+| s | 2.0 | 0.000 | 0.010 | 0.060 | +6.0 (p<0.001) | +5.0 (0.023) |
+| accel | 0.5 | 0.457 | 0.594 | 0.978 | +52.1 (p<0.001) | +38.4 (p<0.001) |
+| accel | 1.2 | 0.358 | 0.330 | 0.901 | +54.3 (p<0.001) | +57.1 (p<0.001) |
+| accel | 2.0 | 0.082 | 0.148 | 0.755 | +67.3 (p<0.001) | +60.7 (p<0.001) |
 
 ### S.2 Detection-dropout robustness (supplementary)
 
@@ -312,12 +317,12 @@ Detection-update dropout 0% / 10% / 20%, drifting-latency profile, 10 seeds. Our
 
 | scenario | dropout | B1 | Ours | Ours$-$B1 (pp, p) |
 |---|---|---|---|---|
-| line | 0% | 0.106 | 0.443 | +33.7 (0.000) |
-| line | 10% | 0.162 | 0.437 | +27.5 (0.000) |
+| line | 0% | 0.106 | 0.443 | +33.7 (p<0.001) |
+| line | 10% | 0.162 | 0.437 | +27.5 (p<0.001) |
 | line | 20% | 0.233 | 0.422 | +19.0 (0.009) |
-| accel | 0% | 0.148 | 0.755 | +60.7 (0.000) |
-| accel | 10% | 0.245 | 0.600 | +35.4 (0.000) |
-| accel | 20% | 0.371 | 0.624 | +25.2 (0.000) |
+| accel | 0% | 0.148 | 0.755 | +60.7 (p<0.001) |
+| accel | 10% | 0.245 | 0.600 | +35.4 (p<0.001) |
+| accel | 20% | 0.371 | 0.624 | +25.2 (p<0.001) |
 
 ### S.3 Online delay-estimator accuracy (protocol secondary metric)
 

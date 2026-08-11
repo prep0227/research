@@ -4,11 +4,11 @@ This section summarizes the main components (full formulation in the supplementa
 
 ## A. System architecture
 
-The closed loop is: camera -> detection -> PnP pose -> IMM estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
+The closed loop is: camera -> detection -> PnP pose -> multi-model estimator -> online latency estimator -> delay-aware MPC (gimbal trajectory) -> firing decision -> serial -> MCU -> gimbal/launcher -> projectile. The estimator and the MPC are the two blocks we modify relative to the baselines; detection/PnP are shared.
 
-## B. Target state estimation (IMM)
+## B. Target state estimation (multi-model, MMAE-style)
 
-We maintain an IMM with two models: a constant-velocity (CV) Kalman filter on 3D Cartesian state, and a constant-turn-rate (CT) EKF on the ground-plane state $[x,y,v_x,v_y,\omega]$. Measurements arrive with delay; each filter tracks its internal time $t_f$ and performs out-of-sequence updates: propagate to the measurement time $t_m$, update, propagate to now. The IMM mode probabilities follow a two-state Markov chain, and the predicted position at any horizon is the weighted mixture $\hat p(t+\tau)=\sum_i \mu_i\,\hat p_i(t+\tau)$.
+We maintain a two-model Bayesian multi-model estimator with a CV Kalman filter on 3D Cartesian state and a CT EKF on the ground-plane state $[x,y,v_x,v_y,\omega]$, weighting model outputs by posterior mode probabilities as in [R16] (MMAE-style: we use the mode-probability weighting without interactive mixing, the common simplification used by RoboMaster trackers). Measurements arrive with delay; each filter tracks its internal time $t_f$ and performs out-of-sequence updates following [R17]: propagate to the measurement time $t_m$, update, propagate to now. The mode probabilities follow a two-state Markov prior, and the predicted position at any horizon is the weighted mixture $\hat p(t+\tau)=\sum_i \mu_i\,\hat p_i(t+\tau)$.
 
 ## C. Online latency estimation
 
@@ -18,9 +18,10 @@ A sliding-window estimator records per-segment latency samples (from timestamps,
 
 The gimbal is modeled per axis as a double integrator with input delay: $\omega(k+1)=\omega(k)+\Delta t\, u(k-d)$, with acceleration bound $|u|\le u_{\max}$ and rate bound $|\dot\omega|\le \omega_{\max}$. The aim reference is the azimuth/elevation of the predicted target at $t+\tau_{\mathrm{fire}}+\tau_{\mathrm{flight}}(t)$ (lead point). At each control step we solve
 
-$$
-\min_{u(0:H-1)} \sum_{k=0}^{H-1} \|r(k)-g(k)\|_Q^2 + \|\Delta u(k)\|_R^2 + \|r(H-1)-g(H-1)\|_{Q_T}^2
-$$
+\begin{multline*}
+\min_{u(0:H-1)} \sum_{k=0}^{H-1} \|r(k)-g(k)\|_Q^2 + \|\Delta u(k)\|_R^2 \\
++ \|r(H-1)-g(H-1)\|_{Q_T}^2
+\end{multline*}
 
 subject to the input-delay-augmented linear dynamics and box constraints, using a warm-started ADMM solver for a box-constrained QP (SLSQP fallback). The prediction map $g_{\mathrm{flat}}=T u_{\mathrm{flat}}+b$ is built from the current angles/rates and the delayed-input buffer.
 
@@ -32,7 +33,7 @@ $$
 \|r(0)-g(0)\| + \kappa\,\hat v\,(\Delta_{\mathrm{vision}}+\Delta_{\mathrm{gimbal}})/\mathrm{dist} < \theta_{\mathrm{hit}},
 $$
 
-where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
+where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mathrm{armor\_half}/\mathrm{dist})$. This margin prevents firing when the latency estimate is unreliable (e.g., during drift or jitter).
 
 ## F. Baselines
 

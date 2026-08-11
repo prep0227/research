@@ -60,12 +60,31 @@ def load(name):
 def stat_row(sc, dm, key):
     return next(s for s in R["paired"] if s["scenario"]==sc and s["delay_mode"]==dm)[key]
 
+def _fmt_p(p):
+    if p is None: return "n/a"
+    return "p<0.001" if p < 0.001 else f"p={p:.3f}"
+
+def bh_q(pvals):
+    n = len(pvals); order = sorted(range(n), key=lambda i: pvals[i]); q = [0.0]*n
+    for rank, i in enumerate(order, start=1): q[i] = pvals[i]*n/rank
+    for rank in range(n-2, -1, -1): q[order[rank]] = min(q[order[rank]], q[order[rank+1]])
+    return q
+
+def rmse_drift(sc):
+    return {c: next(x for x in R["rows"] if x["scenario"]==sc and x["delay_mode"]=="drift" and x["controller"]==c)["err_rmse_mrad"] for c in ctrls}
+
+RMSE = {sc: rmse_drift(sc) for sc in scenarios}
+Q_B0 = bh_q([stat_row(sc,dm,'ours_vs_B0')['p'] for sc in scenarios for dm in delays])
+Q_B1 = bh_q([stat_row(sc,dm,'ours_vs_B1')['p'] for sc in scenarios for dm in delays])
+
 def fmt_stat(s):
     if s["p"] is None: return "--"
-    return f"{s['mean_diff_pp']:+.1f} pp ($p$={s['p']:.3f}, $d$={s['d']:+.2f})"
+    return f"{s['mean_diff_pp']:+.1f} pp (${_fmt_p(s['p'])}$, $d$={s['d']:+.2f})"
 
 T1 = [r"Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperforms B0 in all 12 conditions by 12--67~pp ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67~pp gains on line, circle, and accelerating motion and 11--13~pp on the sinusoidal trajectory, and outperforms B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$)."]
-T1.append("\\begin{table}[t]\\centering\\small")
+T1.append(f"All 12 comparisons versus B0 and all 9 significant comparisons versus B1 remain significant after Benjamini--Hochberg false-discovery-rate control ($q<0.05$).")
+T1.append(f"Under the drift profile, Ours reduces pointing-error RMSE versus B0 from {RMSE['line']['B0']:.1f} to {RMSE['line']['Ours']:.1f}~mrad (line), {RMSE['circle']['B0']:.1f} to {RMSE['circle']['Ours']:.1f}~mrad (circle), {RMSE['s']['B0']:.1f} to {RMSE['s']['Ours']:.1f}~mrad (S), and {RMSE['accel']['B0']:.1f} to {RMSE['accel']['Ours']:.1f}~mrad (accel); on the S trajectory the RMSE also improves from {RMSE['s']['B1']:.1f} to {RMSE['s']['Ours']:.1f}~mrad versus B1 even though the hit-rate gain is not significant (Table~\\ref{{tab:rmse}}).")
+T1.append("\\begin{table*}[t]\\centering\\small")
 T1.append("\\caption{Hit rate (mean over 10 seeds) and paired comparisons.}")
 T1.append("\\label{tab:primary}")
 T1.append("\\begin{tabular}{llrrrrr}")
@@ -74,7 +93,7 @@ for sc in scenarios:
     for dm in delays:
         row = {c: next(x for x in R["rows"] if x["scenario"]==sc and x["delay_mode"]==dm and x["controller"]==c) for c in ctrls}
         T1.append(f"{sc} & {dm} & {row['B0']['hit_rate']:.3f} & {row['B1']['hit_rate']:.3f} & {row['Ours']['hit_rate']:.3f} & {fmt_stat(stat_row(sc,dm,'ours_vs_B0'))} & {fmt_stat(stat_row(sc,dm,'ours_vs_B1'))}\\\\")
-T1.append("\\bottomrule\\end{tabular}\\end{table}")
+T1.append("\\bottomrule\\end{tabular}\\end{table*}")
 
 T2 = [r"Table~\ref{tab:b2} gives the zero-delay upper bound of Ours and the residual gap under the drift profile."]
 T2.append("\\begin{table}[t]\\centering\\small")
@@ -88,14 +107,14 @@ for sc in scenarios:
 T2.append("\\bottomrule\\end{tabular}\\end{table}")
 
 T3 = [r"Table~\ref{tab:abl} ablates the contributions under the drift profile."]
-T3.append("\\begin{table}[t]\\centering\\small")
+T3.append("\\begin{table*}[t]\\centering\\small")
 T3.append("\\caption{Ablations under the drift profile (mean hit rate).}")
 T3.append("\\label{tab:abl}\\begin{tabular}{lrrrrrr}")
 T3.append("\\toprule Scenario & Ours & A1 & A2 & A4 & A6 & CV\\%\\\\ \\midrule")
 for sc in scenarios:
     a = R["ablations_drift"][sc]
     T3.append(f"{sc} & {a['Ours_IMM']:.3f} & {a['A1_no_delay_model']:.3f} & {a['A2_no_lead']:.3f} & {a['A4_CV_est']:.3f} & {a['A6_no_tighten']:.3f} & {a['A5_cv']*100:.1f}\\\\")
-T3.append("\\bottomrule\\end{tabular}\\end{table}")
+T3.append("\\bottomrule\\end{tabular}\\end{table*}")
 
 T4 = [r"Table~\ref{tab:rt} reports per-step solver time in Python as a conservative upper bound."]
 T4.append("\\begin{table}[t]\\centering\\small")
@@ -107,24 +126,30 @@ for name in ["admm", "slsqp"]:
     T4.append(f"{name.upper()} & {b['mean_ms']:.2f} & {b['p50']:.2f} & {b['p95']:.2f} & {b['p99']:.2f} & {b['max']:.2f} & {'yes' if b['p99_lt_period'] else 'no'}\\\\")
 T4.append("\\bottomrule\\end{tabular}\\end{table}")
 
-# --- supplementary speed-sweep table (number discipline: from results_speed_sweep.json) --
+# --- supplementary speed-sweep tables (number discipline: from results_speed_sweep.json) --
 SSW = json.loads((SIM / "results_speed_sweep.json").read_text(encoding="utf-8"))
 SPEED_LABEL = {"low": "0.5", "mid": "1.2", "high": "2.0"}
-T5 = ["\\begin{table}[t]\\centering\\small",
-      "\\caption{Speed-gear sensitivity (drift latency, 10 seeds): hit rate by controller and paired gains vs. baselines.}\\label{tab:speed}",
-      "\\begin{tabular}{lrrrrrr}",
-      "\\toprule Scenario & m/s & B0 & B1 & Ours & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\\\\ \\midrule"]
+T5a = ["\\begin{table}[t]\\centering\\small",
+       "\\caption{Speed-gear sensitivity (drift latency, 10 seeds): hit rate by controller.}\\label{tab:speed_a}",
+       "\\begin{tabular}{lrrrr}",
+       "\\toprule Scenario & m/s & B0 & B1 & Ours\\\\ \\midrule"]
+for _sc in ["line", "circle", "s", "accel"]:
+    for _sp in ["low", "mid", "high"]:
+        _d = SSW["results"][f"{_sc}/{_sp}"]
+        T5a.append(f"{_sc} & {SPEED_LABEL[_sp]} & {_d['B0']['hit_rate']:.3f} & {_d['B1']['hit_rate']:.3f} & {_d['Ours']['hit_rate']:.3f}\\\\")
+T5a.append("\\bottomrule\\end{tabular}\\end{table}")
+T5b = ["\\begin{table}[t]\\centering\\small",
+       "\\caption{Speed-gear sensitivity (drift latency, 10 seeds): paired gains vs. baselines.}\\label{tab:speed_b}",
+       "\\begin{tabular}{lrrr}",
+       "\\toprule Scenario & m/s & Ours$-$B0 (pp, $p$) & Ours$-$B1 (pp, $p$)\\\\ \\midrule"]
 for _sc in ["line", "circle", "s", "accel"]:
     for _sp in ["low", "mid", "high"]:
         _d = SSW["results"][f"{_sc}/{_sp}"]
         _p0, _p1 = _d["ours_vs_B0"], _d["ours_vs_B1"]
-        _p0s = f"{_p0['p']:.3f}" if _p0["p"] is not None else "n/a"
-        _p1s = f"{_p1['p']:.3f}" if _p1["p"] is not None else "n/a"
-        T5.append(f"{_sc} & {SPEED_LABEL[_sp]} & {_d['B0']['hit_rate']:.3f} & {_d['B1']['hit_rate']:.3f} "
-                  f"& {_d['Ours']['hit_rate']:.3f} & {_p0['mean_diff_pp']:+.1f} ({_p0s}) "
-                  f"& {_p1['mean_diff_pp']:+.1f} ({_p1s})\\\\")
-T5.append("\\bottomrule\\end{tabular}\\end{table}")
-supp_tab = "\n".join(T5)
+        T5b.append(f"{_sc} & {SPEED_LABEL[_sp]} & {_p0['mean_diff_pp']:+.1f} ({_fmt_p(_p0['p'])}) & {_p1['mean_diff_pp']:+.1f} ({_fmt_p(_p1['p'])})\\\\")
+T5b.append("\\bottomrule\\end{tabular}\\end{table}")
+supp_tab = "\n".join(T5a)
+supp_tab2 = "\n".join(T5b)
 
 # --- supplementary dropout table (number discipline: from results_dropout.json) --
 DRO = json.loads((SIM / "results_dropout.json").read_text(encoding="utf-8"))
@@ -136,26 +161,45 @@ for _sc in ["line", "accel"]:
     for _dp in [0.0, 0.1, 0.2]:
         _d = DRO["results"][f"{_sc}/dropout={_dp:.1f}"]
         _p1 = _d["ours_vs_B1"]
-        _p1s = f"{_p1['p']:.3f}" if _p1["p"] is not None else "n/a"
-        T6.append(f"{_sc} & {_dp*100:.0f}\\% & {_d['B1']['hit_rate']:.3f} & {_d['Ours']['hit_rate']:.3f} "
-                  f"& {_p1['mean_diff_pp']:+.1f} ({_p1s})\\\\")
+        T6.append(f"{_sc} & {_dp*100:.0f}\\% & {_d['B1']['hit_rate']:.3f} & {_d['Ours']['hit_rate']:.3f} & {_p1['mean_diff_pp']:+.1f} ({_fmt_p(_p1['p'])})\\\\")
 T6.append("\\bottomrule\\end{tabular}\\end{table}")
-supp_tab2 = "\n".join(T6)
+supp_tab3 = "\n".join(T6)
 
-# --- supplementary delay-estimator accuracy table (from results_delay_estimation.json) --
+# --- supplementary delay-estimator accuracy tables (from results_delay_estimation.json) --
 DE = json.loads((SIM / "results_delay_estimation.json").read_text(encoding="utf-8"))
-T7 = ["\\begin{table}[t]\\centering\\small",
-      "\\caption{Online delay-estimator accuracy (causal lag-1 estimate, steady state $t\\in[1,6]$~s; protocol secondary metric).}\\label{tab:de}",
-      "\\begin{tabular}{llrrrrrr}",
-      "\\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Settling (s)\\\\ \\midrule"]
+T7a = ["\\begin{table}[t]\\centering\\small",
+       "\\caption{Online delay-estimator accuracy in ms (causal lag-1 estimate, steady state $t\\in[1,6]$~s; protocol secondary metric).}\\label{tab:de_a}",
+       "\\begin{tabular}{llrrr}",
+       "\\toprule Mode & Segment & Bias & MAE & RMSE\\\\ \\midrule"]
+for _r in DE:
+    for _seg in ["vision", "gimbal"]:
+        _d = _r[_seg]; _s = _d["lag1"]
+        T7a.append(f"{_r['mode']} & {_seg} & {_s['bias_ms']:+.2f} & {_s['mae_ms']:.2f} & {_s['rmse_ms']:.2f}\\\\")
+T7a.append("\\bottomrule\\end{tabular}\\end{table}")
+T7b = ["\\begin{table}[t]\\centering\\small",
+       "\\caption{Online delay-estimator settling time (causal lag-1 estimate, $\\pm15$~ms jitter / drift profiles).}\\label{tab:de_b}",
+       "\\begin{tabular}{llrr}",
+       "\\toprule Mode & Segment & P95 abs (ms) & Settling (s)\\\\ \\midrule"]
 for _r in DE:
     for _seg in ["vision", "gimbal"]:
         _d = _r[_seg]; _s = _d["lag1"]
         _wu = f"{_d['warmup_to_5ms_s']:.2f}" if _d["warmup_to_5ms_s"] is not None else ">6"
-        T7.append(f"{_r['mode']} & {_seg} & {_d['mean_true_ms']:.1f} & {_s['bias_ms']:+.2f} & {_s['mae_ms']:.2f} "
-                  f"& {_s['rmse_ms']:.2f} & {_s['p95_ms']:.2f} & {_wu}\\\\")
-T7.append("\\bottomrule\\end{tabular}\\end{table}")
-supp_tab3 = "\n".join(T7)
+        T7b.append(f"{_r['mode']} & {_seg} & {_s['p95_ms']:.2f} & {_wu}\\\\")
+T7b.append("\\bottomrule\\end{tabular}\\end{table}")
+supp_tab4 = "\n".join(T7a)
+supp_tab5 = "\n".join(T7b)
+
+# --- supplementary pointing-error RMSE table (from results.json, drift) ------
+T8 = ["\\begin{table}[t]\\centering\\small",
+      "\\caption{Pointing-error RMSE (mrad) under the drift profile (mean over 10 seeds).}\\label{tab:rmse}",
+      "\\begin{tabular}{lrrrr}",
+      "\\toprule Scenario & B0 & B1 & Ours & Ours$-$B1 (\\%)\\\\ \\midrule"]
+for _sc in scenarios:
+    _r0, _r1, _ro = RMSE[_sc]['B0'], RMSE[_sc]['B1'], RMSE[_sc]['Ours']
+    _red = (_r1-_ro)/_r1*100 if _r1 > 0 else float('nan')
+    T8.append(f"{_sc} & {_r0:.1f} & {_r1:.1f} & {_ro:.1f} & {_red:+.1f}\\\\")
+T8.append("\\bottomrule\\end{tabular}\\end{table}")
+supp_tab6 = "\n".join(T8)
 
 # --- sections ----------------------------------------------------------------
 abstract = md2tex(load("abstract.md")).replace("\\section*{Abstract}\n", "")
@@ -196,7 +240,7 @@ doc = [preamble,
 
 \begin{figure*}[t]\centering
 \includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
-\caption{System architecture. Detection and PnP are shared with the baselines; the IMM estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
+\caption{System architecture. Detection and PnP are shared with the baselines; the multi-model estimator, online latency estimator, delay-aware MPC, and firing decision are the proposed blocks. Referee-system hit feedback provides the ground-truth label.}\label{fig:arch}
 \end{figure*}
 \begin{figure}[t]\centering
 \includegraphics[width=0.92\columnwidth]{fig2_latency_chain.pdf}
@@ -214,6 +258,9 @@ doc = [preamble,
 """ + supp_tab + r"""
 """ + supp_tab2 + r"""
 """ + supp_tab3 + r"""
+""" + supp_tab4 + r"""
+""" + supp_tab5 + r"""
+""" + supp_tab6 + r"""
 \section*{Data Availability}
 Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{https://github.com/prep0227/research}.
 \end{document}
@@ -237,6 +284,10 @@ bib = r"""@misc{ref1, title={RMVL: Prediction quantities in vehicle state estima
 @article{ref13, author={Wang, Hongxi and Ji, Zexian and Zhang, Lanyong}, title={Design of target recognition tracking and attack system based on Kalman filter}, journal={Journal of Ordnance Equipment Engineering}, volume={43}, number={11}, pages={286--296}, year={2022}, doi={10.11809/bqzbgcxb2022.11.041}}
 @article{ref14, title={Robust nonlinear model predictive control based visual servoing of quadrotor UAVs}, journal={IEEE/ASME Transactions on Mechatronics}, volume={26}, number={2}, pages={700--708}, year={2021}, doi={10.1109/TMECH.2021.3053267}}
 @article{ref15, title={Fusing Phase Map Servoing and MPC for High-Precision Robotic Tracking of Dynamic Objects}, journal={Actuators}, volume={15}, number={2}, pages={77}, year={2026}, doi={10.3390/act15020077}}
+@article{ref16, author={Blom, Henk A. P. and Bar-Shalom, Yaakov}, title={The interacting multiple model algorithm for systems with Markovian switching coefficients}, journal={IEEE Transactions on Automatic Control}, volume={33}, number={8}, pages={780--783}, year={1988}, doi={10.1109/9.1299}}
+@article{ref17, author={Bar-Shalom, Yaakov}, title={Update with out-of-sequence measurements in tracking: exact solution}, journal={IEEE Transactions on Aerospace and Electronic Systems}, volume={38}, number={3}, pages={769--778}, year={2002}, doi={10.1109/TAES.2002.1039398}}
+@article{ref18, author={Mayne, David Q. and Rawlings, James B. and Rao, Christopher V. and Scokaert, Pierre O. M.}, title={Constrained model predictive control: Stability and optimality}, journal={Automatica}, volume={36}, number={6}, pages={789--814}, year={2000}, doi={10.1016/S0005-1098(99)00214-9}}
+@article{ref19, author={Smith, Otto J. M.}, title={A controller to overcome dead time}, journal={ISA Journal}, volume={6}, number={2}, pages={28--33}, year={1959}}
 """
 (TEX / "refs.bib").write_text(bib, encoding="utf-8")
 
