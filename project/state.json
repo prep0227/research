@@ -6,7 +6,7 @@
       "id": "warn_access_restricted_1",
       "type": "ACCESS_RESTRICTED",
       "severity": "MEDIUM",
-      "description": "多条证据仅摘要可访问（ev_harbe_kalman_2022, ev_fme_2024, ev_mdpi_act2023, ev_mdpi_mach2024, ev_kci_gimbal_delay, ev_penc_2025, ev_nudt_mst2025, ev_ndec_2026, ev_patent_cn_strike, ev_guyue_2021），表达上限 MEDIUM",
+      "description": "多条证据仅摘要可访问（ev_harbe_kalman_2022, ev_fme_2024, ev_mdpi_act2023, ev_mdpi_axioms2024, ev_kci_gimbal_delay, ev_penc_2025, ev_nudt_mst2025, ev_ndec_2026, ev_patent_cn_strike, ev_guyue_2021），表达上限 MEDIUM",
       "created_at": "2026-08-11T12:41:57+08:00"
     },
     {
@@ -20,7 +20,7 @@
       "id": "warn_numbers_unverified",
       "type": "NUMBER_UNVERIFIED",
       "severity": "MEDIUM",
-      "description": "TJURM 延迟数值、Machines 2024 的 36.8% 等具体数字尚未二次核验（部分仅摘要），转述需标注；FME 2024 的 37.6%/66.7%/41.6% 与 Actuators 2023 的 42.9%/58.3%/72% 已于 2026-08-11 二次核验。",
+      "description": "TJURM 延迟数值（单战队 wiki）尚未与第二来源交叉核验，转述需标注；FME 2024 37.6%/66.7%/41.6%、Actuators 2023 42.9%/58.3%/72%、Axioms 2024 36.8% 均已核验（2026-08-11）。",
       "created_at": "2026-08-11T12:41:57+08:00"
     },
     {
@@ -78,6 +78,27 @@
       "severity": "INFO",
       "description": "手稿 v0.5（29.7k chars）重新生成：R7/R8 引用核验标注更新，tex 同步重建，cite 15/15 一致。",
       "created_at": "2026-08-11T14:50:00+08:00"
+    },
+    {
+      "id": "warn_protocol_v11",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "真机协议 v1.1：延迟注入设计（fixed/gamma/drift 软件注入）、轨迹参数化表、统计功效分析（≥5pp 观测门槛边界功效 ~50%；N=900/方法显著性功效 ~0.85）、预注册升级规则。",
+      "created_at": "2026-08-11T14:56:00+08:00"
+    },
+    {
+      "id": "warn_refs_metadata_verified",
+      "type": "VERIFICATION",
+      "severity": "INFO",
+      "description": "引用元数据终检：R5 更正为 ICPR 2000、R15 更正为 Actuators 15(2):77、Machines 2024→Axioms 2024（36.8% 核验）；R6/R9/R10/R11/R14 DOI 补全，全部经 Crossref/S2。",
+      "created_at": "2026-08-11T15:00:00+08:00"
+    },
+    {
+      "id": "warn_repo_ci_ready",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "GitHub 投稿就绪：git 仓库 main@ad7d726，根 README + CI（Python 一致性 + C++ 测试 + LaTeX 编译）。",
+      "created_at": "2026-08-11T15:05:00+08:00"
     }
   ],
   "failures": [],
@@ -107,7 +128,7 @@
     "max_iterations": 3,
     "usage": {
       "tokens_used": 0,
-      "calls_made": 21,
+      "calls_made": 23,
       "cost_spent": 0.0,
       "iterations_used": 3
     }
