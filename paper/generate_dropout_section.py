@@ -11,12 +11,22 @@ D = json.loads((SIM / "results_dropout.json").read_text(encoding="utf-8"))
 def fmt_p(p):
     return "p<0.001" if p is not None and p < 0.001 else (f"{p:.3f}" if p is not None else "n/a")
 
+_dd = {f"{sc}/dropout={dp:.1f}": D["results"][f"{sc}/dropout={dp:.1f}"]["ours_vs_B1"]
+          for sc in ["line", "accel"] for dp in [0.0, 0.1, 0.2]}
+_lin0 = _dd["line/dropout=0.0"]["mean_diff_pp"]; _lin0p = fmt_p(_dd["line/dropout=0.0"]["p"])
+_lin1 = _dd["line/dropout=0.1"]["mean_diff_pp"]; _lin1p = fmt_p(_dd["line/dropout=0.1"]["p"])
+_lin2 = _dd["line/dropout=0.2"]["mean_diff_pp"]; _lin2p = fmt_p(_dd["line/dropout=0.2"]["p"])
+_acc0 = _dd["accel/dropout=0.0"]["mean_diff_pp"]; _acc0p = fmt_p(_dd["accel/dropout=0.0"]["p"])
+_acc1 = _dd["accel/dropout=0.1"]["mean_diff_pp"]; _acc1p = fmt_p(_dd["accel/dropout=0.1"]["p"])
+_acc2 = _dd["accel/dropout=0.2"]["mean_diff_pp"]; _acc2p = fmt_p(_dd["accel/dropout=0.2"]["p"])
 lines = [
     "### S.2 Detection-dropout robustness (supplementary)",
     "",
-    "Detection-update dropout 0% / 10% / 20%, drifting-latency profile, 10 seeds. "
-    "Ours remains significantly better than B1 at every dropout level ($p<0.001$); "
-    "its hit rate is approximately flat across dropout, consistent with IMM prediction absorbing missed frames.",
+    f"Detection-update dropout 0% / 10% / 20%, drifting-latency profile, 10 seeds. "
+    f"Ours is significantly better than B1 at 0% and 10% dropout in both scenarios ($p<0.05$: line {_lin0:+.1f}/{_lin1:+.1f} pp, "
+    f"accel {_acc0:+.1f}/{_acc1:+.1f} pp). At 20% dropout the line gain remains significant ({_lin2:+.1f} pp, {_lin2p}) but the "
+    f"accel gain narrows to {_acc2:+.1f} pp ({_acc2p}), so the benefit degrades as detections are lost on the fastest "
+    f"trajectory; multi-model prediction absorbs missed frames on line but not fully on accelerating motion.",
     "",
     "| scenario | dropout | B1 | Ours | Ours$-$B1 (pp, p) |",
     "|---|---|---|---|---|",

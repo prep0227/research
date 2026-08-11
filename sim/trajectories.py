@@ -35,32 +35,40 @@ class STraj(Trajectory):
         return np.array([self.vx, self.amp*self.freq*np.cos(self.freq*t), 0.0])
 
 class AccelTraj(Trajectory):
-    """Piecewise acceleration: accel -> cruise -> decel (constant-speed segments)."""
-    def __init__(self, p0, v0, a, v_cruise, t_accel, scale=1.0):
+    """Piecewise acceleration: accel -> cruise (at v_cruise) -> decel -> rest.
+    Reaches v_cruise at t=t_accel, cruises until t=2*t_accel, decelerates back
+    to v0 by t=3*t_accel, then rests at v0."""
+    def __init__(self, p0, v0, v_cruise, t_accel, scale=1.0):
         self.p0 = np.asarray(p0, float); self.v0 = np.asarray(v0, float) * scale
-        self.a = a * scale; self.vc = v_cruise * scale; self.ta = t_accel
+        self.vc = v_cruise * scale; self.ta = t_accel
+        self.a = (self.vc - self.v0) / t_accel
     def _phase(self, t):
         if t <= self.ta: return "accel"
-        if t <= 2*self.ta: return "decel"
-        return "cruise"
+        if t <= 2*self.ta: return "cruise"
+        if t <= 3*self.ta: return "decel"
+        return "rest"
     def position(self, t):
-        p = self.p0.copy(); v = self.v0.copy(); tt = t
-        if tt <= self.ta:
-            return p + v*tt + 0.5*self.a*tt*tt
-        p = p + v*self.ta + 0.5*self.a*self.ta**2
-        v = v + self.a*self.ta; tt -= self.ta
-        if tt <= self.ta:
-            return p + v*tt + 0.5*(-self.a)*tt*tt
-        p = p + v*self.ta + 0.5*(-self.a)*self.ta**2
-        v = v + (-self.a)*self.ta; tt -= self.ta
-        return p + v*tt
+        if t <= self.ta:
+            return self.p0 + self.v0*t + 0.5*self.a*t*t
+        p = self.p0 + self.v0*self.ta + 0.5*self.a*self.ta**2   # end of accel
+        tt = t - self.ta
+        if tt <= self.ta:                                        # cruise
+            return p + self.vc*tt
+        p = p + self.vc*self.ta                                  # end of cruise
+        tt -= self.ta
+        if tt <= self.ta:                                        # decel
+            return p + self.vc*tt - 0.5*self.a*tt*tt
+        p = p + self.vc*self.ta - 0.5*self.a*self.ta**2          # end of decel
+        tt -= self.ta
+        return p + self.v0*tt                                    # rest
     def velocity(self, t):
         ph = self._phase(t)
         if ph == "accel": return self.v0 + self.a*t
+        if ph == "cruise": return self.vc
         if ph == "decel":
-            tt = t - self.ta
-            return self.v0 + self.a*self.ta - self.a*tt
-        return self.v0 + self.a*self.ta - self.a*self.ta
+            tt = t - 2*self.ta
+            return self.vc - self.a*tt
+        return self.v0
 
 def make_trajectory(name, scale=1.0):
     """Pre-registered scenario set (world frame)."""
@@ -72,7 +80,7 @@ def make_trajectory(name, scale=1.0):
     if name == "s":
         return STraj(p0=[1.0, 0.0, 0.0], vx=1.0, amp=0.9, freq=0.9, scale=scale)
     if name == "accel":
-        return AccelTraj(p0=[1.0, -0.4, 0.0], v0=0.2, a=1.2, v_cruise=2.0, t_accel=1.0, scale=scale)
+        return AccelTraj(p0=[1.0, -0.4, 0.0], v0=0.2, v_cruise=2.0, t_accel=1.0, scale=scale)
     raise ValueError(f"unknown trajectory: {name}")
 
 def az_el(pos, gimbal_pos):

@@ -81,7 +81,7 @@ def fmt_stat(s):
     if s["p"] is None: return "--"
     return f"{s['mean_diff_pp']:+.1f} pp (${_fmt_p(s['p'])}$, $d$={s['d']:+.2f})"
 
-T1 = [r"Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperforms B0 in all 12 conditions by 12--67~pp ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67~pp gains on line, circle, and accelerating motion and 11--13~pp on the sinusoidal trajectory, and outperforms B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$)."]
+T1 = [r"Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperforms B0 in all 12 conditions by 12--42~pp ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 29--42~pp gains on line and circle, 12--21~pp on accelerating motion, and 12--13~pp on the sinusoidal trajectory, and outperforms B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$)."]
 T1.append(f"All 12 comparisons versus B0 and all 9 significant comparisons versus B1 remain significant after Benjamini--Hochberg false-discovery-rate control ($q<0.05$).")
 T1.append(f"Under the drift profile, Ours reduces pointing-error RMSE versus B0 from {RMSE['line']['B0']:.1f} to {RMSE['line']['Ours']:.1f}~mrad (line), {RMSE['circle']['B0']:.1f} to {RMSE['circle']['Ours']:.1f}~mrad (circle), {RMSE['s']['B0']:.1f} to {RMSE['s']['Ours']:.1f}~mrad (S), and {RMSE['accel']['B0']:.1f} to {RMSE['accel']['Ours']:.1f}~mrad (accel); on the S trajectory the RMSE also improves from {RMSE['s']['B1']:.1f} to {RMSE['s']['Ours']:.1f}~mrad versus B1 even though the hit-rate gain is not significant (Table~\\ref{{tab:rmse}}).")
 T1.append("\\begin{table*}[t]\\centering\\small")

@@ -6,17 +6,17 @@
 
 ### A. Setup (pre-registered)
 
-- **Scenario set**: four target motion classes -- straight line, ground-plane circle, sinusoidal (S) maneuver, and accelerating/cruising/braking motion -- at a nominal speed scale (pre-registered before running).
+- **Scenario set**: four target motion classes -- straight line (1.3~m/s), ground-plane circle (0.64~m/s tangential), sinusoidal (S) maneuver (1.0~m/s longitudinal, lateral amplitude 0.9~m at 0.9~rad/s), and accelerating/cruising/braking motion (0.2 $\rightarrow$ 2.0~m/s, cruise at 2.0~m/s, brake to 0.2~m/s) -- pre-registered before running.
 
 - **Delay profiles**: (i) *fixed*: vision latency $\tau_v=0.03$~s, actuation latency $\tau_g=0.06$~s; (ii) *gamma*: vision latency drawn from a gamma distribution (mean $\tau_v$, std 15~ms); (iii) *drift*: both latencies ramp linearly from their nominal values to +60~ms over the episode. A zero-delay profile (iv) serves as the ideal upper bound (B2). Nominal engagement range is approximately 1--8~m (hit tolerance $\theta_{\rm hit}=\arctan(0.08/\text{dist})$).
 
 - **Controllers**: B0 -- community baseline: $Kt+B$ empirical lead + cascade PID driven by the same multi-model predictor as Ours (oracle-tuned lead, hence a stronger-than-typical baseline; RMVL practice [R1]); B1 -- the same multi-model predictor with an MPC that *ignores* the input delay (delay-unaware, SHtech-style); Ours -- delay-aware MPC (multi-model estimator + online latency estimation + input-delay-augmented model + ADMM box-constrained QP + delay-uncertainty tightening in the fire window).
 
-- **Common settings**: control period $dt=0.02$~s, episode $T=6$~s, horizon $H=18$ ($0.36$~s), firing delay $\tau_{fire}=0.08$~s, bullet speed $15$~m/s, armor half-width 0.08~m, dispersion 0.008~rad, gimbal limits $|u|\le 10$~rad/s$^2$, $|\dot\theta|\le 6$~rad/s. Measurement noise 3~cm (1$\sigma$). Ten random seeds per condition; paired $t$-test and Cohen's $d$ reported.
+- **Common settings**: control period $dt=0.02$~s, episode $T=6$~s, horizon $H=18$ ($0.36$~s), firing delay $\tau_{fire}=0.08$~s, bullet speed $15$~m/s, armor half-width 0.08~m, dispersion 0.008~rad, gimbal limits $|u|\le 10$~rad/s$^2$, $|\dot\theta|\le 6$~rad/s. Measurement noise 3~cm (1$\sigma$), firing cooldown 0.2~s (at most 30 shots/episode; realized shot counts differ by controller, mean 9--25). Ten random seeds per condition; two-sided paired $t$-test and Cohen's $d$ reported.
 
 ### B. Primary results
 
-Table I reports mean hit rate over ten seeds (Fig.~\ref{fig:hit} visualizes the per-seed distribution; standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg false-discovery-rate control (max $q$=0.002<0.05). Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$=0.591<0.05). On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from 88.9 to 60.4 mrad versus B1 (and 163.9 to 60.4 mrad versus B0), with analogous RMSE reductions on line, circle, and accel (Table S.4).
+Table I reports mean hit rate over ten seeds (Fig.~\ref{fig:hit} visualizes the per-seed distribution; standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--42 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 29--42 pp gains on line and circle, 12--21 pp on accel, and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg false-discovery-rate control (max $q$=0.002<0.05). Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$=0.591<0.05). On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from 88.9 to 60.4 mrad versus B1 (and 163.9 to 60.4 mrad versus B0), with analogous RMSE reductions versus B0 on line, circle, and accel (Table S.4).
 
 **Table I. Hit rate (mean over 10 seeds) and paired comparisons.**
 
@@ -31,9 +31,9 @@ Table I reports mean hit rate over ten seeds (Fig.~\ref{fig:hit} visualizes the 
 | s | fixed | 0.009 | 0.128 | 0.141 | +13.1 pp (p<0.001, d=+2.48) | +1.3 pp (p=0.591, d=+0.18) |
 | s | gamma | 0.021 | 0.115 | 0.154 | +13.3 pp (p=0.002, d=+1.33) | +4.0 pp (p=0.129, d=+0.53) |
 | s | drift | 0.000 | 0.074 | 0.121 | +12.1 pp (p<0.001, d=+1.74) | +4.7 pp (p=0.110, d=+0.56) |
-| accel | fixed | 0.095 | 0.409 | 0.761 | +66.6 pp (p<0.001, d=+5.44) | +35.2 pp (p<0.001, d=+2.91) |
-| accel | gamma | 0.134 | 0.408 | 0.773 | +64.0 pp (p<0.001, d=+3.48) | +36.5 pp (p<0.001, d=+2.51) |
-| accel | drift | 0.082 | 0.148 | 0.755 | +67.3 pp (p<0.001, d=+4.28) | +60.7 pp (p<0.001, d=+3.97) |
+| accel | fixed | 0.013 | 0.140 | 0.263 | +25.1 pp (p<0.001, d=+2.27) | +12.3 pp (p<0.001, d=+1.65) |
+| accel | gamma | 0.011 | 0.117 | 0.286 | +27.5 pp (p<0.001, d=+3.01) | +16.9 pp (p<0.001, d=+2.09) |
+| accel | drift | 0.000 | 0.032 | 0.214 | +21.4 pp (p<0.001, d=+2.46) | +18.2 pp (p<0.001, d=+2.31) |
 
 ### C. Zero-delay upper bound (B2)
 
@@ -46,7 +46,7 @@ Table II gives the hit rate of Ours under the zero-delay profile. The gap betwee
 | line | 0.560 | 0.443 | +11.7 |
 | circle | 0.587 | 0.427 | +16.0 |
 | s | 0.186 | 0.121 | +6.5 |
-| accel | 0.815 | 0.755 | +6.0 |
+| accel | 0.359 | 0.214 | +14.5 |
 
 ### D. Ablations
 
@@ -59,7 +59,7 @@ Table III ablates the contributions under the drift profile (the hardest conditi
 | line | 0.443 | 0.106 | 0.061 | 0.435 | 0.420 | 16.9 |
 | circle | 0.427 | 0.277 | 0.230 | 0.423 | 0.410 | 15.9 |
 | s | 0.121 | 0.074 | 0.129 | 0.121 | 0.098 | 54.5 |
-| accel | 0.755 | 0.148 | 0.450 | 0.776 | 0.753 | 11.9 |
+| accel | 0.214 | 0.032 | 0.191 | 0.304 | 0.221 | 38.6 |
 
 ### E. Real-time feasibility
 

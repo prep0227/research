@@ -11,7 +11,7 @@
 
 Vision-based aiming on RoboMaster combat robots is limited by a multi-segment latency chain: camera exposure/readout, detection and pose estimation, serial communication, gimbal actuation, firing delay, and projectile flight. Existing practice uses hand-tuned lead parameters ($Kt+B$) around a Kalman predictor; recent open-source designs apply model predictive control (MPC) to gimbal planning but treat delays as constant parameters and lack controlled evaluation.
 
-Our contribution is a controlled demonstration that online-estimating the time-varying latency chain -- not treating delays as constants -- materially improves hit rate. The framework estimates the two dominant uncertain segments (vision, actuation) online and embeds them in a delay-aware MPC: a multi-model (CV+CT) estimator with out-of-sequence measurement handling generates lead references; a sliding-window latency estimator feeds both the aim horizon and a delay-uncertainty tightening margin into the firing decision; an input-delay-augmented MPC is solved by an ADMM box-constrained QP at $20$ ms control period. On a pre-registered simulation benchmark (four motion classes, three latency profiles, ten seeds), the proposed controller improves hit rate over the community-standard $Kt+B$+PID baseline by 12--67 percentage points ($p<0.01$ in all 12 conditions; 11 of 12 at $p<0.001$) and over a delay-unaware MPC on line, circle, and accelerating motion (up to $+61$ pp under drifting latency). Ablations isolate the contributions of delay modeling, lead prediction, and uncertainty tightening; a zero-delay upper bound quantifies the residual latency cost. The solver meets the real-time requirement ($p99=5.0$ ms $<$ 20 ms). Real-robot validation under this pre-registered protocol (referee-system hit detection) is ongoing.
+Our contribution is a controlled demonstration that online-estimating the time-varying latency chain -- not treating delays as constants -- materially improves hit rate. The framework estimates the two dominant uncertain segments (vision, actuation) online and embeds them in a delay-aware MPC: a multi-model (CV+CT) estimator with out-of-sequence measurement handling generates lead references; a sliding-window latency estimator feeds both the aim horizon and a delay-uncertainty tightening margin into the firing decision; an input-delay-augmented MPC is solved by an ADMM box-constrained QP at $20$ ms control period. On a pre-registered simulation benchmark (four motion classes, three latency profiles, ten seeds), the proposed controller improves hit rate over the community-standard $Kt+B$+PID baseline by 12--42 percentage points ($p<0.01$ in all 12 conditions; 11 of 12 at $p<0.001$) and over a delay-unaware MPC on line, circle, and accelerating motion (9 of 12 conditions, $p<0.05$; up to $+34$ pp under drifting latency). Ablations isolate the contributions of delay modeling, lead prediction, and uncertainty tightening; a zero-delay upper bound quantifies the residual latency cost. The solver meets the real-time requirement ($p99=5.0$ ms $<$ 20 ms). Real-robot validation under this pre-registered protocol (referee-system hit detection) is ongoing.
 
 \textbf{Keywords}: predictive control; visual latency compensation; target tracking; RoboMaster gimbal; delay-aware MPC
 \end{abstract}
@@ -94,7 +94,7 @@ where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arc
 \subsubsection*{A. Setup (pre-registered)}
 
 \begin{itemize}
-\item \textbf{Scenario set}: four target motion classes -- straight line, ground-plane circle, sinusoidal (S) maneuver, and accelerating/cruising/braking motion -- at a nominal speed scale (pre-registered before running).
+\item \textbf{Scenario set}: four target motion classes -- straight line (1.3~m/s), ground-plane circle (0.64~m/s tangential), sinusoidal (S) maneuver (1.0~m/s longitudinal, lateral amplitude 0.9~m at 0.9~rad/s), and accelerating/cruising/braking motion (0.2 $\rightarrow$ 2.0~m/s, cruise at 2.0~m/s, brake to 0.2~m/s) -- pre-registered before running.
 \end{itemize}
 
 \begin{itemize}
@@ -106,18 +106,18 @@ where $\hat v$ is the multi-model speed estimate and $\theta_{\mathrm{hit}}=\arc
 \end{itemize}
 
 \begin{itemize}
-\item \textbf{Common settings}: control period $dt=0.02$~s, episode $T=6$~s, horizon $H=18$ ($0.36$~s), firing delay $\tau_{fire}=0.08$~s, bullet speed $15$~m/s, armor half-width 0.08~m, dispersion 0.008~rad, gimbal limits $\le 6$~rad/s. Measurement noise 3~cm (1$\sigma$). Ten random seeds per condition; paired $t$-test and Cohen's $d$ reported.
+\item \textbf{Common settings}: control period $dt=0.02$~s, episode $T=6$~s, horizon $H=18$ ($0.36$~s), firing delay $\tau_{fire}=0.08$~s, bullet speed $15$~m/s, armor half-width 0.08~m, dispersion 0.008~rad, gimbal limits $\le 6$~rad/s. Measurement noise 3~cm (1$\sigma$), firing cooldown 0.2~s (at most 30 shots/episode; realized shot counts differ by controller, mean 9--25). Ten random seeds per condition; two-sided paired $t$-test and Cohen's $d$ reported.
 \end{itemize}
 
 \subsubsection*{B. Primary results}
 
-Table I reports mean hit rate over ten seeds (Fig.~\ref{fig:hit} visualizes the per-seed distribution; standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg false-discovery-rate control (max $q$=0.002<0.05). Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$=0.591<0.05). On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from 88.9 to 60.4 mrad versus B1 (and 163.9 to 60.4 mrad versus B0), with analogous RMSE reductions on line, circle, and accel (Table S.4).
+Table I reports mean hit rate over ten seeds (Fig.~\ref{fig:hit} visualizes the per-seed distribution; standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 12--42 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 29--42 pp gains on line and circle, 12--21 pp on accel, and 12--13 pp on the S trajectory; all 12 comparisons remain significant after Benjamini--Hochberg false-discovery-rate control (max $q$=0.002<0.05). Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$), and those 9 comparisons survive the same FDR control (max $q$=0.591<0.05). On the S trajectory, Ours is not significantly better than B1 in hit rate ($p>0.05$), an honest limitation discussed in Section VII; pointing-error RMSE under the drift profile nonetheless improves from 88.9 to 60.4 mrad versus B1 (and 163.9 to 60.4 mrad versus B0), with analogous RMSE reductions versus B0 on line, circle, and accel (Table S.4).
 
-Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperforms B0 in all 12 conditions by 12--67~pp ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 28--67~pp gains on line, circle, and accelerating motion and 11--13~pp on the sinusoidal trajectory, and outperforms B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$).
+Table~\ref{tab:primary} reports the mean hit rate over ten seeds. Ours outperforms B0 in all 12 conditions by 12--42~pp ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\\ge1.3$), with 29--42~pp gains on line and circle, 12--21~pp on accelerating motion, and 12--13~pp on the sinusoidal trajectory, and outperforms B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$).
 
 All 12 comparisons versus B0 and all 9 significant comparisons versus B1 remain significant after Benjamini--Hochberg false-discovery-rate control ($q<0.05$).
 
-Under the drift profile, Ours reduces pointing-error RMSE versus B0 from 176.9 to 94.2~mrad (line), 109.5 to 26.2~mrad (circle), 163.9 to 60.4~mrad (S), and 310.6 to 98.6~mrad (accel); on the S trajectory the RMSE also improves from 88.9 to 60.4~mrad versus B1 even though the hit-rate gain is not significant (Table~\ref{tab:rmse}).
+Under the drift profile, Ours reduces pointing-error RMSE versus B0 from 176.9 to 94.2~mrad (line), 109.5 to 26.2~mrad (circle), 163.9 to 60.4~mrad (S), and 309.8 to 149.9~mrad (accel); on the S trajectory the RMSE also improves from 88.9 to 60.4~mrad versus B1 even though the hit-rate gain is not significant (Table~\ref{tab:rmse}).
 
 \begin{table*}[t]\centering\small
 
@@ -147,11 +147,11 @@ s & gamma & 0.021 & 0.115 & 0.154 & +13.3 pp ($p=0.002$, $d$=+1.33) & +4.0 pp ($
 
 s & drift & 0.000 & 0.074 & 0.121 & +12.1 pp ($p<0.001$, $d$=+1.74) & +4.7 pp ($p=0.110$, $d$=+0.56)\\
 
-accel & fixed & 0.095 & 0.409 & 0.761 & +66.6 pp ($p<0.001$, $d$=+5.44) & +35.2 pp ($p<0.001$, $d$=+2.91)\\
+accel & fixed & 0.013 & 0.140 & 0.263 & +25.1 pp ($p<0.001$, $d$=+2.27) & +12.3 pp ($p<0.001$, $d$=+1.65)\\
 
-accel & gamma & 0.134 & 0.408 & 0.773 & +64.0 pp ($p<0.001$, $d$=+3.48) & +36.5 pp ($p<0.001$, $d$=+2.51)\\
+accel & gamma & 0.011 & 0.117 & 0.286 & +27.5 pp ($p<0.001$, $d$=+3.01) & +16.9 pp ($p<0.001$, $d$=+2.09)\\
 
-accel & drift & 0.082 & 0.148 & 0.755 & +67.3 pp ($p<0.001$, $d$=+4.28) & +60.7 pp ($p<0.001$, $d$=+3.97)\\
+accel & drift & 0.000 & 0.032 & 0.214 & +21.4 pp ($p<0.001$, $d$=+2.46) & +18.2 pp ($p<0.001$, $d$=+2.31)\\
 
 \bottomrule\end{tabular}\end{table*}
 Table~\ref{tab:b2} gives the zero-delay upper bound of Ours and the residual gap under the drift profile.
@@ -170,7 +170,7 @@ circle & 0.587 & 0.427 & +16.0\\
 
 s & 0.186 & 0.121 & +6.5\\
 
-accel & 0.815 & 0.755 & +6.0\\
+accel & 0.359 & 0.214 & +14.5\\
 
 \bottomrule\end{tabular}\end{table}
 Table~\ref{tab:abl} ablates the contributions under the drift profile.
@@ -189,7 +189,7 @@ circle & 0.427 & 0.277 & 0.230 & 0.423 & 0.410 & 15.9\\
 
 s & 0.121 & 0.074 & 0.129 & 0.121 & 0.098 & 54.5\\
 
-accel & 0.755 & 0.148 & 0.450 & 0.776 & 0.753 & 11.9\\
+accel & 0.214 & 0.032 & 0.191 & 0.304 & 0.221 & 38.6\\
 
 \bottomrule\end{tabular}\end{table*}
 Table~\ref{tab:rt} reports per-step solver time in Python as a conservative upper bound.
@@ -225,7 +225,7 @@ SLSQP & 0.83 & 0.79 & 1.05 & 1.85 & 3.42 & yes\\
 \item \textbf{Failure condition}: latency measurement below 1 ms precision required; otherwise simulation + hardware-in-the-loop fallback.
 \end{itemize}
 \section*{VI. Discussion and Limitations}
-\textbf{Summary.} The proposed controller improves hit rate over B0 by 12--67 pp in all 12 conditions ($p<0.01$; 11 of 12 at $p<0.001$), and over B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$). Ablations attribute the gain to delay modeling and lead prediction; the zero-delay upper bound quantifies residual latency cost; the ADMM solver meets the 20 ms period (p99=5.0 ms).
+\textbf{Summary.} The proposed controller improves hit rate over B0 by 12--42 pp in all 12 conditions ($p<0.01$; 11 of 12 at $p<0.001$), and over B1 on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$). Ablations attribute the gain to delay modeling and lead prediction; the zero-delay upper bound quantifies residual latency cost; the ADMM solver meets the 20 ms period (p99=5.0 ms).
 
 \textbf{Limitations.} (1) On the sinusoidal trajectory our method is not significantly better than B1 ($p>0.05$); a vehicle-rotation motion model is future work. (2) IMM benefit is scenario-dependent (A4 shows CV is close in our benchmark). (3) Perception noise is idealized (3 cm, no missed detections); real perception and actuator nonlinearities will be characterized in Section V. (4) We do not claim the first MPC gimbal tracking \cite{ref3} or first delay-compensated visual tracking \cite{ref5}\cite{ref6}; the contribution is the explicit time-varying delay modeling, online estimation, and a controlled ablation benchmark on RoboMaster. (5) TJURM mechanical delay magnitudes are single-team estimates; our own profiling (Section V) will replace them.
 
@@ -234,7 +234,7 @@ SLSQP & 0.83 & 0.79 & 1.05 & 1.85 & 3.42 & yes\\
 \textbf{Future work.} Vehicle-rotation motion model; tube/robust MPC replacing the firing-margin heuristic; embedded deployment; real-robot validation (Section V).
 \section*{VII. Conclusion}
 
-We presented a delay-aware predictive control framework for moving-target tracking on RoboMaster-style gimbals, with explicit online estimation of the multi-segment vision/actuation latency chain, an IMM estimator with out-of-sequence measurement handling, an input-delay-augmented MPC solved by a real-time ADMM QP, and a delay-uncertainty-aware firing decision. On a pre-registered simulation benchmark, the proposed controller improved hit rate over the community-standard $Kt+B$+PID baseline by 12--67 percentage points in all 12 conditions ($p<0.01$; 11 of 12 at $p<0.001$), and over a delay-unaware MPC on line, circle, and accelerating motion, with the largest margins over that baseline under drifting latency. Ablations and a zero-delay upper bound substantiate the attribution of the gain to delay modeling and lead prediction. The solver satisfies the 20-ms control period with margin. Real-robot validation and an open benchmark are the next steps toward a complete, reproducible study.
+We presented a delay-aware predictive control framework for moving-target tracking on RoboMaster-style gimbals, with explicit online estimation of the multi-segment vision/actuation latency chain, an IMM estimator with out-of-sequence measurement handling, an input-delay-augmented MPC solved by a real-time ADMM QP, and a delay-uncertainty-aware firing decision. On a pre-registered simulation benchmark, the proposed controller improved hit rate over the community-standard $Kt+B$+PID baseline by 12--42 percentage points in all 12 conditions ($p<0.01$; 11 of 12 at $p<0.001$), and over a delay-unaware MPC on line, circle, and accelerating motion, with the largest margins over that baseline under drifting latency. Ablations and a zero-delay upper bound substantiate the attribution of the gain to delay modeling and lead prediction. The solver satisfies the 20-ms control period with margin. Real-robot validation and an open benchmark are the next steps toward a complete, reproducible study.
 \bibliographystyle{IEEEtran}
 \bibliography{refs}
 

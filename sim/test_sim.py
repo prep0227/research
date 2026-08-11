@@ -17,7 +17,9 @@ def test_trajectories_line():
 def test_trajectories_accel_piecewise():
     from trajectories import make_trajectory
     tr = make_trajectory("accel")
-    # cruise phase velocity should equal v0 + a*ta - a*ta = v0 (per implementation)
+    # intended profile: accel to v_cruise, cruise, decel to v0, rest
+    assert abs(np.linalg.norm(tr.velocity(1.5)) - 2.0) < 1e-9    # cruise at 2.0 m/s
+    assert abs(np.linalg.norm(tr.velocity(4.0)) - 0.2) < 1e-9    # rest at v0=0.2
     v = tr.velocity(5.0)
     assert np.all(np.isfinite(v))
 
