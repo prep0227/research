@@ -94,6 +94,24 @@ def test_replay_end_to_end():
     assert m1["shots"] > 0 and mo["shots"] > 0
     log.unlink(missing_ok=True)
 
+def test_replay_to_stats_pipeline():
+    import subprocess, sys
+    root = pathlib.Path(__file__).resolve().parent.parent
+    log = pathlib.Path("/tmp/replay_stats_test.jsonl")
+    r1 = subprocess.run([sys.executable, "tools/replay/make_synthetic_log.py",
+                         "--scenario", "line", "--delay", "drift", "--out", str(log)],
+                        cwd=str(root), capture_output=True, text=True)
+    assert r1.returncode == 0, r1.stderr
+    r2 = subprocess.run([sys.executable, "tools/replay_to_stats.py",
+                         "--log", str(log), "--method_a", "Ours", "--method_b", "B0",
+                         "--seed", "0", "--round", "test"],
+                        cwd=str(root), capture_output=True, text=True)
+    assert r2.returncode == 0, r2.stderr
+    import json
+    res = json.loads(r2.stdout)
+    assert res["paired_n"] > 0 and "gate_met" in res and "ci95_lower_one_sided_pp" in res
+    log.unlink(missing_ok=True)
+
 def test_real_robot_stats_selftest():
     import subprocess, sys
     r = subprocess.run([sys.executable, "tools/real_robot_stats.py", "--selftest"],

@@ -16,7 +16,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "sim"))
 from run_experiments import build_controller, DelayPair, DT, T, TAU_FIRE, GIMBAL_POS, V_BULLET, ACC_MAX, RATE_MAX, TAU_GIMBAL_NOMINAL, TAU_VISION_NOMINAL, FireState
 from estimator import TargetIMM
 from gimbal import Gimbal
-from metrics import run_metrics
+from metrics import run_metrics, simulate_hits_detailed
 from trajectories import az_el
 
 class TruthTraj:
@@ -87,6 +87,14 @@ def replay(events, controller_name, seed=0, estimator_type="IMM"):
         log.append({"t": t, "gun_dir": gun, "target_azel_true": true_azel, "shot": shot})
     m = run_metrics(log, traj, GIMBAL_POS, TAU_FIRE,
                     lambda t: np.linalg.norm(traj.position(t) - np.asarray(GIMBAL_POS)) / V_BULLET)
+    # per-shot outcomes with a deterministic noise draw (paired evaluation across controllers)
+    shots = [d["shot"] for d in log if d["shot"] is not None]
+    rng = np.random.default_rng(seed)
+    outcomes, _ = simulate_hits_detailed(shots, traj, GIMBAL_POS, TAU_FIRE,
+                                         lambda t: np.linalg.norm(traj.position(t) - np.asarray(GIMBAL_POS)) / V_BULLET,
+                                         rng=rng)
+    m["shot_outcomes"] = outcomes
+    m["shot_times"] = [t for t, _ in shots]
     m["controller"] = controller_name
     return m
 
