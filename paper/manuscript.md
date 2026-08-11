@@ -1,6 +1,6 @@
 # Delay-Aware Predictive Control for Moving-Target Tracking with Explicit Vision-Latency Compensation: A RoboMaster Gimbal Case Study
 
-**Draft v0.5** -- generated from verified simulation artifacts (2026-08-11). Real-robot section pending hardware (Section V).
+**Draft v0.5.4** -- generated from verified simulation artifacts (2026-08-11). Real-robot section pending hardware (Section V).
 
 
 ---
@@ -11,7 +11,7 @@
 
 Vision-based aiming on RoboMaster combat robots is limited by a multi-segment latency chain: camera exposure/readout, detection and pose estimation, serial communication, gimbal actuation, firing delay, and projectile flight. Existing practice uses hand-tuned lead parameters ($Kt+B$) around a Kalman predictor; recent open-source designs apply model predictive control (MPC) to gimbal planning but treat delays as constant parameters and lack controlled evaluation.
 
-We propose a delay-aware predictive control framework that models this latency chain as time-varying and uncertain and estimates it online. The system combines (i) an interacting-multiple-model (IMM) estimator with constant-velocity and constant-turn-rate models and out-of-sequence measurement handling, (ii) a sliding-window online latency estimator that feeds both the aim horizon and a delay-uncertainty tightening margin into the firing decision, and (iii) an input-delay-augmented MPC solved by an ADMM box-constrained QP at a $20$ ms control period. On a pre-registered simulation benchmark (four motion classes, three latency profiles, ten seeds), the proposed controller improves hit rate over the community-standard $Kt+B$+PID baseline by 28--67 percentage points ($p<0.001$) and over a delay-unaware MPC on line, circle, and accelerating motion. Ablations isolate the contributions of delay modeling, lead prediction, and uncertainty tightening; a zero-delay upper bound quantifies the residual latency cost. The solver meets the real-time requirement ($p99=4.9$ ms $<$ 20 ms). Real-robot validation with referee-system hit detection is planned.
+We propose a delay-aware predictive control framework that models this latency chain as time-varying and uncertain and estimates it online. The system combines (i) an interacting-multiple-model (IMM) estimator with constant-velocity and constant-turn-rate models and out-of-sequence measurement handling, (ii) a sliding-window online latency estimator feeding both the aim horizon and a delay-uncertainty tightening margin into the firing decision, and (iii) an input-delay-augmented MPC solved by an ADMM box-constrained QP at a $20$ ms control period. On a pre-registered simulation benchmark (four motion classes, three latency profiles, ten seeds), the proposed controller improves hit rate over the community-standard $Kt+B$+PID baseline by 11--67 percentage points ($p<0.01$ in all 12 conditions; 11 of 12 at $p<0.001$) and over a delay-unaware MPC on line, circle, and accelerating motion (up to $+57$ pp under drifting latency). Ablations isolate the contributions of delay modeling, lead prediction, and uncertainty tightening; a zero-delay upper bound quantifies the residual latency cost. The solver meets the real-time requirement ($p99=4.9$ ms $<$ 20 ms). Real-robot validation with referee-system hit detection is planned.
 
 **Keywords**: predictive control; visual latency compensation; target tracking; RoboMaster gimbal; delay-aware MPC
 
@@ -121,7 +121,7 @@ where $\hat v$ is the IMM speed estimate and $\theta_{\mathrm{hit}}=\arctan(\mat
 
 ### B. Primary results
 
-Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 on **all** trajectory classes and delay profiles by 28--67 percentage points (all $p<0.001$, $d>1.3$), and outperforms B1 on line, circle, and accel (all $p<0.05$ except circle-fixed/gamma vs B1 marginal in v0.2; in the final v0.3 configuration circle is significant at $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
+Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 11--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 11--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
 
 **Table I. Hit rate (mean over 10 seeds) and paired comparisons.**
 
@@ -215,7 +215,7 @@ Figures and tables will be added here when data collection completes (target: W1
 
 ## A. Main findings
 
-The simulation study shows a consistent and large improvement of the proposed delay-aware MPC over the community-standard baseline B0 on all four motion classes and all three latency profiles (28--67 pp, $p<0.001$). Against the delay-unaware MPC B1, the improvement is significant on line, circle, and accelerating motion, and the largest margins appear exactly when latency drifts over time (+29--59 pp on line/circle/accel under drift), which is the regime that motivated online latency estimation. The ablations attribute the gain primarily to the input-delay model (A1) and the lead prediction (A2); delay-uncertainty tightening (A6) provides a small but consistent gain under drift; the IMM vs. CV estimator choice (A4) has little effect in these scenarios.
+The simulation study shows a consistent and large improvement of the proposed delay-aware MPC over the community-standard baseline B0 in all 12 conditions (four motion classes x three latency profiles): 11--67 pp, $p<0.01$ in all, $p<0.001$ in 11 of 12, with 28--67 pp gains on line, circle, and accelerating motion and 11--13 pp on the sinusoidal trajectory. Against the delay-unaware MPC B1, the improvement is significant on line, circle, and accelerating motion (9 of 12 cells, $p<0.05$), and the largest margins over B1 appear exactly when latency drifts over time (+34/+19/+57 pp on line/circle/accel under drift), the regime that motivated online latency estimation. The ablations attribute the gain primarily to the input-delay model (A1) and the lead prediction (A2); delay-uncertainty tightening (A6) provides a small but consistent gain under drift; the IMM vs. CV estimator choice (A4) has little effect in these scenarios.
 
 ## B. Honest limitations
 
@@ -249,7 +249,7 @@ Real vision pipelines occasionally lose detections. We therefore replayed the re
 
 # VII. Conclusion
 
-We presented a delay-aware predictive control framework for moving-target tracking on RoboMaster-style gimbals, with explicit online estimation of the multi-segment vision/actuation latency chain, an IMM estimator with out-of-sequence measurement handling, an input-delay-augmented MPC solved by a real-time ADMM QP, and a delay-uncertainty-aware firing decision. On a pre-registered simulation benchmark, the proposed controller improved hit rate over the community-standard $Kt+B$+PID baseline by 28--67 percentage points ($p<0.001$) across all motion classes and latency profiles, and over a delay-unaware MPC on line, circle, and accelerating motion, with the largest gains under drifting latency. Ablations and a zero-delay upper bound substantiate the attribution of the gain to delay modeling and lead prediction. The solver satisfies the 20-ms control period with margin. Real-robot validation and an open benchmark are the next steps toward a complete, reproducible study.
+We presented a delay-aware predictive control framework for moving-target tracking on RoboMaster-style gimbals, with explicit online estimation of the multi-segment vision/actuation latency chain, an IMM estimator with out-of-sequence measurement handling, an input-delay-augmented MPC solved by a real-time ADMM QP, and a delay-uncertainty-aware firing decision. On a pre-registered simulation benchmark, the proposed controller improved hit rate over the community-standard $Kt+B$+PID baseline by 11--67 percentage points in all 12 conditions ($p<0.01$; 11 of 12 at $p<0.001$), and over a delay-unaware MPC on line, circle, and accelerating motion, with the largest margins over that baseline under drifting latency. Ablations and a zero-delay upper bound substantiate the attribution of the gain to delay modeling and lead prediction. The solver satisfies the 20-ms control period with margin. Real-robot validation and an open benchmark are the next steps toward a complete, reproducible study.
 
 ---
 

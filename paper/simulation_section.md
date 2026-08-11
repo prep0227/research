@@ -16,7 +16,7 @@
 
 ### B. Primary results
 
-Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 on **all** trajectory classes and delay profiles by 28--67 percentage points (all $p<0.001$, $d>1.3$), and outperforms B1 on line, circle, and accel (all $p<0.05$ except circle-fixed/gamma vs B1 marginal in v0.2; in the final v0.3 configuration circle is significant at $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
+Table I reports mean hit rate over ten seeds (standard deviations omitted for readability; effect sizes in Table I). Ours outperforms B0 in all 12 conditions by 11--67 percentage points ($p<0.01$ in all; $p<0.001$ in 11 of 12; Cohen's $d\ge1.3$), with 28--67 pp gains on line, circle, and accel and 11--13 pp on the S trajectory. Ours also outperforms B1 on line, circle, and accel (9 of 12 cells, $p<0.05$). On the S trajectory, Ours is not significantly better than B1 ($p>0.05$), an honest limitation discussed in Section VII.
 
 **Table I. Hit rate (mean over 10 seeds) and paired comparisons.**
 

@@ -190,6 +190,20 @@
       "severity": "INFO",
       "description": "摘要 294→221 词（≤250 IEEE 限制）；Method 开发注释已清理；md+tex 同步。",
       "created_at": "2026-08-11T17:32:00+08:00"
+    },
+    {
+      "id": "warn_data_integrity_fixed",
+      "type": "VERIFICATION",
+      "severity": "INFO",
+      "description": "数据诚信修复（2026-08-11 终审发现）：主结果声明由'28-67pp p<0.001 全部条件'修正为'11-67pp，12/12 p<0.01、11/12 p<0.001、d≥1.3；直线/圆周/变速 28-67pp、S 形 11-13pp；vs B1 drift 下最大 +34/+19/+57pp'；全仓（md/tex/RAL/zh/生成器）同步。",
+      "created_at": "2026-08-11T17:45:00+08:00"
+    },
+    {
+      "id": "warn_unit_tests",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "sim 单元测试套件（9 tests）就绪，CI direct runner 执行；覆盖轨迹/延迟/估计器/控制器/指标/重放。",
+      "created_at": "2026-08-11T17:50:00+08:00"
     }
   ],
   "failures": [],
