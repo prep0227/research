@@ -24,8 +24,10 @@ Each pair [a,b] is the outcome of the same shot index (a=method_a, b=method_b).
 
 Usage:
   python3 tools/real_robot_stats.py --input data.json
+  python3 tools/real_robot_stats.py --input tools/real_robot_stats_example.json   # synthetic example
   python3 tools/real_robot_stats.py --selftest
 """
+See tools/real_robot_stats_example.json for the exact input schema (3 rounds x 300 paired shots).
 import argparse, json, math, pathlib, sys
 
 def mcnemar_exact_one_sided(a, b):

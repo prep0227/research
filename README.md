@@ -20,7 +20,7 @@ uncertainty; hits are scored against a distance-adaptive tolerance while firing 
 | `project/` | Research-agent artifacts: research brief, evidence report, gap/novelty analysis, technical route, experiment protocol (real-robot v1.1), power analysis, audit trail, state machine |
 | `tools/delay_profiler/` | Real-robot latency profiling: timestamp instrumentation templates, `compute_latency_profile.py`, `latency_profile.yaml` |
 | `tools/replay/` | Offline replay harness: event-log schema, replay B0/B1/Ours on the same detection stream, synthetic-log generator |
-| `tools/real_robot_stats.py` | Pre-registered real-robot statistics: paired one-sided McNemar exact test, ≥5pp+p<0.05 gate, one-sided 95% CI lower bound, escalation rule (`--selftest` validates) |
+| `tools/real_robot_stats.py` | Pre-registered real-robot statistics: paired one-sided McNemar exact test, ≥5pp+p<0.05 gate, one-sided 95% CI lower bound, escalation rule (`--selftest` validates; `real_robot_stats_example.json` shows the input schema) |
 | `deploy/cpp/` | Header-only C++17 ADMM MPC solver (`mpc_solver.hpp`) + unit test, for embedded/real-robot porting |
 
 ## Reproduce the simulation
