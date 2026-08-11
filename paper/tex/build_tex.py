@@ -140,6 +140,21 @@ for _sc in ["line", "accel"]:
 T6.append("\\bottomrule\\end{tabular}\\end{table}")
 supp_tab2 = "\n".join(T6)
 
+# --- supplementary delay-estimator accuracy table (from results_delay_estimation.json) --
+DE = json.loads((SIM / "results_delay_estimation.json").read_text(encoding="utf-8"))
+T7 = ["\\begin{table}[t]\\centering",
+      "\\caption{Online delay-estimator accuracy (causal lag-1 estimate, steady state $t\\in[1,6]$~s; protocol secondary metric).}\\label{tab:de}",
+      "\\begin{tabular}{llrrrrrr}",
+      "\\toprule Mode & Segment & True mean (ms) & Bias (ms) & MAE (ms) & RMSE (ms) & P95 abs (ms) & Warm-up (s)\\ \\midrule"]
+for _r in DE:
+    for _seg in ["vision", "gimbal"]:
+        _d = _r[_seg]; _s = _d["lag1"]
+        _wu = f"{_d['warmup_to_5ms_s']:.2f}" if _d["warmup_to_5ms_s"] is not None else ">6"
+        T7.append(f"{_r['mode']} & {_seg} & {_d['mean_true_ms']:.1f} & {_s['bias_ms']:+.2f} & {_s['mae_ms']:.2f} "
+                  f"& {_s['rmse_ms']:.2f} & {_s['p95_ms']:.2f} & {_wu}\\")
+T7.append("\\bottomrule\\end{tabular}\\end{table}")
+supp_tab3 = "\n".join(T7)
+
 # --- sections ----------------------------------------------------------------
 abstract = md2tex(load("abstract.md")).replace("\\section*{Abstract}\n", "")
 intro = md2tex(load("introduction.md"))
@@ -197,6 +212,7 @@ doc = [preamble,
 \section*{Supplementary Material}
 """ + supp_tab + r"""
 """ + supp_tab2 + r"""
+""" + supp_tab3 + r"""
 \section*{Data Availability}
 Code, per-seed results, real-time benchmark, and latency-profiling tooling are available at \url{<repo-url>}.
 \end{document}

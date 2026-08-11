@@ -148,6 +148,20 @@
       "severity": "INFO",
       "description": "投稿就绪包 v2：OVERLEAF.md、video_storyboard.md、checklist 更新（核验项/占位符/页数/CI 绿灯）、CI 增加 sim 冒烟测试。",
       "created_at": "2026-08-11T16:25:00+08:00"
+    },
+    {
+      "id": "warn_delay_est_metric",
+      "type": "MILESTONE",
+      "severity": "INFO",
+      "description": "延迟估计器精度已量化（Table S3）：fixed MAE<0.4ms；gamma 抖动由 Δ_i 覆盖；drift 滞后≈5ms；协议次指标补齐。",
+      "created_at": "2026-08-11T16:45:00+08:00"
+    },
+    {
+      "id": "warn_secV_upgraded",
+      "type": "ARTIFACT",
+      "severity": "INFO",
+      "description": "Section V 升级为协议 v1.1 预注册细节（延迟注入/离线重放/功效分析/升级规则），评审可审阅真机实验设计；manuscript v0.5.3。",
+      "created_at": "2026-08-11T16:50:00+08:00"
     }
   ],
   "failures": [],

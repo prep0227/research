@@ -28,6 +28,10 @@ def _supplementary():
         txt += "\n\n" + read("dropout_section.md")
     except FileNotFoundError:
         pass
+    try:
+        txt += "\n\n" + read("delay_est_section.md")
+    except FileNotFoundError:
+        pass
     txt += """
 ## Data Availability
 
